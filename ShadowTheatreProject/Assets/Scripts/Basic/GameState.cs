@@ -33,6 +33,13 @@ public class GameState : MonoBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // 在游戏开始前，确保游戏逻辑时间暂停（但不影响UI动画）
+            if (currentState == State.MainMenu || currentState == State.GameStart)
+            {
+                // 使用时间缩放为很小的值而不是0，以便UI动画仍能播放
+                Time.timeScale = 0.00001f;
+            }
         }
         else if (instance != this)
         {
@@ -115,13 +122,20 @@ public class GameState : MonoBehaviour
         EventCenter.Instance.Publish(EventNames.STATE_ENTERED + currentState.ToString());
         EventCenter.Instance.Publish(EventNames.STATE_CHANGED);
 
-        // Handle time scale for pause state
+        // Handle time scale for different states
         if (currentState == State.GamePaused)
         {
             Time.timeScale = 0f;
         }
-        else if (previousState == State.GamePaused)
+        else if (currentState == State.MainMenu || currentState == State.GameStart)
         {
+            // 主菜单或游戏开始状态下，保持时间几乎暂停（但不影响UI动画）
+            Time.timeScale = 0.00001f;
+        }
+        else if (currentState == State.Act1 || currentState == State.Act2 ||
+                 currentState == State.Act3 || currentState == State.Curtain)
+        {
+            // 游戏进行中的状态
             Time.timeScale = 1f;
         }
 

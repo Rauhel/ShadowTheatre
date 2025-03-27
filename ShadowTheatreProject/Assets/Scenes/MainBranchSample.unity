@@ -365,7 +365,10 @@ MonoBehaviour:
   camReturnSpeed: 1
   cinemachineCamera: {fileID: 0}
   playerTransform: {fileID: 0}
+<<<<<<< Updated upstream
   isCamReturning: 0
+=======
+>>>>>>> Stashed changes
 --- !u!1 &632984255
 GameObject:
   m_ObjectHideFlags: 0
@@ -1076,10 +1079,13 @@ MonoBehaviour:
   quitButton: {fileID: 1868902051}
   gameTimerText: {fileID: 0}
   startGameFadeDuration: 3
+<<<<<<< Updated upstream
   isGameActive: 0
   isPaused: 0
   gameTimer: 0
   playerInput: {fileID: 0}
+=======
+>>>>>>> Stashed changes
 --- !u!1 &1356082700
 GameObject:
   m_ObjectHideFlags: 3
@@ -1236,7 +1242,10 @@ GameObject:
   - component: {fileID: 1519571758}
   - component: {fileID: 1519571763}
   - component: {fileID: 1519571762}
+<<<<<<< Updated upstream
   - component: {fileID: 1519571764}
+=======
+>>>>>>> Stashed changes
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1342,6 +1351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 539af51f7d40014488d9444e9dbfb871, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+<<<<<<< Updated upstream
   moveSpeed: 5
   acceleration: 8
   deceleration: 10
@@ -1356,6 +1366,15 @@ MonoBehaviour:
   mainCamera: {fileID: 0}
   currentVelocity: {x: 0, y: 0, z: 0}
   targetVelocity: {x: 0, y: 0, z: 0}
+=======
+  accelerate: 10
+  maxSpeed: 50
+  decelerate: 10
+  jumpForce: 5
+  turningSpeed: 5
+  cameraController: {fileID: 620743217}
+  useKeyboardInput: 1
+>>>>>>> Stashed changes
 --- !u!54 &1519571763
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1383,6 +1402,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+<<<<<<< Updated upstream
 --- !u!143 &1519571764
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1409,6 +1429,8 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+=======
+>>>>>>> Stashed changes
 --- !u!1 &1562333755
 GameObject:
   m_ObjectHideFlags: 0
