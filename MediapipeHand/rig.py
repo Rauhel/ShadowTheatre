@@ -1,5 +1,7 @@
 import bpy
 import mathutils
+import bmesh
+import re
 
 def create_vertex_groups(model, armature):
     """为模型创建与骨骼对应的顶点组"""
@@ -13,10 +15,77 @@ def create_vertex_groups(model, armature):
     
     return model.vertex_groups
 
+def detect_finger_bones(armature):
+    """检测骨架中的手指骨骼和它们的命名模式"""
+    # 骨骼名称的常见模式
+    patterns = {
+        'thumb': ['thumb', 'pollex', 'toe', '親指'],
+        'index': ['index', 'fore', '人指'],
+        'middle': ['middle', 'mid', '中指'],
+        'ring': ['ring', '薬指'],
+        'pinky': ['pinky', 'little', '小指']
+    }
+    
+    # 骨骼位置的后缀模式
+    position_patterns = {
+        'mcp': ['mcp', 'metacarpal', '01', '1', 'proximal'],
+        'pip': ['pip', 'middle', '02', '2', 'intermediate'],
+        'dip': ['dip', 'distal', '03', '3'],
+        'tip': ['tip', 'end', '04', '4']
+    }
+    
+    # 结果字典
+    result = {
+        'thumb': [],
+        'index': [],
+        'middle': [],
+        'ring': [],
+        'pinky': []
+    }
+    
+    print("检测到的骨骼:")
+    for bone in armature.pose.bones:
+        bone_name = bone.name.lower()
+        print(f"  - {bone.name}")
+        
+        # 检测是哪个手指
+        for finger, finger_patterns in patterns.items():
+            if any(pattern in bone_name for pattern in finger_patterns):
+                # 检测是哪个关节
+                for position, pos_patterns in position_patterns.items():
+                    if any(pattern in bone_name for pattern in pos_patterns):
+                        if bone.name not in result[finger]:
+                            result[finger].append(bone.name)
+                        break
+                break
+    
+    # 按深度排序每个手指的骨骼 (基于Y坐标，假设Y轴是手指方向)
+    for finger in result:
+        sorted_bones = sorted(result[finger], 
+                           key=lambda name: armature.pose.bones[name].head.y)
+        result[finger] = sorted_bones
+    
+    # 打印检测结果
+    print("\n检测到的手指骨骼结构:")
+    for finger, bones in result.items():
+        print(f"{finger}: {bones}")
+    
+    return result
+
 def auto_weight_hand_model(model, armature, finger_definitions):
     """为手部模型自动分配权重"""
-    # 进入编辑模式
+    # 确保在对象模式
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+    
+    # 取消所有选择
+    bpy.ops.object.select_all(action='DESELECT')
+    
+    # 选择模型并设置为活动对象
+    model.select_set(True)
     bpy.context.view_layer.objects.active = model
+    
+    # 进入编辑模式
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='DESELECT')
     
@@ -42,10 +111,18 @@ def auto_weight_hand_model(model, armature, finger_definitions):
     # 确定手指方向
     finger_direction = mathutils.Vector((0, 1, 0))  # 假设手指沿Y轴正方向
     
-    # 为每个手指分配权重
+    # 获取所有可用的顶点组
     vertex_groups = model.vertex_groups
+    available_groups = [vg.name for vg in vertex_groups]
+    
+    # 创建一个临时字典来存储权重数据
+    # 格式: {vertex_index: {bone_name: weight, ...}, ...}
+    weights_data = {}
     
     for finger_name, bones in finger_definitions.items():
+        if not bones:  # 跳过没有骨骼的手指
+            continue
+            
         # 确定此手指的大致位置和区域
         if finger_name == "thumb":
             # 拇指通常在X轴负方向（假设右手）
@@ -77,10 +154,11 @@ def auto_weight_hand_model(model, armature, finger_definitions):
         # 计算每段骨骼的位置
         bone_positions = []
         for i, bone_name in enumerate(bones):
-            pos = finger_center + finger_direction * (i * bbox_size.y * 0.25)
-            bone_positions.append((bone_name, pos))
+            if bone_name in available_groups:  # 确保顶点组存在
+                pos = finger_center + finger_direction * (i * bbox_size.y * 0.25)
+                bone_positions.append((bone_name, pos))
         
-        # 为每个顶点分配权重
+        # 为每个顶点计算权重
         for v in bm.verts:
             for bone_name, bone_pos in bone_positions:
                 # 计算顶点到骨骼的距离
@@ -91,15 +169,25 @@ def auto_weight_hand_model(model, armature, finger_definitions):
                     # 计算权重 (距离越近权重越大)
                     weight = 1.0 - (dist / radius)
                     
-                    # 分配权重
-                    vgroup = vertex_groups[bone_name]
-                    vgroup.add([v.index], weight, 'REPLACE')
+                    # 存储权重数据
+                    if v.index not in weights_data:
+                        weights_data[v.index] = {}
+                    
+                    # 如果已经有权重，使用较大的值
+                    current_weight = weights_data[v.index].get(bone_name, 0.0)
+                    weights_data[v.index][bone_name] = max(current_weight, weight)
     
     # 更新网格
     bmesh.update_edit_mesh(mesh)
     
     # 返回对象模式
     bpy.ops.object.mode_set(mode='OBJECT')
+    
+    # 应用权重数据
+    for vertex_idx, bones_weights in weights_data.items():
+        for bone_name, weight in bones_weights.items():
+            vgroup = vertex_groups[bone_name]
+            vgroup.add([vertex_idx], weight, 'REPLACE')
 
 def bind_hand_model(model_name, armature_name="RightHand"):
     """将手部模型绑定到骨架"""
@@ -111,20 +199,25 @@ def bind_hand_model(model_name, armature_name="RightHand"):
         print(f"错误：找不到模型 {model_name} 或骨架 {armature_name}")
         return False
     
-    # 定义手指骨骼结构
-    finger_definitions = {
-        "thumb": ["thumb_cmc", "thumb_mcp", "thumb_ip", "thumb_tip"],
-        "index": ["index_mcp", "index_pip", "index_dip", "index_tip"],
-        "middle": ["middle_mcp", "middle_pip", "middle_dip", "middle_tip"],
-        "ring": ["ring_mcp", "ring_pip", "ring_dip", "ring_tip"],
-        "pinky": ["pinky_mcp", "pinky_pip", "pinky_dip", "pinky_tip"]
-    }
+    # 确保在对象模式
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+    
+    # 取消所有选择
+    bpy.ops.object.select_all(action='DESELECT')
+    
+    # 选择模型并设置为活动对象
+    model.select_set(True)
+    bpy.context.view_layer.objects.active = model
+    
+    # 重置模型变换 (避免变形问题)
+    bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    
+    # 检测骨架中的骨骼结构
+    finger_definitions = detect_finger_bones(armature)
     
     # 创建顶点组
     create_vertex_groups(model, armature)
-    
-    # 导入bmesh模块(仅在函数内使用，避免全局导入)
-    import bmesh
     
     # 分配权重
     auto_weight_hand_model(model, armature, finger_definitions)
@@ -154,10 +247,22 @@ def bind_hand_model(model_name, armature_name="RightHand"):
 
 def create_hand_rotation_animation(armature_name="RightHand"):
     """修改骨骼动画为旋转控制而非位置控制"""
+    # 获取骨架对象
     armature = bpy.data.objects.get(armature_name)
     if not armature:
         print(f"错误：找不到骨架 {armature_name}")
         return False
+    
+    # 确保在对象模式
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+    
+    # 取消所有选择
+    bpy.ops.object.select_all(action='DESELECT')
+    
+    # 选择骨架并设置为活动对象
+    armature.select_set(True)
+    bpy.context.view_layer.objects.active = armature
     
     # 获取所有关键帧
     keyframes = set()
@@ -171,6 +276,9 @@ def create_hand_rotation_animation(armature_name="RightHand"):
         print("没有找到关键帧")
         return False
     
+    # 检测骨架中的骨骼结构
+    finger_definitions = detect_finger_bones(armature)
+    
     # 设置骨骼旋转模式为四元数
     for bone in armature.pose.bones:
         bone.rotation_mode = 'QUATERNION'
@@ -179,20 +287,17 @@ def create_hand_rotation_animation(armature_name="RightHand"):
     for frame in keyframes:
         bpy.context.scene.frame_set(frame)
         
-        # 进入姿势模式
+        # 确保骨架是活动对象
         bpy.context.view_layer.objects.active = armature
+        
+        # 进入姿势模式
         bpy.ops.object.mode_set(mode='POSE')
         
-        # 修改每个手指的骨骼连接
-        for finger in ["thumb", "index", "middle", "ring", "pinky"]:
-            bones = []
-            
-            # 收集此手指的所有骨骼
-            if finger == "thumb":
-                bones = ["thumb_cmc", "thumb_mcp", "thumb_ip"]
-            else:
-                bones = [f"{finger}_mcp", f"{finger}_pip", f"{finger}_dip"]
-            
+        # 对每个手指应用旋转
+        for finger, bones in finger_definitions.items():
+            if len(bones) < 2:  # 需要至少两个骨骼才能计算旋转
+                continue
+                
             # 计算骨骼之间的旋转
             for i in range(len(bones)-1):
                 parent_bone = armature.pose.bones.get(bones[i])
@@ -225,5 +330,48 @@ def create_hand_rotation_animation(armature_name="RightHand"):
     return True
 
 # 用法示例
-# bind_hand_model("YourHandModel", "RightHand") # 替换为您的模型名称
-# create_hand_rotation_animation("RightHand")   # 如果需要转换为旋转动画
+if __name__ == "__main__":
+    # 确保在对象模式
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+    
+    # 查找手部模型和骨架
+    hand_model = bpy.data.objects.get("Hand")
+    right_hand_armature = bpy.data.objects.get("RightHand")
+    
+    if hand_model and right_hand_armature:
+        print(f"找到模型: {hand_model.name} 和骨架: {right_hand_armature.name}")
+        
+        # 执行绑定
+        bind_hand_model(hand_model.name, right_hand_armature.name)
+        
+        # 可选：转换为旋转动画
+        # 如果要运行此功能，请取消下面一行的注释
+        # create_hand_rotation_animation(right_hand_armature.name)
+        
+        print("操作完成")
+    else:
+        if not hand_model:
+            print(f"错误: 未找到模型 'Hand'")
+        if not right_hand_armature:
+            print(f"错误: 未找到骨架 'RightHand'")
+        
+        # 回退到查找活动对象
+        active_obj = bpy.context.active_object
+        if active_obj and active_obj.type == 'MESH':
+            print(f"使用活动模型: {active_obj.name}")
+            
+            # 查找任何骨架对象
+            armature_obj = None
+            for obj in bpy.data.objects:
+                if obj.type == 'ARMATURE':
+                    armature_obj = obj
+                    break
+            
+            if armature_obj:
+                print(f"找到骨架: {armature_obj.name}")
+                bind_hand_model(active_obj.name, armature_obj.name)
+            else:
+                print("错误: 场景中没有骨架对象")
+        else:
+            print("错误: 请先选择一个网格模型")

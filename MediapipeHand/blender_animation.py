@@ -30,6 +30,15 @@ HAND_BONES_MAPPING = {
     "pinky_tip": 20,
 }
 
+# MediaPipe关键点连接
+HAND_CONNECTIONS = [
+    (0, 1), (1, 2), (2, 3), (3, 4),         # 拇指
+    (0, 5), (5, 6), (6, 7), (7, 8),         # 食指
+    (0, 9), (9, 10), (10, 11), (11, 12),    # 中指
+    (0, 13), (13, 14), (14, 15), (15, 16),  # 环指
+    (0, 17), (17, 18), (18, 19), (19, 20)   # 小指
+]
+
 def load_tracking_data(json_path):
     try:
         with open(json_path, 'r') as f:
@@ -108,6 +117,10 @@ def create_finger_bones(armature, finger_name, parent_bone, num_bones):
         # 设置父骨骼
         bone.parent = prev_bone
         
+        # 如果不是第一个骨骼，则连接到父骨骼
+        if i > 0:
+            bone.use_connect = True
+        
         bones.append(bone)
         prev_bone = bone
     
@@ -151,8 +164,19 @@ def convert_mediapipe_to_blender(mp_x, mp_y, mp_z, scale=3.0):
     """
     blender_x = mp_x * scale
     blender_y = mp_z * scale  # MediaPipe z -> Blender y (翻转)
-    blender_z = mp_y * scale  # MediaPipe y -> Blender z (翻转)
+    blender_z = -mp_y * scale  # MediaPipe y -> Blender z (翻转)
     return mathutils.Vector((blender_x, blender_y, blender_z))
+
+def calculate_bone_rotation(start_pos, end_pos, rest_direction=mathutils.Vector((0, 1, 0))):
+    """计算骨骼的旋转四元数，以便它指向目标位置"""
+    direction = (end_pos - start_pos).normalized()
+    
+    # 避免零向量
+    if direction.length < 0.001:
+        return mathutils.Quaternion()
+    
+    # 计算从休息状态到目标方向的旋转
+    return rest_direction.rotation_difference(direction)
 
 def apply_tracking_data(armature, tracking_data):
     # 首先，清除所有现有的骨架和标记
@@ -183,10 +207,15 @@ def apply_tracking_data(armature, tracking_data):
     right_armature = create_hand_armature("RightHand")
     
     # 为两个骨架添加关节标记
-    left_markers = add_joint_markers(left_armature, marker_size=0.03, marker_color=(0, 0.7, 1, 1))  # 蓝色标记
-    right_markers = add_joint_markers(right_armature, marker_size=0.03, marker_color=(1, 0.3, 0.3, 1))  # 红色标记
+    left_markers = add_joint_markers(left_armature, marker_size=0.02, marker_color=(0, 0.7, 1, 1))  # 蓝色标记
+    right_markers = add_joint_markers(right_armature, marker_size=0.02, marker_color=(1, 0.3, 0.3, 1))  # 红色标记
     
-    # 对于每一帧
+    # 设置骨骼动画方式为四元数
+    for armature in [left_armature, right_armature]:
+        for bone in armature.pose.bones:
+            bone.rotation_mode = 'QUATERNION'
+    
+    # 对每个关键帧应用动画数据
     for frame_idx, frame_data in enumerate(frames):
         bpy.context.scene.frame_set(frame_idx)
         
@@ -194,17 +223,6 @@ def apply_tracking_data(armature, tracking_data):
         if "hands" not in frame_data or len(frame_data["hands"]) == 0:
             continue
         
-        # 记录左右手位置，保持相对位置关系
-        left_hand_data = None
-        right_hand_data = None
-        
-        # 首先找出左右手数据
-        for hand_data in frame_data["hands"]:
-            if hand_data["handedness"] == "Left":
-                left_hand_data = hand_data
-            else:
-                right_hand_data = hand_data
-            
         # 处理该帧中的每只手
         for hand_idx, hand_data in enumerate(frame_data["hands"]):
             handedness = hand_data["handedness"]
@@ -216,73 +234,115 @@ def apply_tracking_data(armature, tracking_data):
             # 获取手腕位置作为整个手的基准位置
             wrist_landmark = landmarks[0]  # 手腕是索引0
             
-            # 这里调整坐标映射，保持实际比例
-            scale_factor = 3  # 可调整的缩放因子
+            # 设置整个骨架的位置
             wrist_position = convert_mediapipe_to_blender(
                 wrist_landmark["x"], 
                 wrist_landmark["y"], 
                 wrist_landmark["z"], 
-                scale=scale_factor
+                scale=5.0  # 增大缩放比例以放大动作
             )
             
-            # 设置整个骨架的位置
             target_armature.location = wrist_position
             target_armature.keyframe_insert(data_path="location", frame=frame_idx)
             
-            # 设置骨骼位置
-            target_armature.select_set(True)
+            # 进入姿态模式以设置骨骼变换
             bpy.context.view_layer.objects.active = target_armature
             bpy.ops.object.mode_set(mode='POSE')
             
-            # 对于每个骨骼，根据映射设置其位置
-            for bone_name, landmark_idx in HAND_BONES_MAPPING.items():
-                if bone_name in target_armature.pose.bones:
-                    landmark = landmarks[landmark_idx]
+            # 更新骨骼位置
+            # 对于每个手指部分，获取关键点和对应的骨骼
+            for connection in HAND_CONNECTIONS:
+                start_idx, end_idx = connection
+                
+                if start_idx >= len(landmarks) or end_idx >= len(landmarks):
+                    continue
+                
+                # 找到这个连接对应的骨骼名称
+                bone_name = None
+                for name, idx in HAND_BONES_MAPPING.items():
+                    if idx == end_idx:
+                        bone_name = name
+                        break
+                
+                if bone_name is None or bone_name not in target_armature.pose.bones:
+                    continue
+                
+                # 获取骨骼的本地坐标
+                start_landmark = landmarks[start_idx]
+                end_landmark = landmarks[end_idx]
+                
+                start_pos = convert_mediapipe_to_blender(
+                    start_landmark["x"], 
+                    start_landmark["y"], 
+                    start_landmark["z"], 
+                    scale=5.0
+                )
+                
+                end_pos = convert_mediapipe_to_blender(
+                    end_landmark["x"], 
+                    end_landmark["y"], 
+                    end_landmark["z"], 
+                    scale=5.0
+                )
+                
+                # 计算相对于手腕的位置
+                start_pos = start_pos - wrist_position
+                end_pos = end_pos - wrist_position
+                
+                # 获取骨骼
+                pose_bone = target_armature.pose.bones[bone_name]
+                
+                # 使用局部旋转来定位骨骼
+                if pose_bone.parent:
+                    # 把世界坐标向量转为局部坐标系
+                    parent_mat = pose_bone.parent.matrix.inverted()
+                    start_pos_local = parent_mat @ start_pos
+                    end_pos_local = parent_mat @ end_pos
                     
-                    # 计算相对于手腕的位置
-                    # 这样可以保持手指的正确姿势，同时整个手的位置由armature.location决定
-                    rel_pos = convert_mediapipe_to_blender(
-                        landmark["x"] - wrist_landmark["x"],
-                        landmark["y"] - wrist_landmark["y"],
-                        landmark["z"] - wrist_landmark["z"],
-                        scale=scale_factor
-                    )
+                    # 计算相对旋转
+                    local_dir = (end_pos_local - start_pos_local).normalized()
+                    rest_dir = mathutils.Vector((0, 1, 0))
                     
-                    # 设置骨骼位置
-                    target_armature.pose.bones[bone_name].location = rel_pos
-                    
-                    # 添加关键帧
-                    target_armature.pose.bones[bone_name].keyframe_insert(data_path="location", frame=frame_idx)
+                    if local_dir.length > 0.001:
+                        pose_bone.rotation_quaternion = rest_dir.rotation_difference(local_dir)
+                        pose_bone.keyframe_insert(data_path="rotation_quaternion", frame=frame_idx)
+                        
+                        # 对于指尖，还需要设置骨骼尺度以匹配实际长度
+                        if bone_name.endswith("_tip"):
+                            bone_length = (end_pos_local - start_pos_local).length
+                            rest_length = 0.05  # 骨骼的基础长度
+                            if bone_length > 0.01:  # 避免缩放太小
+                                scale_factor = bone_length / rest_length
+                                pose_bone.scale.y = scale_factor
+                                pose_bone.keyframe_insert(data_path="scale", frame=frame_idx)
             
+            # 退出姿态模式
             bpy.ops.object.mode_set(mode='OBJECT')
-        
+    
     print(f"动画已应用于 {len(frames)} 帧，并添加了可视化标记")
     
     # 调整视图
     bpy.ops.view3d.view_all(center=True)
 
 def main():
-    # 尝试多个可能的路径
-    possible_paths = [
-        r"D:\College\Game\ShadowTheatre\MediapipeHand\hand_tracking_data.json",  # 绝对路径
-        "hand_tracking_data.json"  # 相对路径
-    ]
-    
-    json_path = None
-    for path in possible_paths:
-        print(f"检查路径: {path}")
-        if os.path.exists(path):
-            json_path = path
-            print(f"找到文件: {path}")
-            break
-    
-    if json_path is None:
-        print("警告: 无法找到JSON文件，使用默认路径")
-        json_path = r"D:\College\Game\ShadowTheatre\MediapipeHand\hand_tracking_data.json"
-    
     try:
+        # 首先尝试使用绝对路径
+        json_path = r"D:\College\Game\ShadowTheatre\MediapipeHand\hand_tracking_data.json"
+        
+        # 加载跟踪数据并应用到骨骼
         tracking_data = load_tracking_data(json_path)
         apply_tracking_data(None, tracking_data)
+        
+        # 设置一些渲染选项
+        for area in bpy.context.screen.areas:
+            if area.type == 'VIEW_3D':
+                for space in area.spaces:
+                    if space.type == 'VIEW_3D':
+                        space.shading.type = 'MATERIAL'
+                        space.overlay.show_floor = True
+        
+        print("手部动画创建成功！每个手指都应该已经正确动起来了！")
+        
     except Exception as e:
         print(f"发生错误: {e}")
         # 错误提示
