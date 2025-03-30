@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|c:\\users\\chenmengyuan\\documents\\github\\shadowtheatre\\shadowtheatreproject\\assets\\scripts\\npc\\npcactionlogic-scenechange.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\npc\\npcactionlogic-scenechange.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "NPCActionLogic-SceneChange.cs",
+              "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
+              "ToolTip": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
+              "RelativeToolTip": "Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
+              "ViewState": "AgIAAA8AAAAAAAAAAAApwBsAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T09:12:07.269Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
