@@ -1,12 +1,69 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|c:\\users\\chenmengyuan\\documents\\github\\shadowtheatre\\shadowtheatreproject\\assets\\scripts\\npc\\scenechangetest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\npc\\scenechangetest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\assets\\scripts\\npc\\npcactionlogic-scenechange.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\npc\\npcactionlogic-scenechange.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\assets\\scripts\\npc\\manager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\npc\\manager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "NPCActionLogic-SceneChange.cs",
+              "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
+              "ToolTip": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
+              "RelativeToolTip": "Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
+              "ViewState": "AgIAAEMAAAAAAAAAAAAUwFUAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T10:44:28.099Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Manager.cs",
+              "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\Manager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\NPC\\Manager.cs",
+              "ToolTip": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\Manager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\NPC\\Manager.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAcwKEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T10:37:24.516Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "SceneChangeTest1.cs",
+              "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\SceneChangeTest1.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\NPC\\SceneChangeTest1.cs",
+              "ToolTip": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\SceneChangeTest1.cs",
+              "RelativeToolTip": "Assets\\Scripts\\NPC\\SceneChangeTest1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-30T10:20:44.068Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
