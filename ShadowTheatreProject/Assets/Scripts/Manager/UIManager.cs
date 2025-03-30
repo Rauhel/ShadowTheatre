@@ -11,24 +11,29 @@ public class UIManager : MonoBehaviour
     public GameObject pauseMenuPanel;     // 暂停面板
     public GameObject hudPanel;           // 游戏中的HUD面板
 
-    [Header("按钮")]
-    public Button startGameButton;        // 开始游戏按钮
-    public Button continueButton;         // 继续按钮
+    [Header("主菜单按钮")]
+    public Button mouseControlButton;     // 鼠标控制按钮（同时作为开始游戏按钮）
+    public Button gestureControlButton;   // 手势控制按钮（同时作为开始游戏按钮）
     public Button quitButton;             // 退出按钮
+    
+    [Header("暂停菜单按钮")]
+    public Button continueButton;         // 继续按钮
+    public Button pauseQuitButton;        // 暂停界面的退出按钮
 
     [Header("文本")]
     public TextMeshProUGUI gameTimerText; // 游戏时间文本
+    public TextMeshProUGUI inputMethodText; // 显示当前选择的输入方式（HUD上）
 
     [Header("设置")]
     public float startGameFadeDuration = 3f; // 开始游戏提示的淡出时间
 
     // 内部状态
     private bool isGameActive = false;    // 游戏是否活跃
-    private bool isPaused = false;        // 游戏是否暂停（仅暂停玩家控制，不暂停时间）
+    private bool isPaused = false;        // 游戏是否暂停
     private float gameTimer = 0f;         // 游戏计时器
 
-    // 玩家输入组件引用
-    private PlayerInput playerInput;
+    // 输入管理器引用
+    private InputManager inputManager;
 
     private void Awake()
     {
@@ -38,23 +43,18 @@ public class UIManager : MonoBehaviour
         if (pauseMenuPanel) pauseMenuPanel.SetActive(false);
         if (hudPanel) hudPanel.SetActive(false);
 
-        // 查找场景中的玩家输入组件
-        playerInput = FindObjectOfType<PlayerInput>();
-
-        // 初始时禁用玩家常规输入，但允许鼠标点击
-        if (playerInput != null)
-        {
-            playerInput.SetKeyboardInputEnabled(false);
-            playerInput.SetClickInputEnabled(true);
-        }
+        // 查找InputManager
+        inputManager = InputManager.Instance;
     }
 
     private void Start()
     {
         // 设置按钮监听器
-        if (startGameButton) startGameButton.onClick.AddListener(OnStartGameClicked);
+        if (mouseControlButton) mouseControlButton.onClick.AddListener(OnMouseControlClicked);
+        if (gestureControlButton) gestureControlButton.onClick.AddListener(OnGestureControlClicked);
         if (continueButton) continueButton.onClick.AddListener(OnContinueClicked);
         if (quitButton) quitButton.onClick.AddListener(OnQuitClicked);
+        if (pauseQuitButton) pauseQuitButton.onClick.AddListener(OnQuitClicked); // 暂停界面的退出按钮
 
         // 订阅全局事件
         EventCenter.Instance.Subscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act1, OnGameFirstActStarted);
@@ -88,8 +88,28 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // 点击开始游戏按钮
-    private void OnStartGameClicked()
+    // 点击鼠标控制按钮 - 设置鼠标控制并开始游戏
+    private void OnMouseControlClicked()
+    {
+        // 启用鼠标控制
+        EnableMouseControl();
+        
+        // 开始游戏
+        StartGame();
+    }
+
+    // 点击手势控制按钮 - 设置手势控制并开始游戏
+    private void OnGestureControlClicked()
+    {
+        // 启用手势控制
+        EnableGestureControl();
+        
+        // 开始游戏
+        StartGame();
+    }
+    
+    // 开始游戏流程
+    private void StartGame()
     {
         if (mainMenuPanel) mainMenuPanel.SetActive(false);
         if (startGamePanel) startGamePanel.SetActive(true);
@@ -152,23 +172,33 @@ public class UIManager : MonoBehaviour
         {
             // 显示暂停菜单
             if (pauseMenuPanel) pauseMenuPanel.SetActive(true);
-
-            // 暂停玩家控制
-            if (playerInput != null)
+            
+            // 游戏暂停逻辑
+            Time.timeScale = 0f;
+            
+            // 暂停时显示当前控制方式
+            if (inputManager != null && inputMethodText != null)
             {
-                playerInput.enabled = false;
+                string controlMethod = "当前控制: 未知";
+                
+                if (inputManager.IsUsingMouseInput())
+                    controlMethod = "当前控制: 鼠标";
+                else if (inputManager.IsUsingGestureInput())
+                    controlMethod = "当前控制: 手势";
+                
+                // 尝试在暂停菜单中找到文本组件显示控制方式
+                TextMeshProUGUI pauseInputText = pauseMenuPanel.GetComponentInChildren<TextMeshProUGUI>(true);
+                if (pauseInputText)
+                    pauseInputText.text = controlMethod;
             }
         }
         else
         {
             // 隐藏暂停菜单
             if (pauseMenuPanel) pauseMenuPanel.SetActive(false);
-
-            // 恢复玩家控制
-            if (playerInput != null)
-            {
-                playerInput.enabled = true;
-            }
+            
+            // 游戏恢复逻辑
+            Time.timeScale = 1f;
         }
     }
 
@@ -178,14 +208,84 @@ public class UIManager : MonoBehaviour
         TogglePauseMenu();
     }
 
-    // 点击退出按钮
+    // 点击退出按钮 - 适用于主菜单和暂停菜单
     private void OnQuitClicked()
     {
+        // 如果游戏已经开始并且是从暂停菜单退出，可以先回到主菜单
+        if (isGameActive && isPaused)
+        {
+            // 可选：添加确认对话框
+            ReturnToMainMenu();
+        }
+        else
+        {
+            // 直接退出游戏
+            QuitGame();
+        }
+    }
+    
+    // 退出游戏
+    private void QuitGame()
+    {
 #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
+        UnityEditor.EditorApplication.isPlaying = false;
 #else
         Application.Quit();
 #endif
+    }
+    
+    // 返回主菜单
+    private void ReturnToMainMenu()
+    {
+        // 恢复时间缩放
+        Time.timeScale = 1f;
+        
+        // 重置状态
+        isGameActive = false;
+        isPaused = false;
+        
+        // 隐藏游戏UI
+        if (pauseMenuPanel) pauseMenuPanel.SetActive(false);
+        if (hudPanel) hudPanel.SetActive(false);
+        
+        // 显示主菜单
+        if (mainMenuPanel) mainMenuPanel.SetActive(true);
+        
+        // 重置游戏状态
+        GameState.Instance.ChangeState(GameState.State.MainMenu);
+        
+        // 通知游戏回到主菜单
+        EventCenter.Instance.Publish("ReturnToMainMenu");
+    }
+
+    // 启用鼠标控制
+    private void EnableMouseControl()
+    {
+        if (inputManager != null)
+        {
+            inputManager.SetInputMethod(true, false);
+            
+            // 更新HUD上的输入方式显示
+            if (inputMethodText) 
+                inputMethodText.text = "控制方式: 鼠标";
+            
+            Debug.Log("已切换到鼠标控制模式");
+        }
+    }
+
+    // 启用手势控制
+    private void EnableGestureControl()
+    {
+        if (inputManager != null)
+        {
+            inputManager.SetInputMethod(false, true);
+            
+            // 更新HUD上的输入方式显示
+            if (inputMethodText) 
+                inputMethodText.text = "控制方式: 手势识别";
+            
+            Debug.Log("已切换到手势控制模式，等待外部系统提供手势数据");
+        }
     }
 
     // 游戏第一幕开始的事件处理
@@ -193,21 +293,13 @@ public class UIManager : MonoBehaviour
     {
         Debug.Log("第一幕开始，UI管理器响应！");
         isGameActive = true;
-
-        // 启用玩家输入
-        if (playerInput != null)
-        {
-            playerInput.SetKeyboardInputEnabled(true);
-            // 保留鼠标点击功能
-            playerInput.SetClickInputEnabled(true);
-        }
     }
 
     // 游戏暂停的事件处理
     private void OnGamePaused()
     {
-        // 注意：此处我们可能不需要特殊处理，因为我们设计的暂停系统不暂停游戏时间
-        Debug.Log("游戏暂停，但时间继续流动");
+        Debug.Log("游戏暂停");
+        // 如果需要额外的暂停处理逻辑，可以在这里添加
     }
 
     // 当场景销毁时取消订阅事件
@@ -215,6 +307,9 @@ public class UIManager : MonoBehaviour
     {
         EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act1, OnGameFirstActStarted);
         EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.GamePaused, OnGamePaused);
+        
+        // 确保退出时恢复时间缩放
+        Time.timeScale = 1f;
     }
 
     // 公共方法：重置游戏时间

@@ -1,85 +1,126 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Cinemachine;
 
 public class CameraController : MonoBehaviour
 {
-    [Header("摄像机参数")]
-    public float mouseSensitivityX = 2f;
-    public float mouseSensitivityY = 100.0f;
-    public bool invertMouseX = false;
-    public bool invertMouseY = false;
-    public Vector2 pitchMinMax = new Vector2(-40, 85);
-    public float camReturnSpeed = 1f;
-
-    [Header("引用")]
-    public CinemachineFreeLook cinemachineCamera;
-    public Transform playerTransform;
-
-    private bool isCamReturning;
-
-    void Start()
+    [Header("Target Settings")]
+    [SerializeField] private Transform target;
+    [SerializeField] private Vector3 offset = new Vector3(0, 10, -10);
+    
+    [Header("Follow Settings")]
+    [SerializeField] private float smoothSpeed = 0.125f;
+    [SerializeField] private bool lookAtTarget = true;
+    
+    [Header("Camera Boundaries")]
+    [SerializeField] private bool useBounds = false;
+    [SerializeField] private float minX = -10f;
+    [SerializeField] private float maxX = 10f;
+    [SerializeField] private float minZ = -10f;
+    [SerializeField] private float maxZ = 10f;
+    
+    [Header("Advanced Settings")]
+    [SerializeField] private bool useScreenEdgePanning = false;
+    [SerializeField] private float edgePanSpeed = 5f;
+    [SerializeField] private float edgeMargin = 20f;
+    
+    private Vector3 targetPosition;
+    
+    private void Start()
     {
-        // 初始化虚拟相机
-        if (cinemachineCamera != null)
+        // If no target is assigned, try to find the player
+        if (target == null)
         {
-            cinemachineCamera.m_YAxis.Value = 0;
-            cinemachineCamera.gameObject.SetActive(true);
-        }
-
-        // 如果没有指定玩家变换，尝试查找
-        if (playerTransform == null)
-        {
-            PlayerInput playerInput = FindObjectOfType<PlayerInput>();
-            if (playerInput != null)
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
             {
-                playerTransform = playerInput.transform;
+                target = player.transform;
+            }
+            else
+            {
+                Debug.LogWarning("CameraController: No target assigned and no Player tag found.");
             }
         }
-    }
-
-    void Update()
-    {
-        if (cinemachineCamera == null) return;
-
-        // 设置鼠标灵敏度
-        cinemachineCamera.m_YAxis.m_MaxSpeed = mouseSensitivityY;
-        cinemachineCamera.m_XAxis.m_MaxSpeed = mouseSensitivityX * 100f;
-        cinemachineCamera.m_YAxis.m_InvertInput = invertMouseY;
-        cinemachineCamera.m_XAxis.m_InvertInput = invertMouseX;
-
-        // 鼠标右键回到主视角
-        if (Input.GetMouseButtonDown(1))
+        
+        // Set initial position
+        if (target != null)
         {
-            isCamReturning = true;
-            cinemachineCamera.m_YAxis.m_MaxSpeed = 0;
-            cinemachineCamera.m_YAxis.Value = 0;
-        }
-
-        if (isCamReturning && playerTransform != null)
-        {
-            Vector3 cameraForward = GetCameraForwardOnGround();
-            if (Vector3.Angle(cameraForward, playerTransform.forward) < 5f)
-            {
-                isCamReturning = false;
-                cinemachineCamera.m_YAxis.m_MaxSpeed = mouseSensitivityY;
-                return;
-            }
-
-            float rotationDirection = Vector3.Dot(Vector3.Cross(cameraForward, playerTransform.forward), Vector3.up) > 0 ? 1 : -1;
-            cinemachineCamera.m_XAxis.Value += camReturnSpeed * rotationDirection * Time.deltaTime * 100;
+            transform.position = target.position + offset;
         }
     }
-
-    // 获取摄像机在地面上的前向投影
-    public Vector3 GetCameraForwardOnGround()
+    
+    private void LateUpdate()
     {
-        if (cinemachineCamera == null) return Vector3.forward;
-
-        Vector3 cameraForwardWorld = (cinemachineCamera.State.FinalOrientation.normalized * Vector3.forward).normalized;
-        Vector3 forwardOnGround = Vector3.ProjectOnPlane(cameraForwardWorld, Vector3.up).normalized;
-
-        return forwardOnGround;
+        if (target == null)
+            return;
+            
+        // Calculate the target position
+        targetPosition = target.position + offset;
+        
+        // Handle screen edge panning if enabled
+        if (useScreenEdgePanning)
+        {
+            ApplyScreenEdgePanning();
+        }
+        
+        // Apply bounds if enabled
+        if (useBounds)
+        {
+            targetPosition.x = Mathf.Clamp(targetPosition.x, minX, maxX);
+            targetPosition.z = Mathf.Clamp(targetPosition.z, minZ, maxZ);
+        }
+        
+        // Smooth follow
+        Vector3 smoothedPosition = Vector3.Lerp(transform.position, targetPosition, smoothSpeed * Time.deltaTime * 10f);
+        transform.position = smoothedPosition;
+        
+        // Make the camera look at the target
+        if (lookAtTarget)
+        {
+            transform.LookAt(target);
+        }
+    }
+    
+    private void ApplyScreenEdgePanning()
+    {
+        Vector3 panDirection = Vector3.zero;
+        
+        // Check screen edges
+        if (Input.mousePosition.x < edgeMargin)
+            panDirection.x -= 1;
+        else if (Input.mousePosition.x > Screen.width - edgeMargin)
+            panDirection.x += 1;
+            
+        if (Input.mousePosition.y < edgeMargin)
+            panDirection.z -= 1;
+        else if (Input.mousePosition.y > Screen.height - edgeMargin)
+            panDirection.z += 1;
+            
+        // Apply panning
+        if (panDirection != Vector3.zero)
+        {
+            // Transform direction to world space based on camera orientation
+            Vector3 worldDirection = transform.TransformDirection(panDirection.normalized);
+            worldDirection.y = 0; // Keep movement on the horizontal plane
+            
+            // Add to target position
+            targetPosition += worldDirection * edgePanSpeed * Time.deltaTime;
+        }
+    }
+    
+    // Visual debugging
+    private void OnDrawGizmosSelected()
+    {
+        if (useBounds)
+        {
+            Gizmos.color = Color.yellow;
+            Vector3 center = new Vector3((minX + maxX) / 2, transform.position.y, (minZ + maxZ) / 2);
+            Vector3 size = new Vector3(maxX - minX, 0.1f, maxZ - minZ);
+            Gizmos.DrawWireCube(center, size);
+        }
+        
+        if (target != null)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(transform.position, target.position);
+        }
     }
 }
