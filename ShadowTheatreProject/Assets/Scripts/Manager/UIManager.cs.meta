@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 715b133927d97794c8b4eeb55c6c36b6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - mainMenuPanel: {instanceID: 0}
+  - startGamePanel: {instanceID: 0}
+  - pauseMenuPanel: {instanceID: 0}
+  - hudPanel: {instanceID: 0}
+  - mouseControlButton: {instanceID: 0}
+  - gestureControlButton: {instanceID: 0}
+  - quitButton: {instanceID: 0}
+  - continueButton: {instanceID: 0}
+  - gameTimerText: {instanceID: 0}
+  - inputMethodText: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

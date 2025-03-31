@@ -28,7 +28,6 @@ public class SoundManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject);
 
             // 初始化音频播放器
             InitializeBGMPlayers();
@@ -53,11 +52,27 @@ public class SoundManager : MonoBehaviour
 
     private void Start()
     {
+        // 检查音频列表
+        if (MyMusicList == null || MyMusicList.Count == 0)
+        {
+            Debug.LogWarning("音乐列表为空，无法播放背景音乐");
+            MyMusicList = new List<AudioClip>();
+        }
+
+        if (MySFXList == null || MySFXList.Count == 0)
+        {
+            Debug.LogWarning("音效列表为空");
+            MySFXList = new List<AudioClip>();
+        }
+
         // 订阅场景加载事件
         SceneManager.sceneLoaded += OnSceneLoaded;
 
-        // 播放默认背景音乐
-        PlayMusic(0, true, true, 1.0f);
+        // 只有当音乐列表不为空时才播放默认背景音乐
+        if (MyMusicList.Count > 0)
+        {
+            PlayMusic(0, true, true, 1.0f);
+        }
 
         // Try to find player
         FindPlayer();
