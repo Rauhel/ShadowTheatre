@@ -125,6 +125,7 @@ public class GameState : MonoBehaviour
         // Handle time scale for different states
         if (currentState == State.GamePaused)
         {
+            // 暂停状态将时间缩放设置为0（完全暂停）
             Time.timeScale = 0f;
         }
         else if (currentState == State.MainMenu || currentState == State.GameStart)
@@ -135,7 +136,7 @@ public class GameState : MonoBehaviour
         else if (currentState == State.Act1 || currentState == State.Act2 ||
                  currentState == State.Act3 || currentState == State.Curtain)
         {
-            // 游戏进行中的状态
+            // 游戏进行中的状态，确保时间正常流动
             Time.timeScale = 1f;
         }
 
@@ -207,5 +208,11 @@ public class GameState : MonoBehaviour
     public float GetTimeInCurrentState()
     {
         return Time.time - stateStartTime;
+    }
+
+    // 确保应用程序退出时恢复时间缩放
+    private void OnApplicationQuit()
+    {
+        Time.timeScale = 1f;
     }
 }

@@ -132,20 +132,20 @@ public class UIManager : MonoBehaviour
             TextMeshProUGUI startText = startGamePanel.GetComponentInChildren<TextMeshProUGUI>();
             if (startText != null)
             {
-                // 淡入效果
+                // 淡入效果 - 使用unscaledDeltaTime不受时间缩放影响
                 Color textColor = startText.color;
-                for (float t = 0; t < 1; t += Time.deltaTime)
+                for (float t = 0; t < 1; t += Time.unscaledDeltaTime)
                 {
                     textColor.a = Mathf.Lerp(0, 1, t);
                     startText.color = textColor;
                     yield return null;
                 }
 
-                // 显示一段时间
-                yield return new WaitForSeconds(1f);
+                // 显示一段时间 - 使用真实时间不受时间缩放影响
+                yield return new WaitForSecondsRealtime(1f);
 
-                // 淡出效果
-                for (float t = 0; t < 1; t += Time.deltaTime / startGameFadeDuration)
+                // 淡出效果 - 使用unscaledDeltaTime不受时间缩放影响
+                for (float t = 0; t < 1; t += Time.unscaledDeltaTime / startGameFadeDuration)
                 {
                     textColor.a = Mathf.Lerp(1, 0, t);
                     startText.color = textColor;
@@ -177,8 +177,10 @@ public class UIManager : MonoBehaviour
             // 显示暂停菜单
             if (pauseMenuPanel) pauseMenuPanel.SetActive(true);
 
-            // 游戏暂停逻辑
-            Time.timeScale = 0f;
+            // 通知游戏状态管理器
+            GameState.Instance.PauseGame();
+            
+            // 游戏暂停逻辑 - 但不改变时间缩放，由GameState管理
 
             // 暂停时显示当前控制方式
             if (inputManager != null && inputMethodText != null)
@@ -201,8 +203,10 @@ public class UIManager : MonoBehaviour
             // 隐藏暂停菜单
             if (pauseMenuPanel) pauseMenuPanel.SetActive(false);
 
-            // 游戏恢复逻辑
-            Time.timeScale = 1f;
+            // 通知游戏状态管理器恢复
+            GameState.Instance.ResumeGame();
+            
+            // 游戏恢复逻辑 - 不需要在这里设置时间缩放
         }
     }
 
@@ -241,9 +245,6 @@ public class UIManager : MonoBehaviour
     // 返回主菜单
     private void ReturnToMainMenu()
     {
-        // 恢复时间缩放
-        Time.timeScale = 1f;
-
         // 重置状态
         isGameActive = false;
         isPaused = false;
@@ -311,9 +312,6 @@ public class UIManager : MonoBehaviour
     {
         EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act1, OnGameFirstActStarted);
         EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.GamePaused, OnGamePaused);
-
-        // 确保退出时恢复时间缩放
-        Time.timeScale = 1f;
     }
 
     // 公共方法：重置游戏时间
