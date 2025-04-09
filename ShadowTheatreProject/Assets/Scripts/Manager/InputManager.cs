@@ -2,6 +2,16 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
+public enum ShadowType
+{
+    None,
+    Bird,   // 鸟 - A键
+    Deer,   // 鹿 - S键
+    Wolf,   // 狼 - D键
+    Sheep,  // 羊 - F键
+    Goose   // 鹅 - G键
+}
+
 public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
@@ -23,6 +33,9 @@ public class InputManager : MonoBehaviour
     // 输入状态
     private Vector3 currentPointerPosition;
     private bool isPointerActive = false;
+
+    // 当前选择的阴影类型
+    private ShadowType currentShadowType = ShadowType.None;
 
     // 手势数据
     [System.Serializable]
@@ -104,6 +117,7 @@ public class InputManager : MonoBehaviour
         if (useMouseInput)
         {
             UpdateMouseInput();
+            CheckAnimalKeyInput();
         }
 
         // 手势模式下的调试支持
@@ -112,8 +126,6 @@ public class InputManager : MonoBehaviour
             Debug.LogWarning("手势模式已启用但未收到数据");
             // 可以添加临时的数据模拟或回退到鼠标输入
         }
-
-
     }
 
     private void UpdateMouseInput()
@@ -128,6 +140,57 @@ public class InputManager : MonoBehaviour
                 currentPointerPosition = ray.GetPoint(distance);
             }
         }
+    }
+
+    // 检测动物类型按键输入
+    private void CheckAnimalKeyInput()
+    {
+        // 只在鼠标模式下检测键盘输入
+        if (!useMouseInput) return;
+
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            SetShadowType(ShadowType.Bird);
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            SetShadowType(ShadowType.Deer);
+        }
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            SetShadowType(ShadowType.Wolf);
+        }
+        else if (Input.GetKeyDown(KeyCode.F))
+        {
+            SetShadowType(ShadowType.Sheep);
+        }
+        else if (Input.GetKeyDown(KeyCode.G))
+        {
+            SetShadowType(ShadowType.Goose);
+        }
+    }
+
+    // 设置当前阴影类型并通知PlayerManager
+    public void SetShadowType(ShadowType type)
+    {
+        currentShadowType = type;
+        Debug.Log($"阴影类型已更改为: {type}");
+
+        // 通知PlayerManager
+        if (PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.SetCurrentShadowType(type);
+        }
+        else
+        {
+            Debug.LogWarning("PlayerManager实例不存在，无法更新阴影类型");
+        }
+    }
+
+    // 获取当前阴影类型
+    public ShadowType GetCurrentShadowType()
+    {
+        return currentShadowType;
     }
 
     /// <summary>
@@ -385,7 +448,7 @@ public class InputManager : MonoBehaviour
     {
         Vector2 mappedPos = MapGesturePositionToScreen(testPosition);
         Debug.Log($"测试映射: 输入=({testPosition.x}, {testPosition.y}), 映射后=({mappedPos.x}, {mappedPos.y})");
-        
+
         // 可选：临时更新手势数据
         UpdateGestureData("test", testPosition, 1.0f);
     }
@@ -393,7 +456,7 @@ public class InputManager : MonoBehaviour
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying || !useGestureInput) return;
-        
+
         // 绘制当前手势位置的可视化
         if (isPointerActive && mainCamera != null)
         {
@@ -403,7 +466,7 @@ public class InputManager : MonoBehaviour
             Vector3 screenPosWorld = mainCamera.ScreenToWorldPoint(
                 new Vector3(mappedScreenPos.x, mappedScreenPos.y, 10));
             Gizmos.DrawSphere(screenPosWorld, 0.1f);
-            
+
             // 绘制实际指针位置
             Gizmos.color = Color.green;
             Gizmos.DrawSphere(currentPointerPosition, 0.15f);
