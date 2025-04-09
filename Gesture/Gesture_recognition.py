@@ -2,16 +2,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import socket
-
-"""
-类的初始化：__init__ 方法接收 host、port 和 auto_connect 三个参数，默认情况下自动连接到本地 IP 127.0.0.1 的端口 5000。
-连接方法：connect 方法用于初始化 UDP 套接字并建立连接。
-断开连接方法：disconnect 方法用于关闭套接字、释放摄像头资源并销毁所有窗口。
-手势识别方法：hand_position 方法用于执行手势识别任务，在执行前会检查是否已经连接。
-
-在HandPosition中，暂且用识别到手部的第五个点确定player的位置，之后再根据手势识别精确度等修改算法。
-
-"""
+import time
 
 class GestureRecognition:
     def __init__(self, host='127.0.0.1', port=5000, auto_connect=True):
@@ -59,6 +50,10 @@ class GestureRecognition:
                 min_detection_confidence=0.5,
                 min_tracking_confidence=0.5) as hands:
 
+            # 使用 last_hand_detected_time 变量来记录最后一次检测到手的时间，
+            # 在每次检测到手时更新该时间。如果检测不到手的时间超过 5s，则在控制台输出消息。
+            last_hand_detected_time = time.time()
+
             while self.cap.isOpened():
                 success, image = self.cap.read()
                 if not success:
@@ -71,16 +66,27 @@ class GestureRecognition:
                 results = hands.process(image_rgb)
 
                 if results.multi_hand_landmarks:
+                    last_hand_detected_time = time.time()
                     for hand_idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
-                        # 获取第五个关键点的信息
-                        landmark_5 = hand_landmarks.landmark[4]  # 索引4代表第五个关键点
-                        x = float(landmark_5.x)
-                        y = float(landmark_5.y)
-                        z = float(landmark_5.z)
-                        confidence = 0.9  # 假设置信度为0.9
+                        # 获取所有关键点的坐标
+                        landmarks = []
+                        for landmark in hand_landmarks.landmark:
+                            x = int(landmark.x * image.shape[1])
+                            y = int(landmark.y * image.shape[0])
+                            landmarks.append((x, y))
+
+                        # 计算中点位置，用中点位置确定手影的位置。
+                        x_coords = [point[0] for point in landmarks]
+                        y_coords = [point[1] for point in landmarks]
+                        mid_x = int(np.mean(x_coords))
+                        mid_y = int(np.mean(y_coords))
+
+                        # 这里需要替换为实际的手影识别代码
+                        # 假设使用一个函数 hand_shadow_recognition 来识别手影
+                        hand_shadow_type = self.hand_shadow_recognition(landmarks)
 
                         # 格式化消息
-                        message = f"point|{x}|{y}|{confidence}|depth:{z}"
+                        message = f"{hand_shadow_type}|{mid_x}|{mid_y}|0.9"
 
                         # 发送消息
                         self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
@@ -90,6 +96,16 @@ class GestureRecognition:
                             image, hand_landmarks, mp_hands.HAND_CONNECTIONS,
                             mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
                             mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2))
+                else:
+                    # 检测不到手的时间超过5s
+                    if time.time() - last_hand_detected_time > 5:
+                        print("屏幕中5s检测不到手")
+                        last_hand_detected_time = time.time()
+                    # 识别不出手影，认为是Point类型
+                    mid_x = image.shape[1] // 2
+                    mid_y = image.shape[0] // 2
+                    message = f"Point|{mid_x}|{mid_y}|0.9"
+                    self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
 
                 # 显示结果
                 cv2.imshow('MediaPipe Hands', image)
@@ -99,6 +115,11 @@ class GestureRecognition:
         if self.cap:
             self.cap.release()
             cv2.destroyAllWindows()
+
+    def hand_shadow_recognition(self, landmarks):
+        # 这里需要替换为实际的手影识别代码
+        # 目前只是简单返回Point类型
+        return "Point"
 
 
 if __name__ == "__main__":
