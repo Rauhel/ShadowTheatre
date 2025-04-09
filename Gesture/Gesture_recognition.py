@@ -5,7 +5,7 @@ import socket
 import time
 
 class GestureRecognition:
-    def __init__(self, host='127.0.0.1', port=5000, auto_connect=True):
+    def __init__(self, host='127.0.0.1', port=8000, auto_connect=True):
         self.host = host
         self.port = port
         self.sock = None
@@ -18,8 +18,12 @@ class GestureRecognition:
         try:
             # 初始化UDP套接字
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            # 不绑定本地地址，因为我们只是发送方
             self.is_connected = True
-            print(f"GestureRecognition: 成功连接并开始监听端口 {self.port}")
+            # 测试发送一条消息
+            test_message = "test|0.5|0.5|1.0|depth:0.0"
+            self.sock.sendto(test_message.encode('utf-8'), (self.host, self.port))
+            print(f"GestureRecognition: 成功连接并向{self.host}:{self.port}发送测试消息")
         except Exception as e:
             print(f"GestureRecognition: 连接错误 - {e}")
 
@@ -40,6 +44,10 @@ class GestureRecognition:
 
         # 打开摄像头
         self.cap = cv2.VideoCapture(0)
+        # 检查摄像头是否成功打开
+        if not self.cap.isOpened():
+            print("错误：无法打开摄像头")
+            return
 
         # 设置MediaPipe参数 - 增加max_num_hands为2确保检测双手
         mp_hands = mp.solutions.hands
