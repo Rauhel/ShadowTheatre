@@ -410,4 +410,15 @@ public class InputManager : MonoBehaviour
         }
     }
 #endif
+    public GestureData CurrentGesture
+{
+    get { return currentGesture; }
+}
+
+    public bool IsGestureValid(Vector2 gesturePosition)
+    {
+        // 示例逻辑：检查手势位置是否在屏幕范围内
+        return gesturePosition.x >= 0 && gesturePosition.x <= 1 &&
+               gesturePosition.y >= 0 && gesturePosition.y <= 1;
+    }
 }

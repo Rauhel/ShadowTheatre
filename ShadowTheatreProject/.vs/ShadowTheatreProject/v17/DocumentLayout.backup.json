@@ -3,16 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|c:\\users\\chenmengyuan\\documents\\github\\shadowtheatre\\shadowtheatreproject\\assets\\scripts\\npc\\scenechangetest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\assets\\scripts\\manager\\inputmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\manager\\inputmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|c:\\users\\chenmengyuan\\documents\\github\\shadowtheatre\\shadowtheatreproject\\assets\\scripts\\npc\\npcmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\npc\\npcmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\assets\\scripts\\npc\\scenechangetest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\npc\\scenechangetest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\assets\\scripts\\npc\\npcactionlogic-scenechange.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\npc\\npcactionlogic-scenechange.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\assets\\scripts\\npc\\bird.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\npc\\bird.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\assets\\scripts\\npc\\manager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\npc\\manager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\assets\\scripts\\npc\\deer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B0AF7111-6F4F-E4EB-3DB3-E07E3A75F04E}|Assembly-CSharp.csproj|solutionrelative:assets\\scripts\\npc\\deer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,35 +30,61 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "NPCActionLogic-SceneChange.cs",
-              "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
-              "ToolTip": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
-              "RelativeToolTip": "Assets\\Scripts\\NPC\\NPCActionLogic-SceneChange.cs",
-              "ViewState": "AgIAAEMAAAAAAAAAAAAUwFUAAAAMAAAAAAAAAA==",
+              "DocumentIndex": 4,
+              "Title": "Deer.cs",
+              "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\Deer.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\NPC\\Deer.cs",
+              "ToolTip": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\Deer.cs",
+              "RelativeToolTip": "Assets\\Scripts\\NPC\\Deer.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAADwv04AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-30T10:44:28.099Z"
+              "WhenOpened": "2025-04-15T08:14:24.641Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Manager.cs",
-              "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\Manager.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\NPC\\Manager.cs",
-              "ToolTip": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\Manager.cs",
-              "RelativeToolTip": "Assets\\Scripts\\NPC\\Manager.cs",
-              "ViewState": "AgIAAD4AAAAAAAAAAAAcwKEAAAABAAAAAAAAAA==",
+              "DocumentIndex": 3,
+              "Title": "Bird.cs",
+              "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\Bird.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\NPC\\Bird.cs",
+              "ToolTip": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\Bird.cs",
+              "RelativeToolTip": "Assets\\Scripts\\NPC\\Bird.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEcAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-30T10:37:24.516Z"
+              "WhenOpened": "2025-04-11T13:29:27.884Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "NPCManager.cs",
+              "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\NPCManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\NPC\\NPCManager.cs",
+              "ToolTip": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\NPCManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\NPC\\NPCManager.cs",
+              "ViewState": "AgIAANsAAAAAAAAAAAAewOUAAAAxAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-11T13:29:02.017Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "InputManager.cs",
+              "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\Manager\\InputManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Manager\\InputManager.cs",
+              "ToolTip": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\Manager\\InputManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Manager\\InputManager.cs",
+              "ViewState": "AgIAAJkBAAAAAAAAAAAAAKYBAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-03T13:25:44.915Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "SceneChangeTest1.cs",
               "DocumentMoniker": "C:\\Users\\ChenMengyuan\\Documents\\GitHub\\ShadowTheatre\\ShadowTheatreProject\\Assets\\Scripts\\NPC\\SceneChangeTest1.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\NPC\\SceneChangeTest1.cs",
@@ -58,8 +92,7 @@
               "RelativeToolTip": "Assets\\Scripts\\NPC\\SceneChangeTest1.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-30T10:20:44.068Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-30T10:20:44.068Z"
             }
           ]
         }
