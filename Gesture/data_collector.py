@@ -189,7 +189,9 @@ if __name__ == "__main__":
     
     # 定义要收集的手势 - (手势名称, 是否双手)
     gestures = [
-        ("Bird", True),  # 双手手势
+        #("Bird", True),  # 双手手势
+        ("Deer", False),  # 单手手势
+        #("Wolf", False),  # 单手手势
     ]
     
     for gesture_name, is_two_hands in gestures:

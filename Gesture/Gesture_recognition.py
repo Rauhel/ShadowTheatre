@@ -5,6 +5,7 @@ import socket
 import time
 import pickle
 import json
+import os
 
 class GestureRecognition:
     def __init__(self, host='127.0.0.1', port=8000, auto_connect=True):
@@ -54,22 +55,46 @@ class GestureRecognition:
     def load_gesture_models(self):
         """加载双模型系统"""
         try:
+            # 获取当前文件夹的绝对路径
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            
             # 加载单手模型
-            with open("gesture_model_single_hand.pkl", 'rb') as f:
-                self.single_hand_model = pickle.load(f)
+            single_hand_path = os.path.join(current_dir, "gesture_model_single_hand.pkl")
+            if os.path.exists(single_hand_path):
+                with open(single_hand_path, 'rb') as f:
+                    self.single_hand_model = pickle.load(f)
+                print("成功加载单手模型")
+            else:
+                print(f"单手模型文件不存在: {single_hand_path}")
+                self.single_hand_model = None
             
             # 加载双手模型
-            with open("gesture_model_two_hands.pkl", 'rb') as f:
-                self.two_hands_model = pickle.load(f)
+            two_hands_path = os.path.join(current_dir, "gesture_model_two_hands.pkl")
+            if os.path.exists(two_hands_path):
+                with open(two_hands_path, 'rb') as f:
+                    self.two_hands_model = pickle.load(f)
+                print(f"成功加载双手模型")
+            else:
+                print(f"双手模型文件不存在: {two_hands_path}")
+                self.two_hands_model = None
             
             # 加载手势类型信息
-            with open("gesture_model_hand_types.json", 'r') as f:
-                self.hand_type_dict = json.load(f)
+            hand_types_path = os.path.join(current_dir, "gesture_model_hand_types.json")
+            if os.path.exists(hand_types_path):
+                with open(hand_types_path, 'r') as f:
+                    self.hand_type_dict = json.load(f)
+                print("成功加载手势类型信息")
+            else:
+                print(f"手势类型文件不存在: {hand_types_path}")
+                self.hand_type_dict = {}
             
-            print(f"成功加载手势识别模型:")
-            print(f"单手手势: {self.single_hand_model.classes_}")
-            print(f"双手手势: {self.two_hands_model.classes_}")
-            return True
+            # 显示加载结果
+            if hasattr(self, 'single_hand_model') and self.single_hand_model:
+                print(f"单手手势: {self.single_hand_model.classes_}")
+            if hasattr(self, 'two_hands_model') and self.two_hands_model:
+                print(f"双手手势: {self.two_hands_model.classes_}")
+            
+            return (self.single_hand_model is not None or self.two_hands_model is not None)
         except Exception as e:
             print(f"加载手势模型失败: {e}")
             self.single_hand_model = None
@@ -117,40 +142,8 @@ class GestureRecognition:
                 if results.multi_hand_landmarks:
                     last_hand_detected_time = time.time()
                     
-                    # 单独处理每只手
-                    if hand_count == 1:
-                        # 单手手势识别
-                        hand_landmarks = results.multi_hand_landmarks[0]
-                        
-                        # 获取所有关键点的坐标
-                        landmarks = []
-                        for landmark in hand_landmarks.landmark:
-                            x = int(landmark.x * image.shape[1])
-                            y = int(landmark.y * image.shape[0])
-                            landmarks.append((x, y))
-                        
-                        # 单手识别
-                        gesture_type = self.recognize_single_hand(landmarks)
-                        
-                        # 计算中点位置
-                        mid_x = int(np.mean([point[0] for point in landmarks]))
-                        mid_y = int(np.mean([point[1] for point in landmarks]))
-                        
-                        # 发送消息
-                        message = f"{gesture_type}|{mid_x}|{mid_y}|0.9"
-                        self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
-                        
-                        # 可视化
-                        mp_drawing.draw_landmarks(
-                            image, hand_landmarks, mp_hands.HAND_CONNECTIONS,
-                            mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
-                            mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2))
-                        
-                        # 显示识别结果
-                        cv2.putText(image, f"单手: {gesture_type}", (10, 30), 
-                                   cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                    
-                    elif hand_count == 2:
+                    # 优先检测双手，所以先处理双手情况
+                    if hand_count == 2:
                         # 尝试识别双手手势
                         hand1_landmarks = results.multi_hand_landmarks[0]
                         hand2_landmarks = results.multi_hand_landmarks[1]
@@ -168,7 +161,7 @@ class GestureRecognition:
                             y = int(landmark.y * image.shape[0])
                             landmarks2.append((x, y))
                         
-                        # 优先识别双手手势，降低置信度阈值
+                        # 优先识别双手手势
                         two_hands_gesture = self.recognize_two_hands(landmarks1, landmarks2)
                         
                         # 添加调试信息
@@ -189,8 +182,35 @@ class GestureRecognition:
                             cv2.putText(image, f"双手: {two_hands_gesture}", (10, 30), 
                                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                         else:
-                            # 省略单手回退逻辑...
-                            pass
+                            # 如果双手识别失败，尝试分别识别单手
+                            gesture1 = self.recognize_single_hand(landmarks1)
+                            gesture2 = self.recognize_single_hand(landmarks2)
+                            
+                            # 如果至少有一只手能够识别
+                            if gesture1 != "Unknown" or gesture2 != "Unknown":
+                                # 选择识别成功的一只手
+                                if gesture1 != "Unknown":
+                                    gesture_type = gesture1
+                                    mid_x = int(np.mean([p[0] for p in landmarks1]))
+                                    mid_y = int(np.mean([p[1] for p in landmarks1]))
+                                else:
+                                    gesture_type = gesture2
+                                    mid_x = int(np.mean([p[0] for p in landmarks2]))
+                                    mid_y = int(np.mean([p[1] for p in landmarks2]))
+                                
+                                # 发送单手识别结果
+                                message = f"{gesture_type}|{mid_x}|{mid_y}|0.9"
+                                self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
+                                
+                                # 显示识别结果
+                                cv2.putText(image, f"手势: {gesture_type}", (10, 30), 
+                                           cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                            else:
+                                # 如果两只手都无法识别，则返回Unknown
+                                mid_x = image.shape[1] // 2
+                                mid_y = image.shape[0] // 2
+                                message = f"Unknown|{mid_x}|{mid_y}|0.9"
+                                self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
                         
                         # 可视化两只手
                         for hand_landmarks in results.multi_hand_landmarks:
@@ -198,6 +218,43 @@ class GestureRecognition:
                                 image, hand_landmarks, mp_hands.HAND_CONNECTIONS,
                                 mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
                                 mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2))
+                    
+                    # 单独处理单手情况
+                    elif hand_count == 1:
+                        # 单手手势识别
+                        hand_landmarks = results.multi_hand_landmarks[0]
+                        
+                        # 获取所有关键点的坐标
+                        landmarks = []
+                        for landmark in hand_landmarks.landmark:
+                            x = int(landmark.x * image.shape[1])
+                            y = int(landmark.y * image.shape[0])
+                            landmarks.append((x, y))
+                        
+                        # 单手识别
+                        gesture_type = self.recognize_single_hand(landmarks)
+                        
+                        # 计算中点位置
+                        mid_x = int(np.mean([point[0] for point in landmarks]))
+                        mid_y = int(np.mean([point[1] for point in landmarks]))
+                        
+                        # 如果无法识别，返回Unknown
+                        if gesture_type == "Unknown":
+                            gesture_type = "Unknown"
+                        
+                        # 发送消息
+                        message = f"{gesture_type}|{mid_x}|{mid_y}|0.9"
+                        self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
+                        
+                        # 可视化
+                        mp_drawing.draw_landmarks(
+                            image, hand_landmarks, mp_hands.HAND_CONNECTIONS,
+                            mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
+                            mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2))
+                        
+                        # 显示识别结果
+                        cv2.putText(image, f"单手: {gesture_type}", (10, 30), 
+                                   cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 else:
                     # 检测不到手的时间超过5s
                     if time.time() - last_hand_detected_time > 5:
@@ -207,7 +264,7 @@ class GestureRecognition:
                     # 默认点
                     mid_x = image.shape[1] // 2
                     mid_y = image.shape[0] // 2
-                    message = f"Point|{mid_x}|{mid_y}|0.9"
+                    message = f"Unknown|{mid_x}|{mid_y}|0.9"
                     self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
 
                 # 显示结果
@@ -218,12 +275,11 @@ class GestureRecognition:
             if self.cap:
                 self.cap.release()
                 cv2.destroyAllWindows()
-                ''''''
 
     def recognize_single_hand(self, landmarks):
         """单手手势识别"""
         if not hasattr(self, 'single_hand_model') or self.single_hand_model is None:
-            return "Unknown"
+            return self.rule_based_recognition(landmarks)  # 使用规则识别作为后备
         
         # 将坐标转换为模型所需格式
         features = []
@@ -243,8 +299,10 @@ class GestureRecognition:
             
             # 如果置信度较低，返回Unknown
             if confidence < 0.6:
+                print(f"单手手势置信度过低: {gesture} ({confidence:.2f})")
                 return "Unknown"
             
+            print(f"识别到单手手势: {gesture} (置信度: {confidence:.2f})")
             return gesture
         except Exception as e:
             print(f"单手识别错误: {e}")
@@ -256,9 +314,18 @@ class GestureRecognition:
             print("错误: 未加载双手模型")
             return "Unknown"  # 没有双手模型
         
+        # 输出可识别的手势类型进行调试
+        if hasattr(self, 'two_hands_model') and hasattr(self.two_hands_model, 'classes_'):
+            print(f"可识别的手势类型: {self.two_hands_model.classes_}")
+        
         # 将两手坐标转换为模型所需格式
         features = []
         img_h, img_w = 480, 640
+        
+        # 检查关键点数量
+        if len(landmarks1) < 21 or len(landmarks2) < 21:
+            print(f"警告: 关键点不足21个 (手1: {len(landmarks1)}, 手2: {len(landmarks2)})")
+            return "Unknown"
         
         # 第一只手特征
         for x, y in landmarks1:
@@ -272,13 +339,29 @@ class GestureRecognition:
             norm_y = y / img_h
             features.extend([norm_x, norm_y, 0.0])
         
+        # 检查特征向量长度
+        expected_length = 21 * 3 * 2  # 21个关键点 * 3坐标 * 2只手
+        if len(features) != expected_length:
+            print(f"警告: 特征向量长度不匹配 (预期: {expected_length}, 实际: {len(features)})")
+        
         # 预测手势
         try:
-            gesture = self.two_hands_model.predict([features])[0]
-            confidence = max(self.two_hands_model.predict_proba([features])[0])
+            # 获取概率分布
+            probabilities = self.two_hands_model.predict_proba([features])[0]
             
-            # 降低双手手势的置信度阈值
-            if confidence < 0.4:  # 改为0.4
+            # 输出所有类别的概率
+            for i, gesture_class in enumerate(self.two_hands_model.classes_):
+                print(f"  {gesture_class}: {probabilities[i]:.4f}")
+            
+            gesture = self.two_hands_model.predict([features])[0]
+            confidence = max(probabilities)
+            
+            # 如果置信度可疑地高
+            if confidence > 0.99:
+                print("警告: 置信度异常高，可能模型过拟合")
+                
+            # 如果置信度太低，返回Unknown
+            if confidence < 0.6:
                 print(f"双手手势置信度过低: {gesture} ({confidence:.2f})")
                 return "Unknown"
             
@@ -286,6 +369,8 @@ class GestureRecognition:
             return gesture
         except Exception as e:
             print(f"双手识别错误: {e}")
+            import traceback
+            traceback.print_exc()  # 打印详细错误信息
             return "Unknown"
 
     def hand_shadow_recognition(self, landmarks):
