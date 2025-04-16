@@ -34,14 +34,14 @@ public class Bird : MonoBehaviour
             // 0-15秒跟随鹿
             if (isFollowingDeer && !isFollowingPlayer)
             {
-                if (deer.IsDeerStaying())
+                if (deer != null && deer.IsDeerStaying())
                 {
-                    // 鹿停下，鸟也停下
+                    // 鹿正在停留，鸟也停留
                     return;
                 }
-                else
+                else if (deer != null)
                 {
-                    // 跟随鹿移动
+                    // 鹿在移动，鸟跟随鹿
                     transform.position = Vector3.MoveTowards(transform.position, deer.GetCurrentPosition(), followSpeed * Time.deltaTime);
                 }
             }
