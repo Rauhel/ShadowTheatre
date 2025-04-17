@@ -27,6 +27,9 @@ public class InputManager : MonoBehaviour
     private Vector3 currentPointerPosition;
     private bool isPointerActive = false;
 
+    // 手部检测状态
+    private bool handDetected = true;
+
     // 手势数据
     [System.Serializable]
     public class GestureData
@@ -40,6 +43,7 @@ public class InputManager : MonoBehaviour
     // 手势事件
     public event Action<GestureData> OnGestureUpdated;
     public event Action<string, float> OnGestureTypeReceived;
+    public event Action<bool> OnHandDetectionChanged;
 
     private GestureData currentGesture = new GestureData();
 
@@ -135,7 +139,36 @@ public class InputManager : MonoBehaviour
     public void UpdateGestureData(string type, Vector2 rawPosition, float confidence = 1.0f, Dictionary<string, float> additionalData = null)
     {
         useGestureInput = true;
-        isPointerActive = true;
+
+        // 检查是否是手部检测状态消息
+        if (type == "HandDetectionStatus")
+        {
+            // 解析状态值
+            bool newHandDetectedState = false;
+            if (additionalData != null && additionalData.ContainsKey("detected"))
+            {
+                newHandDetectedState = additionalData["detected"] > 0.5f;
+            }
+            else if (confidence > 0.5f) // 使用confidence作为备用
+            {
+                newHandDetectedState = true;
+            }
+
+            // 仅当状态变化时触发事件
+            if (newHandDetectedState != handDetected)
+            {
+                handDetected = newHandDetectedState;
+                Debug.Log($"[InputManager] 手部检测状态变更: {(handDetected ? "检测到手" : "未检测到手")}");
+                OnHandDetectionChanged?.Invoke(handDetected);
+            }
+
+            // 更新指针活跃状态
+            isPointerActive = handDetected;
+            return;
+        }
+
+        // 其他情况下，只有检测到手时才保持指针活跃
+        isPointerActive = handDetected;
 
         // 保存原始数据
         currentGesture.type = type;
@@ -289,6 +322,12 @@ public class InputManager : MonoBehaviour
     public bool IsUsingGestureInput()
     {
         return useGestureInput;
+    }
+
+    // 公共API: 获取当前手部检测状态
+    public bool IsHandDetected()
+    {
+        return handDetected;
     }
 
     // 添加缺失的 NotifyGestureListeners 方法

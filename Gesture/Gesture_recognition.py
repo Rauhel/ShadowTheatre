@@ -195,10 +195,17 @@ class GestureRecognition:
                             mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
                             mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2))
                 else:
-                    # 检测不到手的时间超过5s
-                    if time.time() - last_hand_detected_time > 5:
-                        print("屏幕中5s检测不到手")
+                    # 检测不到手的时间超过0.5s
+                    if time.time() - last_hand_detected_time > 0.5:
+                        print("屏幕中0.5s检测不到手")
+                        # 发送手部检测状态：未检测到手
+                        self.network.send_gesture("HandDetectionStatus|False")
                         last_hand_detected_time = time.time()
+                if results.multi_hand_landmarks:
+                    # 有手被检测到，发送检测状态
+                    if time.time() - last_hand_detected_time > 1:  # 避免频繁发送状态
+                        self.network.send_gesture("HandDetectionStatus|True")
+                        last_hand_detected_time = time.time()  # 重置计时器
                 
                 # 只有当稳定手势变化时才发送
                 if current_gesture != last_sent_gesture:

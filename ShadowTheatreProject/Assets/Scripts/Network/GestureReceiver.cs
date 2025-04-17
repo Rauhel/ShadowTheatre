@@ -328,6 +328,28 @@ public class GestureReceiver : MonoBehaviour
                 }
             }
 
+            // 检查是否是手部检测状态消息
+            if (messageType == "HandDetectionStatus" || gestureType == "HandDetectionStatus")
+            {
+                bool detectionStatus = false;
+
+                // 解析检测状态
+                if (parts.Length > 1)
+                {
+                    string statusValue = (messageType == "HandDetectionStatus") ? parts[1] : parts[0].Split('|')[1];
+                    detectionStatus = statusValue.ToLower() == "true";
+                }
+
+                // 添加到附加数据
+                additionalData["detected"] = detectionStatus ? 1.0f : 0.0f;
+
+                // 向InputManager传递状态
+                inputManager.UpdateGestureData("HandDetectionStatus", Vector2.zero, detectionStatus ? 1.0f : 0.0f, additionalData);
+
+                Debug.Log($"【手势识别】: 手部检测状态: {(detectionStatus ? "检测到手" : "未检测到手")}");
+                return;
+            }
+
             // 如果有额外数据，也显示出来
             if (additionalData.Count > 0)
             {

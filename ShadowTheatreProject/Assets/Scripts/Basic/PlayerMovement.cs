@@ -22,6 +22,11 @@ public class PlayerMovement : MonoBehaviour
     private void Start()
     {
         InitializeComponents();
+        // 注册手部检测状态变化事件
+        if (inputManager != null)
+        {
+            inputManager.OnHandDetectionChanged += OnHandDetectionChanged;
+        }
     }
 
     /// <summary>
@@ -44,6 +49,15 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 响应手部检测状态变化
+    /// </summary>
+    private void OnHandDetectionChanged(bool detected)
+    {
+        Debug.Log($"PlayerMovement: 手部检测状态变更为 {(detected ? "检测到" : "未检测到")}");
+        // 不需要额外处理，Update方法会根据isPointerActive状态来决定是否移动
+    }
+
     private void Update()
     {
         // 如果未初始化，尝试初始化
@@ -53,7 +67,7 @@ public class PlayerMovement : MonoBehaviour
             if (!isInitialized) return;
         }
 
-        // 仅当指针活跃时才处理移动
+        // 仅当指针活跃时才处理移动（已包含手部检测状态逻辑）
         if (!inputManager.IsPointerActive())
             return;
 
@@ -71,6 +85,15 @@ public class PlayerMovement : MonoBehaviour
         if (facePointerDirection)
         {
             HandleRotation(pointerWorldPosition);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        // 取消注册事件
+        if (inputManager != null)
+        {
+            inputManager.OnHandDetectionChanged -= OnHandDetectionChanged;
         }
     }
 
