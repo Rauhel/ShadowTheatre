@@ -15,7 +15,6 @@ public class InputManager : MonoBehaviour
 
     [Header("手势坐标映射配置")]
     [SerializeField] private bool invertXAxis = false;
-    [SerializeField] private bool invertYAxis = true;
     [SerializeField] private Vector2 positionOffset = Vector2.zero;
     [SerializeField] private Vector2 positionScale = Vector2.one;
 
@@ -121,7 +120,7 @@ public class InputManager : MonoBehaviour
 
         // 应用反转
         if (invertXAxis) scaledPos.x = 1 - scaledPos.x;
-        if (invertYAxis) scaledPos.y = 1 - scaledPos.y;
+        scaledPos.y = 1 - scaledPos.y;
 
         // 应用偏移 (归一化值的偏移)
         Vector2 mappedPos = scaledPos + positionOffset;

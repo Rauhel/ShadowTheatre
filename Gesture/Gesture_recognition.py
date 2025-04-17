@@ -104,6 +104,9 @@ class GestureRecognition:
                 if not success:
                     break
                 
+                # 水平镜像翻转图像，使其成为镜面效果
+                image = cv2.flip(image, 1)
+                
                 # 将BGR图像转换为RGB
                 image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 

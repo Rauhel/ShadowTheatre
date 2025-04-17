@@ -93,6 +93,7 @@ class HandPositionTracker:
                     dist = np.sqrt((cx-last_x)**2 + (cy-last_y)**2)
                     # 只有当位置变化明显或者应该发送时才发送
                     if dist > 0.01 or should_send:
+                        # 坐标已经是镜像的，因为图像已经翻转，MediaPipe检测的是翻转后的图像
                         message = f"position|{hand_idx}|{cx:.4f}|{cy:.4f}|{wrist_depth:.4f}"
                         self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
                         self.last_positions[key] = (cx, cy, wrist_depth)
@@ -107,7 +108,7 @@ class HandPositionTracker:
         else:
             # 如果没有检测到手，发送默认位置
             current_time = time.time()
-            if (current_time - self.last_send_time) > 0.5:  # 降低无手时的发送频率
+            if (current_time - self.last_send_time) > 0.2:  # 降低无手时的发送频率
                 message = f"position|-1|{default_pos[0]}|{default_pos[1]}|{default_pos[2]}"
                 self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
                 self.last_send_time = current_time
@@ -165,6 +166,9 @@ class HandPositionTracker:
                 success, image = cap.read()
                 if not success:
                     break
+
+                # 水平镜像翻转图像
+                image = cv2.flip(image, 1)
 
                 # 将BGR图像转换为RGB
                 image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
