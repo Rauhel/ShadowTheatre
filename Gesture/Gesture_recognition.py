@@ -8,12 +8,15 @@ from model_loader import ModelLoader
 from gesture_stabilizer import GestureStabilizer
 from utils.network import NetworkManager
 from recognizers import SingleHandRecognizer, TwoHandsRecognizer
+# 导入位置跟踪模块
+from HandPosition import HandPositionTracker
 
 class GestureRecognition:
-    def __init__(self, host='127.0.0.1', port=8000, auto_connect=True):
+    def __init__(self, gesture_host='127.0.0.1', gesture_port=8000, 
+                 position_host='127.0.0.1', position_port=5000, auto_connect=True):
         """初始化手势识别器"""
         # 创建网络管理器
-        self.network = NetworkManager(host, port)
+        self.network = NetworkManager(gesture_host, gesture_port)
         self.cap = None
         
         # 创建模型加载器
@@ -26,20 +29,39 @@ class GestureRecognition:
         # 创建手势稳定器
         self.gesture_stabilizer = GestureStabilizer(time_window=1.0, threshold=0.9)
         
+        # 创建位置跟踪器
+        self.position_tracker = HandPositionTracker(host=position_host, port=position_port, auto_connect=False)
+        self.enable_position_tracking = False
+        
         # 自动连接
         if auto_connect:
             self.connect()
     
     def connect(self):
         """建立连接"""
-        return self.network.connect()
+        gesture_connected = self.network.connect()
+        
+        # 只有当启用位置跟踪时才连接
+        if self.enable_position_tracking:
+            position_connected = self.position_tracker.connect()
+            return gesture_connected and position_connected
+        
+        return gesture_connected
     
     def disconnect(self):
         """断开连接并释放资源"""
         self.network.disconnect()
+        if self.enable_position_tracking:
+            self.position_tracker.disconnect()
         if self.cap:
             self.cap.release()
             cv2.destroyAllWindows()
+    
+    def enable_position(self, enable=True):
+        """启用或禁用位置跟踪"""
+        self.enable_position_tracking = enable
+        if enable and not self.position_tracker.is_connected:
+            self.position_tracker.connect()
     
     def load_models(self):
         """加载手势识别模型"""
@@ -90,6 +112,14 @@ class GestureRecognition:
                 
                 # 检测到手的数量
                 hand_count = 0 if results.multi_hand_landmarks is None else len(results.multi_hand_landmarks)
+                
+                # 如果启用了位置跟踪，处理位置信息
+                hands_info = {}
+                if self.enable_position_tracking:
+                    hands_info = self.position_tracker.process_frame(results, image.shape)
+                    # 在图像上绘制位置标记
+                    if hands_info:
+                        image = self.position_tracker.draw_position_markers(image, hands_info)
                 
                 current_gesture = "Unknown"
                 
@@ -177,7 +207,8 @@ class GestureRecognition:
                     last_sent_gesture = current_gesture
                 
                 # 显示结果
-                cv2.imshow('手势识别', image)
+                window_title = '手势与位置跟踪' if self.enable_position_tracking else '手势识别'
+                cv2.imshow(window_title, image)
                 if cv2.waitKey(5) & 0xFF == 27:  # ESC键退出
                     break
             
@@ -186,7 +217,13 @@ class GestureRecognition:
                 self.cap.release()
                 cv2.destroyAllWindows()
 
+
 if __name__ == "__main__":
-    gr = GestureRecognition()
+    # 创建手势识别实例
+    gr = GestureRecognition(gesture_port=8000, position_port=5000)
+    # 启用位置跟踪功能
+    gr.enable_position(True)
+    # 开始识别
     gr.recognize_gestures()
+    # 断开连接
     gr.disconnect()
