@@ -17,6 +17,9 @@ public class NPCData : ScriptableObject
 
     [Header("事件列表")]
     public List<NPCEvent> events = new List<NPCEvent>();
+
+    [Header("路径连接")]
+    public List<PathConnection> pathConnections = new List<PathConnection>();
 }
 
 [Serializable]
@@ -75,8 +78,6 @@ public class NPCEvent
     [Header("触发条件")]
     public Transform triggerLocation;
     public float triggerRadius = 2f;
-    [Tooltip("触发的游戏时间范围（小时）")]
-    public Vector2 triggerTimeRange = new Vector2(0, 24);
     [Tooltip("在EventCenter中的事件名称（可选）")]
     public string globalEventName;
 
@@ -116,4 +117,19 @@ public class GestureBranch : EventBranch
     [Tooltip("最低置信度")]
     [Range(0f, 1f)]
     public float minConfidence = 0.7f;
+}
+
+[Serializable]
+public class PathConnection
+{
+    [Tooltip("当前路径")]
+    public Transform path;
+    [Tooltip("下一条路径（如果不是决策点）")]
+    public Transform nextPath;
+    [Tooltip("是否是路径终点")]
+    public bool isEndPoint = false;
+    [Tooltip("是否在路径结束处需要决策")]
+    public bool needDecision = false;
+    [Tooltip("如果需要决策，关联的决策点ID")]
+    public string decisionPointID;
 }

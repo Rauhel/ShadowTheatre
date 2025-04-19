@@ -65,20 +65,27 @@ public class NPCEventManagerEditor : Editor
         {
             foreach (var npcEvent in manager.npcData.events)
             {
-                if (npcEvent.triggerLocation != null)
-                {
-                    // 绘制触发区域
-                    Handles.color = new Color(1f, 0.5f, 0f, 0.2f);
-                    Handles.DrawSolidDisc(npcEvent.triggerLocation.position, Vector3.up, npcEvent.triggerRadius);
-                    
-                    // 绘制边框
-                    Handles.color = new Color(1f, 0.5f, 0f, 0.8f);
-                    Handles.DrawWireDisc(npcEvent.triggerLocation.position, Vector3.up, npcEvent.triggerRadius);
-                    
-                    // 绘制标签
-                    Handles.Label(npcEvent.triggerLocation.position + Vector3.up * 2f, 
-                                $"Event: {npcEvent.eventID}\nTime: {npcEvent.triggerTimeRange.x}-{npcEvent.triggerTimeRange.y}");
-                }
+                if (npcEvent.triggerLocation == null)
+                    continue;
+                
+                // 绘制触发区域
+                Handles.color = new Color(1f, 0.5f, 0.5f, 0.3f);
+                Handles.DrawSolidDisc(npcEvent.triggerLocation.position, Vector3.up, npcEvent.triggerRadius);
+                
+                // 绘制事件ID标签
+                Handles.Label(
+                    npcEvent.triggerLocation.position + Vector3.up * 1.5f, 
+                    $"事件: {npcEvent.eventID}",
+                    EditorStyles.whiteBoldLabel
+                );
+                
+                // 删除对时间范围的引用
+                // var timeText = $"时间: {npcEvent.triggerTimeRange.x}-{npcEvent.triggerTimeRange.y}";
+                // Handles.Label(
+                //     npcEvent.triggerLocation.position + Vector3.up * 1.2f, 
+                //     timeText,
+                //     EditorStyles.whiteLabel
+                // );
             }
         }
         
@@ -87,45 +94,41 @@ public class NPCEventManagerEditor : Editor
         {
             foreach (var decision in manager.npcData.pathDecisions)
             {
-                if (decision.decisionLocation != null)
+                if (decision.decisionLocation == null)
+                    continue;
+                
+                // 绘制决策范围
+                Handles.color = new Color(0.5f, 0.8f, 1f, 0.3f);
+                Handles.DrawSolidDisc(decision.decisionLocation.position, Vector3.up, decision.decisionRadius);
+                
+                // 绘制决策点ID标签
+                Handles.Label(
+                    decision.decisionLocation.position + Vector3.up * 1.5f, 
+                    $"决策点: {decision.decisionPointID}",
+                    EditorStyles.whiteBoldLabel
+                );
+                
+                // 绘制到各选项的连线
+                foreach (var option in decision.pathOptions)
                 {
-                    // 绘制决策区域
-                    Handles.color = new Color(0f, 0.5f, 1f, 0.2f);
-                    Handles.DrawSolidDisc(decision.decisionLocation.position, Vector3.up, decision.decisionRadius);
+                    if (option.path == null || option.path.childCount == 0)
+                        continue;
                     
-                    // 绘制边框
-                    Handles.color = new Color(0f, 0.5f, 1f, 0.8f);
-                    Handles.DrawWireDisc(decision.decisionLocation.position, Vector3.up, decision.decisionRadius);
+                    // 根据分数阈值颜色渐变
+                    Color pathColor = Color.HSVToRGB(Mathf.Clamp01(option.scoreThreshold / 100f), 0.7f, 0.9f);
+                    DrawPathConnection(decision.decisionLocation, option.path, pathColor);
                     
-                    // 绘制标签
-                    Handles.Label(decision.decisionLocation.position + Vector3.up * 2f,
-                                $"Decision: {decision.decisionPointID}\n路径选项: {decision.pathOptions.Count}");
-                    
-                    // 绘制连接线到各路径起点
-                    // 使用彩虹色渐变显示不同的路径选项
-                    for (int i = 0; i < decision.pathOptions.Count; i++)
-                    {
-                        var option = decision.pathOptions[i];
-                        if (option.path != null)
-                        {
-                            // 根据选项索引计算颜色
-                            Color pathColor = Color.HSVToRGB(
-                                (float)i / Mathf.Max(1, decision.pathOptions.Count),
-                                0.7f,
-                                1.0f
-                            );
-                            
-                            DrawPathConnection(decision.decisionLocation, option.path, pathColor);
-                            
-                            // 在路径起点附近添加标签
-                            if (option.path.childCount > 0)
-                            {
-                                Vector3 firstPointPos = option.path.GetChild(0).position;
-                                Handles.Label(firstPointPos + Vector3.up * 0.5f,
-                                            $"{option.optionName}\n阈值: {option.scoreThreshold}");
-                            }
-                        }
-                    }
+                    // 在连线中点显示分数阈值
+                    Vector3 midPoint = Vector3.Lerp(
+                        decision.decisionLocation.position, 
+                        option.path.GetChild(0).position, 
+                        0.5f
+                    );
+                    Handles.Label(
+                        midPoint + Vector3.up * 0.5f, 
+                        $"分数 >= {option.scoreThreshold}",
+                        EditorStyles.whiteLabel
+                    );
                 }
             }
         }
@@ -136,18 +139,31 @@ public class NPCEventManagerEditor : Editor
         if (from == null || path == null || path.childCount == 0)
             return;
             
-        Transform firstPoint = path.GetChild(0);
+        // 绘制一个有向曲线从决策点到路径起点
+        Vector3 startPos = from.position;
+        Vector3 endPos = path.GetChild(0).position;
         
-        // 绘制从决策点到路径起点的线
+        // 计算控制点
+        Vector3 startTangent = startPos + from.forward * 2f;
+        Vector3 endTangent = endPos + path.GetChild(0).forward * 2f;
+        
         Handles.color = color;
-        Handles.DrawDottedLine(from.position, firstPoint.position, 2f);
+        Handles.DrawBezier(startPos, endPos, startTangent, endTangent, color, null, 2f);
         
-        // 绘制路径点之间的连接
-        for (int i = 0; i < path.childCount - 1; i++)
-        {
-            Handles.color = new Color(color.r, color.g, color.b, 0.3f);
-            Handles.DrawLine(path.GetChild(i).position, path.GetChild(i + 1).position);
-        }
+        // 绘制箭头
+        Vector3 dir = (endPos - startPos).normalized;
+        Vector3 arrowPos = Vector3.Lerp(startPos, endPos, 0.7f);
+        
+        // 确保箭头垂直于地面
+        Vector3 right = Vector3.Cross(Vector3.up, dir).normalized;
+        
+        Vector3 arrowSize = new Vector3(0.5f, 0, 0.25f);
+        Vector3 arrowTip = arrowPos + dir * arrowSize.x;
+        Vector3 arrowLeft = arrowPos - right * arrowSize.z;
+        Vector3 arrowRight = arrowPos + right * arrowSize.z;
+        
+        Handles.DrawLine(arrowLeft, arrowTip);
+        Handles.DrawLine(arrowRight, arrowTip);
     }
 }
 #endif

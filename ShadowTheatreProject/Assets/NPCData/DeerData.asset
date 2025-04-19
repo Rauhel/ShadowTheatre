@@ -16,12 +16,12 @@ MonoBehaviour:
   npcName: Deer
   currentScore: 0
   pathDecisions:
-  - decisionPointID: 
+  - decisionPointID: 1
     decisionLocation: {fileID: 0}
     decisionRadius: 0
-    pathOptions: []
-  - decisionPointID: 
-    decisionLocation: {fileID: 0}
-    decisionRadius: 0
-    pathOptions: []
+    pathOptions:
+    - optionName: 
+      scoreThreshold: 0
+      path: {fileID: 0}
+      description: 
   events: []

@@ -21,10 +21,6 @@ public class NPCEventManager : MonoBehaviour
     private NPCEvent currentEvent = null;
     private Dictionary<string, float> gestureHoldTimes = new Dictionary<string, float>();
 
-    // 时间系统引用（假设有GameTimeManager）
-    private float CurrentGameHour =>
-        (DateTime.Now.Hour * 60 + DateTime.Now.Minute) / 60f; // 临时使用现实时间
-
     void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -79,8 +75,6 @@ public class NPCEventManager : MonoBehaviour
 
     private void CheckEventTriggers()
     {
-        float currentHour = CurrentGameHour;
-
         foreach (var npcEvent in npcData.events)
         {
             if (npcEvent.triggerLocation == null)
@@ -89,12 +83,10 @@ public class NPCEventManager : MonoBehaviour
             // 检查是否在触发区域内
             float distance = Vector3.Distance(transform.position, npcEvent.triggerLocation.position);
 
-            // 检查时间和距离条件
-            bool isInTimeRange = currentHour >= npcEvent.triggerTimeRange.x &&
-                                currentHour <= npcEvent.triggerTimeRange.y;
+            // 只检查距离条件
             bool isInTriggerArea = distance <= npcEvent.triggerRadius;
 
-            if (isInTimeRange && isInTriggerArea)
+            if (isInTriggerArea)
             {
                 TriggerEvent(npcEvent);
                 break; // 只处理一个事件
@@ -316,8 +308,81 @@ public class NPCEventManager : MonoBehaviour
             if (currentPathPoint >= currentPath.childCount)
             {
                 Debug.Log($"[{gameObject.name}] 完成路径: {currentPath.name}");
+
+                // 检查是否有路径连接信息
+                if (npcData != null)
+                {
+                    PathConnection connection = FindPathConnection(currentPath);
+                    if (connection != null)
+                    {
+                        if (connection.isEndPoint)
+                        {
+                            // 路径终点，停止移动
+                            Debug.Log($"[{gameObject.name}] 到达路径终点");
+                            currentPath = null;
+                        }
+                        else if (connection.needDecision)
+                        {
+                            // 需要决策
+                            PathDecision decision = FindDecisionByID(connection.decisionPointID);
+                            if (decision != null)
+                            {
+                                Transform nextPath = decision.SelectPathBasedOnScore(npcData.currentScore);
+                                if (nextPath != null)
+                                {
+                                    SwitchToPath(nextPath);
+                                }
+                            }
+                            else
+                            {
+                                Debug.LogWarning($"[{gameObject.name}] 找不到决策点ID: {connection.decisionPointID}");
+
+                                // 没有找到决策点但有默认下一路径
+                                if (connection.nextPath != null)
+                                {
+                                    SwitchToPath(connection.nextPath);
+                                }
+                            }
+                        }
+                        else if (connection.nextPath != null)
+                        {
+                            // 直接切换到下一路径
+                            SwitchToPath(connection.nextPath);
+                        }
+                    }
+                }
             }
         }
+    }
+
+    // 根据路径查找路径连接信息
+    private PathConnection FindPathConnection(Transform path)
+    {
+        if (npcData == null || path == null)
+            return null;
+
+        foreach (var connection in npcData.pathConnections)
+        {
+            if (connection.path == path)
+                return connection;
+        }
+
+        return null;
+    }
+
+    // 根据ID查找决策点
+    private PathDecision FindDecisionByID(string decisionID)
+    {
+        if (npcData == null || string.IsNullOrEmpty(decisionID))
+            return null;
+
+        foreach (var decision in npcData.pathDecisions)
+        {
+            if (decision.decisionPointID == decisionID)
+                return decision;
+        }
+
+        return null;
     }
 
     // 切换到新路径
@@ -331,8 +396,14 @@ public class NPCEventManager : MonoBehaviour
 
         Debug.Log($"[{gameObject.name}] 切换到路径: {newPath.name}");
 
-        // 如果路径有子节点，立即前往第一个点
-        if (newPath.childCount > 0)
+        // 如果是路径生成器创建的路径点
+        if (newPath.name.Contains("PathPoints") && newPath.childCount > 0)
+        {
+            // 使用第一个路径点作为目标
+            agent.SetDestination(newPath.GetChild(0).position);
+        }
+        // 支持旧方式
+        else if (newPath.childCount > 0)
         {
             agent.SetDestination(newPath.GetChild(0).position);
         }
