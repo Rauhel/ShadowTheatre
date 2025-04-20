@@ -20,6 +20,55 @@ public class NPCData : ScriptableObject
 
     [Header("路径连接")]
     public List<PathConnection> pathConnections = new List<PathConnection>();
+
+    public string GetPathPointRelativePosition(Transform pathPoint)
+    {
+        if (pathPoint == null)
+            return "未知";
+
+        // 查找该点所属的路径
+        Transform parentPath = pathPoint.parent;
+        if (parentPath == null || parentPath.parent == null)
+            return "未知";
+
+        // 获取路径创建器
+        MultiPointPathCreator pathCreator = parentPath.parent.GetComponent<MultiPointPathCreator>();
+        if (pathCreator == null || pathCreator.pathPointsParent != parentPath)
+            return "未知";
+
+        // 查找点的索引
+        int pointCount = parentPath.childCount;
+        int pointIndex = -1;
+
+        for (int i = 0; i < pointCount; i++)
+        {
+            if (parentPath.GetChild(i) == pathPoint)
+            {
+                pointIndex = i;
+                break;
+            }
+        }
+
+        if (pointIndex < 0)
+            return "未知";
+
+        // 计算相对位置
+        float relativePos = (float)pointIndex / (pointCount - 1);
+        return $"{relativePos:P0}";
+    }
+
+    public Transform GetPathPointByRelativePosition(MultiPointPathCreator pathCreator, float relativePosition)
+    {
+        if (pathCreator == null || pathCreator.pathPointsParent == null ||
+            pathCreator.pathPointsParent.childCount == 0)
+            return null;
+
+        int pointCount = pathCreator.pathPointsParent.childCount;
+        // 将相对位置（0-1）转换为索引
+        int index = Mathf.Clamp(Mathf.RoundToInt(relativePosition * (pointCount - 1)), 0, pointCount - 1);
+
+        return pathCreator.pathPointsParent.GetChild(index);
+    }
 }
 
 [Serializable]
@@ -122,14 +171,169 @@ public class GestureBranch : EventBranch
 [Serializable]
 public class PathConnection
 {
-    [Tooltip("当前路径")]
-    public Transform path;
-    [Tooltip("下一条路径（如果不是决策点）")]
-    public Transform nextPath;
-    [Tooltip("是否是路径终点")]
+    [SerializeField, HideInInspector]
+    private Transform _pathTransform;
+
+    [SerializeField, HideInInspector]
+    private Transform _nextPathTransform;
+
+    // Unity 编辑器可视属性
+    [Tooltip("路径对象")]
+    public GameObject pathObject;
+
+    [Header("路径分支类型")]
+    [Tooltip("路径分支类型")]
+    public PathBranchType branchType = PathBranchType.Direct;
+
+    [Header("直接连接")]
+    [Tooltip("下一条路径（如果是直接连接）")]
+    public GameObject nextPathObject;
+
+    [Header("基于分数的分支")]
+    [Tooltip("分支选项列表（如果是分数分支）")]
+    public List<PathScoreOption> scoreOptions = new List<PathScoreOption>();
+
+    [Header("终点设置")]
+    [Tooltip("该路径是否是终点")]
     public bool isEndPoint = false;
-    [Tooltip("是否在路径结束处需要决策")]
-    public bool needDecision = false;
-    [Tooltip("如果需要决策，关联的决策点ID")]
-    public string decisionPointID;
+
+    // 获取缓存的 MultiPointPathCreator 组件
+    public MultiPointPathCreator pathCreator
+    {
+        get
+        {
+            if (pathObject != null)
+                return pathObject.GetComponent<MultiPointPathCreator>();
+            return null;
+        }
+    }
+
+    public MultiPointPathCreator nextPathCreator
+    {
+        get
+        {
+            if (nextPathObject != null)
+                return nextPathObject.GetComponent<MultiPointPathCreator>();
+            return null;
+        }
+    }
+
+    // 获取路径的起点和终点
+    public Transform GetPathStart()
+    {
+        return pathCreator?.startPoint;
+    }
+
+    public Transform GetPathEnd()
+    {
+        return pathCreator?.endPoint;
+    }
+
+    // 保持与旧代码的兼容性
+    public Transform path
+    {
+        get
+        {
+            if (pathObject != null)
+                return pathObject.transform;
+            return _pathTransform;
+        }
+        set
+        {
+            _pathTransform = value;
+            if (value != null)
+            {
+                pathObject = value.gameObject;
+            }
+            else
+            {
+                pathObject = null;
+            }
+        }
+    }
+
+    public Transform nextPath
+    {
+        get
+        {
+            if (nextPathObject != null)
+                return nextPathObject.transform;
+            return _nextPathTransform;
+        }
+        set
+        {
+            _nextPathTransform = value;
+            if (value != null)
+            {
+                nextPathObject = value.gameObject;
+            }
+            else
+            {
+                nextPathObject = null;
+            }
+        }
+    }
+
+    // 根据分数选择下一个路径
+    public Transform SelectNextPathBasedOnScore(float currentScore)
+    {
+        if (branchType == PathBranchType.Direct || scoreOptions == null || scoreOptions.Count == 0)
+        {
+            return nextPath;
+        }
+
+        // 默认使用第一个路径选项
+        PathScoreOption firstOption = scoreOptions[0];
+        Transform selectedPath = firstOption != null && firstOption.pathObject != null ?
+                                firstOption.pathObject.transform : null;
+
+        // 遍历所有路径选项
+        foreach (var option in scoreOptions)
+        {
+            if (option == null || option.pathObject == null)
+                continue;
+
+            // 如果当前分数大于等于该选项的分数阈值，选择该路径
+            if (currentScore >= option.scoreThreshold)
+            {
+                selectedPath = option.pathObject.transform;
+            }
+            else
+            {
+                // 一旦遇到分数不满足的选项，停止查找（假设选项已按阈值从低到高排序）
+                break;
+            }
+        }
+
+        return selectedPath;
+    }
+}
+
+// 添加路径分支类型枚举
+public enum PathBranchType
+{
+    Direct,     // 直接连接到下一个路径
+    ScoreBased  // 基于分数的分支
+}
+
+// 修改 PathScoreOption 类
+[Serializable]
+public class PathScoreOption
+{
+    public string optionName;
+    public float scoreThreshold;
+    public GameObject pathObject;
+    [TextArea(1, 3)]
+    public string description;
+
+    // 获取 MultiPointPathCreator 组件
+    public MultiPointPathCreator pathCreator
+    {
+        get
+        {
+            if (pathObject != null)
+                return pathObject.GetComponent<MultiPointPathCreator>();
+            return null;
+        }
+    }
 }

@@ -312,7 +312,7 @@ public class NPCEventManager : MonoBehaviour
                 // 检查是否有路径连接信息
                 if (npcData != null)
                 {
-                    PathConnection connection = FindPathConnection(currentPath);
+                    PathConnection connection = FindPathConnection(currentPath.parent.transform);
                     if (connection != null)
                     {
                         if (connection.isEndPoint)
@@ -321,33 +321,23 @@ public class NPCEventManager : MonoBehaviour
                             Debug.Log($"[{gameObject.name}] 到达路径终点");
                             currentPath = null;
                         }
-                        else if (connection.needDecision)
+                        else if (connection.branchType == PathBranchType.ScoreBased)
                         {
-                            // 需要决策
-                            PathDecision decision = FindDecisionByID(connection.decisionPointID);
-                            if (decision != null)
+                            // 根据分数选择下一条路径
+                            Transform nextPath = connection.SelectNextPathBasedOnScore(npcData.currentScore);
+                            if (nextPath != null)
                             {
-                                Transform nextPath = decision.SelectPathBasedOnScore(npcData.currentScore);
-                                if (nextPath != null)
-                                {
-                                    SwitchToPath(nextPath);
-                                }
+                                SwitchToPath(nextPath);
                             }
                             else
                             {
-                                Debug.LogWarning($"[{gameObject.name}] 找不到决策点ID: {connection.decisionPointID}");
-
-                                // 没有找到决策点但有默认下一路径
-                                if (connection.nextPath != null)
-                                {
-                                    SwitchToPath(connection.nextPath);
-                                }
+                                Debug.LogWarning($"[{gameObject.name}] 根据分数无法找到有效路径");
                             }
                         }
-                        else if (connection.nextPath != null)
+                        else if (connection.branchType == PathBranchType.Direct && connection.nextPathCreator != null)
                         {
                             // 直接切换到下一路径
-                            SwitchToPath(connection.nextPath);
+                            SwitchToPath(connection.nextPathCreator.transform);
                         }
                     }
                 }
@@ -391,21 +381,24 @@ public class NPCEventManager : MonoBehaviour
         if (newPath == null)
             return;
 
-        currentPath = newPath;
-        currentPathPoint = 0;
+        MultiPointPathCreator pathCreator = newPath.GetComponent<MultiPointPathCreator>();
+        if (pathCreator == null || pathCreator.pathPointsParent == null ||
+            pathCreator.pathPointsParent.childCount == 0)
+        {
+            Debug.LogWarning($"[{gameObject.name}] 无法切换到路径: {newPath.name}，该路径没有路径点");
+            return;
+        }
 
         Debug.Log($"[{gameObject.name}] 切换到路径: {newPath.name}");
 
-        // 如果是路径生成器创建的路径点
-        if (newPath.name.Contains("PathPoints") && newPath.childCount > 0)
+        // 设置新路径
+        currentPath = pathCreator.pathPointsParent;
+        currentPathPoint = 0;
+
+        // 设置当前目标点
+        if (currentPath.childCount > 0)
         {
-            // 使用第一个路径点作为目标
-            agent.SetDestination(newPath.GetChild(0).position);
-        }
-        // 支持旧方式
-        else if (newPath.childCount > 0)
-        {
-            agent.SetDestination(newPath.GetChild(0).position);
+            agent.SetDestination(currentPath.GetChild(currentPathPoint).position);
         }
     }
 
