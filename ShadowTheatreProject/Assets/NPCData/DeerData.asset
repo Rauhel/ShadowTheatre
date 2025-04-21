@@ -15,14 +15,17 @@ MonoBehaviour:
   npcID: 1
   npcName: Deer
   currentScore: 0
-  pathDecisions:
-  - decisionPointID: 1
-    decisionLocation: {fileID: 0}
-    decisionRadius: 0
-    pathOptions:
-    - optionName: 
-      scoreThreshold: 0
-      path: {fileID: 0}
+  paths:
+  - pathID: DeerPath1
+    pathName: DeerPath1
+    minScore: 0
+    maxScore: 100
+    events: []
+    nextPaths:
+    - nextPathID: DeerPath2
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
       description: 
   events:
   - eventID: 
@@ -32,15 +35,20 @@ MonoBehaviour:
     gestureHoldTime: 0
     gestureTimeLimit: 0
     defaultBranch:
-      animationName: 
-      dialogueText: 
-      overridePath: {fileID: 0}
-      completionDelay: 0
       scoreValue: 0
     gestureBranches: []
   pathConnections:
-  - pathID: DeerPath1
+  - pathID: 
+    path: {fileID: 0}
+    isEndPoint: 0
     branchType: 0
     nextPathID: DeerPath2
+    nextPath: {fileID: 0}
     scoreOptions: []
-    isEndPoint: 0
+  pathDecisions:
+  - decisionPointID: 1
+    decisionLocation: {fileID: 0}
+    decisionRadius: 0
+    pathOptions:
+    - path: {fileID: 0}
+      scoreThreshold: 0

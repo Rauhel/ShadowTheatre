@@ -66,15 +66,32 @@ public class PathRegistry : MonoBehaviour
     // 用于运行时获取路径
     public static MultiPointPathCreator GetPathCreatorByID(string pathID)
     {
-        if (string.IsNullOrEmpty(pathID) || Instance.pathLookup.Count == 0)
-        {
-            Instance.BuildLookupTable();
-        }
+        if (string.IsNullOrEmpty(pathID))
+            return null;
 
-        if (Instance.pathLookup.TryGetValue(pathID, out MultiPointPathCreator creator))
+        // 强制重新构建查找表确保最新状态
+        Instance.BuildLookupTable();
+
+        // 首先尝试从查找表查找
+        if (Instance.pathLookup.TryGetValue(pathID, out MultiPointPathCreator creator) && creator != null)
         {
             return creator;
         }
+
+        // 如果查找表中没有，直接在场景中搜索
+        MultiPointPathCreator[] allPaths = GameObject.FindObjectsOfType<MultiPointPathCreator>(true); // 包括非激活对象
+        foreach (var path in allPaths)
+        {
+            if (path.pathID == pathID)
+            {
+                // 更新查找表
+                Instance.pathLookup[pathID] = path;
+                return path;
+            }
+        }
+
+        // 查找失败，报警告但不阻断
+        Debug.LogWarning($"PathRegistry: 无法找到ID为'{pathID}'的路径");
         return null;
     }
 

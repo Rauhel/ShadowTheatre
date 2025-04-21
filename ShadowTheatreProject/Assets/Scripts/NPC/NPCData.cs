@@ -8,42 +8,20 @@ public class NPCData : ScriptableObject
     [Header("基本信息")]
     public string npcID;
     public string npcName;
+    public float currentScore = 0f;  // NPC当前分数
 
-    [Header("分数信息")]
-    public float currentScore = 0f;
+    [Header("路径配置")]
+    public List<PathConfig> paths = new List<PathConfig>();
 
-    [Header("路径分歧点")]
-    public List<PathDecision> pathDecisions = new List<PathDecision>();
-
-    [Header("事件列表")]
+    // 兼容旧编辑器脚本的字段
+    [HideInInspector]
     public List<NPCEvent> events = new List<NPCEvent>();
 
-    [Header("路径连接")]
+    [HideInInspector]
     public List<PathConnection> pathConnections = new List<PathConnection>();
 
-    // 根据路径点获取路径根对象
-    public Transform GetPathRoot(Transform pathPoint)
-    {
-        if (pathPoint == null) return null;
-
-        // 检查自身是否是路径根对象
-        if (pathPoint.GetComponent<MultiPointPathCreator>() != null)
-            return pathPoint;
-
-        // 向上查找路径根对象
-        Transform current = pathPoint;
-        while (current.parent != null) // 修复：删除多余的右括号
-        {
-            if (current.parent.name.Contains("PathPoints"))
-            {
-                return current.parent.parent;
-            }
-            current = current.parent;
-        }
-
-        // 检查最终的对象
-        return current.GetComponent<MultiPointPathCreator>()?.transform;
-    }
+    [HideInInspector]
+    public List<PathDecision> pathDecisions = new List<PathDecision>();
 
     // 获取路径点相对位置信息
     public string GetPathPointRelativePosition(Transform pathPoint)
@@ -70,51 +48,61 @@ public class NPCData : ScriptableObject
         return "未知";
     }
 
-    public Transform GetPathPointByRelativePosition(MultiPointPathCreator pathCreator, float relativePosition)
+    // 根据分数查找可用路径
+    public PathConfig FindPathByScore(float score)
     {
-        if (pathCreator == null || pathCreator.pathPointsParent == null ||
-            pathCreator.pathPointsParent.childCount == 0)
-            return null;
+        foreach (var path in paths)
+        {
+            if (score >= path.minScore && score <= path.maxScore)
+                return path;
+        }
+        return null;
+    }
 
-        int pointCount = pathCreator.pathPointsParent.childCount;
-        // 将相对位置（0-1）转换为索引
-        int index = Mathf.Clamp(Mathf.RoundToInt(relativePosition * (pointCount - 1)), 0, pointCount - 1);
-
-        return pathCreator.pathPointsParent.GetChild(index);
+    // 查找路径配置
+    public PathConfig FindPathById(string pathId)
+    {
+        return paths.Find(p => p.pathID == pathId);
     }
 }
 
 [Serializable]
-public class PathDecision
+public class PathConfig
 {
-    public string decisionPointID;
-    public Transform decisionLocation;
-    public float decisionRadius = 1f;
+    [Header("路径基本信息")]
+    public string pathID;  // 对应MultiPointPathCreator的ID
+    public string pathName;  // 显示名称
 
-    [Header("路径选项")]
-    public List<PathOption> pathOptions = new List<PathOption>();
+    [Header("分数要求")]
+    [Tooltip("进入此路径的最低分数")]
+    public float minScore = 0f;
+    [Tooltip("进入此路径的最高分数")]
+    public float maxScore = 100f;
 
-    // 辅助方法：根据分数选择合适的路径
-    public Transform SelectPathBasedOnScore(float currentScore)
+    [Header("路径事件")]
+    public List<PathEvent> events = new List<PathEvent>();
+
+    [Header("路径分支")]
+    [Tooltip("此路径结束后的下一条路径")]
+    public List<PathBranch> nextPaths = new List<PathBranch>();
+
+    // 根据分数选择下一条路径
+    public string SelectNextPathByScore(float score)
     {
-        // 如果没有选项，返回null
-        if (pathOptions.Count == 0) return null;
+        // 如果没有分支，返回null
+        if (nextPaths.Count == 0) return null;
 
         // 默认使用第一个路径
-        Transform selectedPath = pathOptions[0].path;
+        string selectedPath = nextPaths[0].nextPathID;
 
         // 遍历所有路径选项
-        foreach (var option in pathOptions)
+        foreach (var branch in nextPaths)
         {
-            // 如果当前分数大于等于该选项的分数阈值，选择该路径
-            if (currentScore >= option.scoreThreshold)
+            // 使用分数区间判定
+            if (branch.IsScoreInRange(score))
             {
-                selectedPath = option.path;
-            }
-            else
-            {
-                // 一旦遇到分数不满足的选项，停止查找（假设选项已按阈值从低到高排序）
-                break;
+                selectedPath = branch.nextPathID;
+                break; // 找到第一个匹配的分支就停止
             }
         }
 
@@ -123,297 +111,72 @@ public class PathDecision
 }
 
 [Serializable]
-public class PathOption
+public class PathEvent
 {
-    public string optionName;
-    public float scoreThreshold;
-    public Transform path;
-    [TextArea(1, 3)]
-    public string description; // 可选的描述信息，方便调试
-}
-
-[Serializable]
-public class NPCEvent
-{
+    [Header("事件基本信息")]
     public string eventID;
-
-    [Header("触发条件")]
-    public Transform triggerLocation;
+    [Tooltip("事件在路径点的索引位置")]
+    public int pathPointIndex;
+    [Tooltip("触发半径")]
     public float triggerRadius = 2f;
-    [Tooltip("在EventCenter中的事件名称（可选）")]
-    public string globalEventName;
 
-    [Header("手势检测设置")]
+    [Header("手势检测")]
+    [Tooltip("手势保持的最短时间(秒)")]
     public float gestureHoldTime = 2.0f;
+    [Tooltip("手势检测的总时限(秒)")]
     public float gestureTimeLimit = 5.0f;
 
-    [Header("事件分支")]
-    public EventBranch defaultBranch;
-    public List<GestureBranch> gestureBranches = new List<GestureBranch>();
+    [Header("手势反应")]
+    public List<GestureResponse> gestureResponses = new List<GestureResponse>();
+    [Tooltip("默认反应(无手势时)")]
+    public GestureResponse defaultResponse = new GestureResponse();
 }
 
 [Serializable]
-public class EventBranch
+public class GestureResponse
 {
-    [Header("分支行为")]
+    [Tooltip("手势类型")]
+    public string gestureType; // 留空表示默认反应
+    [Tooltip("分数影响")]
+    public float scoreEffect;
     [Tooltip("动画名称")]
     public string animationName;
     [Tooltip("对话内容")]
-    [TextArea(3, 5)]
+    [TextArea(2, 4)]
     public string dialogueText;
-    [Tooltip("覆盖路径（可选）")]
-    public Transform overridePath;
-    [Tooltip("行为结束后延迟（秒）")]
+    [Tooltip("完成后延迟(秒)")]
     public float completionDelay = 1f;
-
-    [Header("分支评分")]
-    public float scoreValue = 0f;
-}
-
-[Serializable]
-public class GestureBranch : EventBranch
-{
-    [Header("手势识别")]
-    [Tooltip("触发此分支的手势类型")]
-    public string gestureType;
     [Tooltip("最低置信度")]
     [Range(0f, 1f)]
     public float minConfidence = 0.7f;
 }
 
 [Serializable]
-public class PathConnection
+public class PathBranch
 {
-    [Tooltip("路径ID")]
-    public string pathID;
-
-    [Header("路径分支类型")]
-    [Tooltip("路径分支类型")]
-    public PathBranchType branchType = PathBranchType.Direct;
-
-    [Header("直接连接")]
-    [Tooltip("下一条路径ID（如果是直接连接）")]
+    [Tooltip("下一条路径ID")]
     public string nextPathID;
 
-    [Header("基于分数的分支")]
-    [Tooltip("分支选项列表（如果是分数分支）")]
-    public List<PathScoreOption> scoreOptions = new List<PathScoreOption>();
+    [Header("分数区间")]
+    [Tooltip("最低分数 (含)")]
+    public float minScore = 0f;
 
-    [Header("终点设置")]
-    [Tooltip("该路径是否是终点")]
-    public bool isEndPoint = false;
+    [Tooltip("最高分数 (不含)")]
+    public float maxScore = 100f;
 
-    // 智能获取 MultiPointPathCreator 组件
-    public MultiPointPathCreator pathCreator
-    {
-        get
-        {
-            return PathRegistry.GetPathCreatorByID(pathID);
-        }
-    }
+    // 向后兼容的字段
+    [HideInInspector]
+    public float requiredScore = 0f;
 
-    public MultiPointPathCreator nextPathCreator
-    {
-        get
-        {
-            return PathRegistry.GetPathCreatorByID(nextPathID);
-        }
-    }
-
-    // 兼容旧代码的属性
-    [System.NonSerialized]
-    private Transform _pathTransform;
-    public Transform path
-    {
-        get
-        {
-            var creator = pathCreator;
-            if (creator != null)
-                return creator.transform;
-            return _pathTransform;
-        }
-        set
-        {
-            _pathTransform = value;
-            if (value != null)
-            {
-                var creator = value.GetComponent<MultiPointPathCreator>();
-                if (creator != null)
-                {
-                    pathID = creator.pathID;
-                }
-                else
-                {
-                    // 尝试查找父级的路径创建器
-                    Transform current = value;
-                    while (current.parent != null)
-                    {
-                        current = current.parent;
-                        creator = current.GetComponent<MultiPointPathCreator>();
-                        if (creator != null)
-                        {
-                            pathID = creator.pathID;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    [System.NonSerialized]
-    private Transform _nextPathTransform;
-    public Transform nextPath
-    {
-        get
-        {
-            var creator = nextPathCreator;
-            if (creator != null)
-                return creator.transform;
-            return _nextPathTransform;
-        }
-        set
-        {
-            _nextPathTransform = value;
-            if (value != null)
-            {
-                var creator = value.GetComponent<MultiPointPathCreator>();
-                if (creator != null)
-                {
-                    nextPathID = creator.pathID;
-                }
-                else
-                {
-                    // 尝试查找父级的路径创建器
-                    Transform current = value;
-                    while (current.parent != null)
-                    {
-                        current = current.parent;
-                        creator = current.GetComponent<MultiPointPathCreator>();
-                        if (creator != null)
-                        {
-                            nextPathID = creator.pathID;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // 获取路径的起点和终点
-    public Transform GetPathStart()
-    {
-        return pathCreator?.startPoint;
-    }
-
-    public Transform GetPathEnd()
-    {
-        return pathCreator?.endPoint;
-    }
-
-    // 根据分数选择下一个路径
-    public Transform SelectNextPathBasedOnScore(float currentScore)
-    {
-        if (branchType == PathBranchType.Direct || scoreOptions == null || scoreOptions.Count == 0)
-        {
-            return nextPathCreator?.transform;
-        }
-
-        // 默认使用第一个选项
-        Transform selectedPath = null;
-
-        if (scoreOptions.Count > 0)
-        {
-            MultiPointPathCreator firstCreator = scoreOptions[0].pathCreator;
-            if (firstCreator != null)
-                selectedPath = firstCreator.transform;
-        }
-
-        // 找到最高满足条件的分支
-        foreach (var option in scoreOptions)
-        {
-            MultiPointPathCreator optionCreator = option.pathCreator;
-            if (optionCreator == null) continue;
-
-            if (currentScore >= option.scoreThreshold)
-            {
-                selectedPath = optionCreator.transform;
-            }
-            else
-            {
-                break; // 停止在第一个超过分数的选项
-            }
-        }
-
-        return selectedPath;
-    }
-}
-
-// 添加路径分支类型枚举
-public enum PathBranchType
-{
-    Direct,     // 直接连接到下一个路径
-    ScoreBased  // 基于分数的分支
-}
-
-// 修改 PathScoreOption 类
-[Serializable]
-public class PathScoreOption
-{
-    public string optionName;
-    public float scoreThreshold;
-    public string pathID;
-    [TextArea(1, 3)]
+    [Tooltip("描述")]
     public string description;
 
-    // 通过 ID 获取路径创建器
-    public MultiPointPathCreator pathCreator
-    {
-        get
-        {
-            return PathRegistry.GetPathCreatorByID(pathID);
-        }
-    }
+    // 引用的路径创建器 (用于编辑器)
+    public MultiPointPathCreator pathCreator => PathRegistry.GetPathCreatorByID(nextPathID);
 
-    // 兼容旧代码
-    [System.NonSerialized]
-    private Transform _pathTransform;
-    public Transform path
+    // 检查分数是否在区间内
+    public bool IsScoreInRange(float score)
     {
-        get
-        {
-            var creator = pathCreator;
-            if (creator != null)
-                return creator.transform;
-            return _pathTransform;
-        }
-        set
-        {
-            _pathTransform = value;
-            if (value != null)
-            {
-                var creator = value.GetComponent<MultiPointPathCreator>();
-                if (creator != null)
-                {
-                    pathID = creator.pathID;
-                }
-                else
-                {
-                    // 尝试查找父级的路径创建器
-                    Transform current = value;
-                    while (current.parent != null)
-                    {
-                        current = current.parent;
-                        creator = current.GetComponent<MultiPointPathCreator>();
-                        if (creator != null)
-                        {
-                            pathID = creator.pathID;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        return score >= minScore && score < maxScore;
     }
 }

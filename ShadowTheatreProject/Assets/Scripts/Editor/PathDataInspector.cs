@@ -217,53 +217,97 @@ public class PathDataInspector
             
             EditorGUI.indentLevel++;
             
+            // 选项名称
             connection.scoreOptions[i].optionName = EditorGUILayout.TextField("名称", connection.scoreOptions[i].optionName);
-            connection.scoreOptions[i].scoreThreshold = EditorGUILayout.FloatField("分数阈值", connection.scoreOptions[i].scoreThreshold);
             
-            // 使用同样的ID选择器
-            string currentPathID = connection.scoreOptions[i].pathID;
-            string[] availablePathIDs = GetAvailablePathIDs();
-            string[] displayOptions = GetPathDisplayNames();
+            // 分数区间 - 确保显示最低分和最高分
+            EditorGUILayout.LabelField("分数区间", EditorStyles.boldLabel);
+            connection.scoreOptions[i].minScore = EditorGUILayout.FloatField("最低分数 (含)", connection.scoreOptions[i].minScore);
+            connection.scoreOptions[i].maxScore = EditorGUILayout.FloatField("最高分数 (不含)", connection.scoreOptions[i].maxScore);
             
-            int currentIndex = 0;
-            for (int j = 0; j < availablePathIDs.Length; j++)
+            // 向后兼容的分数阈值
+            connection.scoreOptions[i].scoreThreshold = connection.scoreOptions[i].minScore; // 自动设置阈值等于最低分
+            
+            // 路径选择
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("路径选择", EditorStyles.boldLabel);
+            
+            // 获取所有可用路径
+            MultiPointPathCreator[] allPathCreators = GameObject.FindObjectsOfType<MultiPointPathCreator>();
+            List<string> pathNames = new List<string>();
+            List<MultiPointPathCreator> pathCreatorList = new List<MultiPointPathCreator>();
+            
+            // 添加"无"选项
+            pathNames.Add("无");
+            pathCreatorList.Add(null);
+            
+            foreach (var pathCreator in allPathCreators)
             {
-                if (availablePathIDs[j] == currentPathID)
+                if (!string.IsNullOrEmpty(pathCreator.pathID))
                 {
-                    currentIndex = j;
-                    break;
+                    pathNames.Add($"{pathCreator.name} ({pathCreator.pathID})");
+                    pathCreatorList.Add(pathCreator);
                 }
             }
             
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PrefixLabel("目标路径");
-            int newIndex = EditorGUILayout.Popup(currentIndex, displayOptions);
-            EditorGUILayout.EndHorizontal();
+            // 找到当前选中的路径索引
+            int currentIndex = 0;
+            MultiPointPathCreator currentPathCreator = null;
             
-            if (newIndex != currentIndex && newIndex < availablePathIDs.Length)
+            if (!string.IsNullOrEmpty(connection.scoreOptions[i].pathID))
             {
-                connection.scoreOptions[i].pathID = availablePathIDs[newIndex];
+                currentPathCreator = PathRegistry.GetPathCreatorByID(connection.scoreOptions[i].pathID);
+            }
+            else if (connection.scoreOptions[i].path != null)
+            {
+                currentPathCreator = connection.scoreOptions[i].path.GetComponent<MultiPointPathCreator>();
+            }
+            
+            if (currentPathCreator != null)
+            {
+                for (int j = 0; j < pathCreatorList.Count; j++)
+                {
+                    if (pathCreatorList[j] == currentPathCreator)
+                    {
+                        currentIndex = j;
+                        break;
+                    }
+                }
+            }
+            
+            // 显示路径选择下拉框
+            EditorGUI.BeginChangeCheck();
+            int newIndex = EditorGUILayout.Popup("路径", currentIndex, pathNames.ToArray());
+            
+            if (EditorGUI.EndChangeCheck())
+            {
+                if (newIndex > 0 && newIndex < pathCreatorList.Count)
+                {
+                    var selectedCreator = pathCreatorList[newIndex];
+                    connection.scoreOptions[i].pathID = selectedCreator.pathID;
+                    connection.scoreOptions[i].path = selectedCreator.transform;
+                }
+                else
+                {
+                    connection.scoreOptions[i].pathID = "";
+                    connection.scoreOptions[i].path = null;
+                }
+                
                 EditorUtility.SetDirty(data);
             }
             
-            // 显示实际路径信息
-            var pathCreator = connection.scoreOptions[i].pathCreator;
-            if (pathCreator != null)
+            // 显示当前选中路径信息
+            if (currentPathCreator != null)
             {
-                EditorGUI.indentLevel++;
-                EditorGUILayout.LabelField("路径名称:", pathCreator.name);
-                EditorGUILayout.LabelField("路径ID:", connection.scoreOptions[i].pathID);
+                EditorGUILayout.LabelField("路径名称:", currentPathCreator.name);
+                EditorGUILayout.LabelField("路径ID:", currentPathCreator.pathID);
                 
-                // 添加定位按钮
                 if (GUILayout.Button("在场景中定位"))
                 {
-                    Selection.activeGameObject = pathCreator.gameObject;
+                    Selection.activeObject = currentPathCreator.gameObject;
                     SceneView.FrameLastActiveSceneView();
                 }
-                EditorGUI.indentLevel--;
             }
-            
-            connection.scoreOptions[i].description = EditorGUILayout.TextField("描述", connection.scoreOptions[i].description);
             
             EditorGUI.indentLevel--;
             EditorGUILayout.EndVertical();
@@ -271,12 +315,21 @@ public class PathDataInspector
         
         if (GUILayout.Button("添加分支选项"))
         {
-            connection.scoreOptions.Add(new PathScoreOption
+            float lastMax = 0;
+            if (connection.scoreOptions.Count > 0)
+            {
+                lastMax = connection.scoreOptions[connection.scoreOptions.Count - 1].maxScore;
+            }
+            
+            PathScoreOption newOption = new PathScoreOption
             {
                 optionName = $"选项 {connection.scoreOptions.Count + 1}",
-                scoreThreshold = connection.scoreOptions.Count > 0 ? 
-                    connection.scoreOptions[connection.scoreOptions.Count - 1].scoreThreshold + 10 : 0
-            });
+                minScore = lastMax,          // 设置最低分为前一个选项的最高分
+                maxScore = lastMax + 20f,    // 设置最高分比最低分高20分
+                scoreThreshold = lastMax     // 设置阈值等于最低分
+            };
+            
+            connection.scoreOptions.Add(newOption);
             EditorUtility.SetDirty(data);
         }
     }

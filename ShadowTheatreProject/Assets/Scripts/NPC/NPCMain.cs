@@ -1,5 +1,4 @@
 // 文件: NPCMain.cs
-using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(NPCController))]
@@ -26,9 +25,9 @@ public class NPCMain : MonoBehaviour
         eventManager.TriggerEventByID(eventID);
     }
 
-    public void SetPath(Transform path)
+    public void SwitchToPath(string pathID)
     {
-        pathManager.SwitchToPath(path);
+        pathManager.SwitchToPathByID(pathID);
     }
 
     public void UpdateScore(float amount)
@@ -46,32 +45,40 @@ public class NPCMain : MonoBehaviour
         return controller.Data?.currentScore ?? 0;
     }
 
-    // 调试用方法
-    // 重写存在问题的代码块
-    public void DebugNPCStatus()
+    // 根据路径索引切换路径
+    public void SwitchToPathByIndex(int pathIndex)
     {
-        controller.DebugStatus();
-        Debug.Log($"[{gameObject.name}] 当前路径: {(pathManager.CurrentPath ? pathManager.CurrentPath.name : "无")}");
-        Debug.Log($"[{gameObject.name}] 路径状态: {(pathManager.IsFollowingPath ? "正在跟随" : "已暂停或无路径")}");
+        if (controller == null || controller.Data == null ||
+            controller.Data.pathConnections == null ||
+            pathIndex < 0 || pathIndex >= controller.Data.pathConnections.Count)
+            return;
 
-        // 显示全部路径信息
-        if (controller.Data != null && controller.Data.pathConnections != null)
+        var connection = controller.Data.pathConnections[pathIndex];
+        if (connection.path != null)
         {
-            Debug.Log($"[{gameObject.name}] NPCData路径连接数量: {controller.Data.pathConnections.Count}");
-            for (int i = 0; i < controller.Data.pathConnections.Count; i++)
+            MultiPointPathCreator pathCreator = connection.path.GetComponent<MultiPointPathCreator>();
+            if (pathCreator != null)
             {
-                var connection = controller.Data.pathConnections[i];
-                string nextPathInfo = connection.branchType == PathBranchType.Direct ?
-                    (connection.nextPath ? connection.nextPath.name : "空") : "分数分支";
-                string pathInfo = connection.path ? connection.path.name : "空";
-                Debug.Log($"  路径 {i}: {pathInfo} -> {nextPathInfo}");
+                pathManager.SwitchToPath(pathCreator);
             }
         }
     }
 
-    // 强制使用特定路径
-    public void SwitchToPathByIndex(int index)
+    // 调试工具
+    public void DebugNPCStatus()
     {
-        pathManager.ForceSwitchToPathByIndex(index);
+        controller.DebugStatus();
+        Debug.Log($"[{gameObject.name}] 当前路径: {pathManager.CurrentPathID}");
+        Debug.Log($"[{gameObject.name}] 路径状态: {(pathManager.IsFollowingPath ? "正在跟随" : "已暂停或无路径")}");
+
+        // 获取当前路径配置
+        var currentPathConfig = pathManager.GetCurrentPathConfig();
+        if (currentPathConfig != null)
+        {
+            Debug.Log($"[{gameObject.name}] 当前路径: {currentPathConfig.pathName} (ID: {currentPathConfig.pathID})");
+            Debug.Log($"[{gameObject.name}] 分数范围: {currentPathConfig.minScore} - {currentPathConfig.maxScore}");
+            Debug.Log($"[{gameObject.name}] 事件数量: {currentPathConfig.events.Count}");
+            Debug.Log($"[{gameObject.name}] 下一路径分支数: {currentPathConfig.nextPaths.Count}");
+        }
     }
 }

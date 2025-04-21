@@ -11,8 +11,12 @@ public class NPCEventManager : MonoBehaviour
     private NPCController controller;
     private NPCPathManager pathManager;
     private bool isProcessingEvent = false;
-    private NPCEvent currentEvent = null;
+    private PathEvent currentEvent = null;
     private Dictionary<string, float> gestureHoldTimes = new Dictionary<string, float>();
+
+    // 当前路径的事件
+    private List<PathEvent> currentPathEvents = new List<PathEvent>();
+    private Transform currentPathPointsParent;
 
     void Awake()
     {
@@ -51,51 +55,68 @@ public class NPCEventManager : MonoBehaviour
         CheckEventTriggers();
     }
 
+    // 设置当前路径
+    public void SetCurrentPath(string pathID, Transform pathPointsParent)
+    {
+        currentPathPointsParent = pathPointsParent;
+        currentPathEvents.Clear();
+
+        // 查找对应路径配置
+        PathConfig pathConfig = controller.Data.FindPathById(pathID);
+        if (pathConfig != null)
+        {
+            currentPathEvents = pathConfig.events;
+            Debug.Log($"[{gameObject.name}] 设置当前路径: {pathID}, 包含 {currentPathEvents.Count} 个事件");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] 未找到路径配置: {pathID}");
+        }
+    }
+
     private void CheckEventTriggers()
     {
-        foreach (var npcEvent in controller.Data.events)
+        if (currentPathEvents.Count == 0 || currentPathPointsParent == null)
+            return;
+
+        foreach (var pathEvent in currentPathEvents)
         {
-            if (npcEvent.triggerLocation == null)
+            if (pathEvent.pathPointIndex < 0 || pathEvent.pathPointIndex >= currentPathPointsParent.childCount)
                 continue;
 
-            // 检查是否在触发区域内
-            float distance = Vector3.Distance(transform.position, npcEvent.triggerLocation.position);
+            // 获取事件触发点
+            Transform triggerPoint = currentPathPointsParent.GetChild(pathEvent.pathPointIndex);
 
-            // 只检查距离条件
-            bool isInTriggerArea = distance <= npcEvent.triggerRadius;
+            // 检查是否在触发区域内
+            float distance = Vector3.Distance(transform.position, triggerPoint.position);
+            bool isInTriggerArea = distance <= pathEvent.triggerRadius;
 
             if (isInTriggerArea)
             {
-                TriggerEvent(npcEvent);
+                TriggerEvent(pathEvent);
                 break; // 只处理一个事件
             }
         }
     }
 
-    private void TriggerEvent(NPCEvent npcEvent)
+    private void TriggerEvent(PathEvent pathEvent)
     {
         if (isProcessingEvent)
             return;
 
         isProcessingEvent = true;
-        currentEvent = npcEvent;
+        currentEvent = pathEvent;
 
         // 停止当前路径跟随
         pathManager.PausePathProcessing(true);
 
-        // 如果有全局事件，则通知EventCenter
-        if (!string.IsNullOrEmpty(npcEvent.globalEventName) && EventCenter.Instance != null)
-        {
-            EventCenter.Instance.Publish(npcEvent.globalEventName);
-        }
-
         // 开始手势检测倒计时
-        StartCoroutine(GestureDetectionCoroutine(npcEvent));
+        StartCoroutine(GestureDetectionCoroutine(pathEvent));
     }
 
-    private IEnumerator GestureDetectionCoroutine(NPCEvent npcEvent)
+    private IEnumerator GestureDetectionCoroutine(PathEvent pathEvent)
     {
-        Debug.Log($"[{gameObject.name}] 事件 {npcEvent.eventID} 触发，等待手势输入...");
+        Debug.Log($"[{gameObject.name}] 事件 {pathEvent.eventID} 触发，等待手势输入...");
 
         // 清空手势保持时间记录
         gestureHoldTimes.Clear();
@@ -103,20 +124,20 @@ public class NPCEventManager : MonoBehaviour
         // 限时等待手势
         float timeElapsed = 0;
         bool gestureSuccess = false;
-        GestureBranch successBranch = null;
+        GestureResponse successResponse = null;
 
-        while (timeElapsed < npcEvent.gestureTimeLimit && !gestureSuccess)
+        while (timeElapsed < pathEvent.gestureTimeLimit && !gestureSuccess)
         {
             timeElapsed += Time.deltaTime;
 
             // 检查各手势的保持时间
-            foreach (var gestureBranch in npcEvent.gestureBranches)
+            foreach (var response in pathEvent.gestureResponses)
             {
-                if (gestureHoldTimes.TryGetValue(gestureBranch.gestureType, out float holdTime) &&
-                    holdTime >= npcEvent.gestureHoldTime)
+                if (gestureHoldTimes.TryGetValue(response.gestureType, out float holdTime) &&
+                    holdTime >= pathEvent.gestureHoldTime)
                 {
                     gestureSuccess = true;
-                    successBranch = gestureBranch;
+                    successResponse = response;
                     break;
                 }
             }
@@ -124,16 +145,16 @@ public class NPCEventManager : MonoBehaviour
             yield return null;
         }
 
-        // 根据检测结果执行分支
-        if (gestureSuccess && successBranch != null)
+        // 根据检测结果执行反应
+        if (gestureSuccess && successResponse != null)
         {
-            Debug.Log($"[{gameObject.name}] 检测到手势: {successBranch.gestureType}，执行对应分支");
-            ExecuteBranch(successBranch);
+            Debug.Log($"[{gameObject.name}] 检测到手势: {successResponse.gestureType}，执行对应反应");
+            ExecuteResponse(successResponse);
         }
         else
         {
-            Debug.Log($"[{gameObject.name}] 未检测到有效手势，执行默认分支");
-            ExecuteBranch(npcEvent.defaultBranch);
+            Debug.Log($"[{gameObject.name}] 未检测到有效手势，执行默认反应");
+            ExecuteResponse(pathEvent.defaultResponse);
         }
     }
 
@@ -143,11 +164,11 @@ public class NPCEventManager : MonoBehaviour
         if (!isProcessingEvent || currentEvent == null)
             return;
 
-        // 检查这个手势是否匹配任何分支
-        foreach (var branch in currentEvent.gestureBranches)
+        // 检查这个手势是否匹配任何响应
+        foreach (var response in currentEvent.gestureResponses)
         {
-            if (gestureData.type == branch.gestureType &&
-                gestureData.confidence >= branch.minConfidence)
+            if (gestureData.type == response.gestureType &&
+                gestureData.confidence >= response.minConfidence)
             {
                 // 累计保持时间
                 if (!gestureHoldTimes.ContainsKey(gestureData.type))
@@ -165,43 +186,36 @@ public class NPCEventManager : MonoBehaviour
         }
     }
 
-    private void ExecuteBranch(EventBranch branch)
+    private void ExecuteResponse(GestureResponse response)
     {
-        StartCoroutine(ExecuteBranchCoroutine(branch));
+        StartCoroutine(ExecuteResponseCoroutine(response));
     }
 
-    private IEnumerator ExecuteBranchCoroutine(EventBranch branch)
+    private IEnumerator ExecuteResponseCoroutine(GestureResponse response)
     {
         // 更新分数
-        controller.UpdateScore(branch.scoreValue);
+        controller.UpdateScore(response.scoreEffect);
 
         // 播放动画
-        controller.PlayAnimation(branch.animationName);
+        controller.PlayAnimation(response.animationName);
 
         // 如果有动画，等待动画完成
-        if (!string.IsNullOrEmpty(branch.animationName))
+        if (!string.IsNullOrEmpty(response.animationName))
         {
             yield return new WaitForSeconds(1f); // 假设动画长度约为1秒
         }
 
-        // 显示对话（这里假设有DialogueManager）
-        if (!string.IsNullOrEmpty(branch.dialogueText))
+        // 显示对话
+        if (!string.IsNullOrEmpty(response.dialogueText))
         {
-            Debug.Log($"[{gameObject.name}] 对话: {branch.dialogueText}");
+            Debug.Log($"[{gameObject.name}] 对话: {response.dialogueText}");
             // 如果有对话系统，这里调用显示对话
-            // DialogueManager.Instance.ShowDialogue(branch.dialogueText, controller.Data.npcName);
+            // DialogueManager.Instance.ShowDialogue(response.dialogueText, controller.Data.npcName);
             yield return new WaitForSeconds(2f); // 给玩家时间阅读对话
         }
 
-        // 处理覆盖路径
-        if (branch.overridePath != null)
-        {
-            // 使用临时路径
-            yield return StartCoroutine(pathManager.FollowTemporaryPath(branch.overridePath));
-        }
-
         // 分支完成延迟
-        yield return new WaitForSeconds(branch.completionDelay);
+        yield return new WaitForSeconds(response.completionDelay);
 
         // 事件处理完成
         isProcessingEvent = false;
@@ -214,10 +228,10 @@ public class NPCEventManager : MonoBehaviour
     // 直接触发事件的公共方法（例如从其他系统触发）
     public void TriggerEventByID(string eventID)
     {
-        if (isProcessingEvent || controller.Data == null)
+        if (isProcessingEvent)
             return;
 
-        NPCEvent targetEvent = controller.Data.events.Find(e => e.eventID == eventID);
+        PathEvent targetEvent = currentPathEvents.Find(e => e.eventID == eventID);
         if (targetEvent != null)
         {
             TriggerEvent(targetEvent);
