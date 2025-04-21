@@ -5,37 +5,119 @@ using UnityEditor;
 [CustomEditor(typeof(NPCEventManager))]
 public class NPCEventManagerEditor : Editor
 {
+    private NPCEventManager eventManager;
+    private NPCController controller;
     private bool showEvents = true;
     private bool showPathDecisions = true;
     
+    private void OnEnable()
+    {
+        eventManager = (NPCEventManager)target;
+        // 获取同一GameObject上的NPCController组件
+        controller = eventManager.GetComponent<NPCController>();
+    }
+    
     public override void OnInspectorGUI()
     {
-        NPCEventManager manager = (NPCEventManager)target;
-        
-        // 绘制默认检查器
         DrawDefaultInspector();
         
-        // 额外功能
-        EditorGUILayout.Space(10);
-        EditorGUILayout.LabelField("调试工具", EditorStyles.boldLabel);
-        
-        if (GUILayout.Button("刷新 NPC 数据引用"))
+        if (controller == null || controller.Data == null)
         {
-            SerializedProperty npcDataProp = serializedObject.FindProperty("npcData");
-            if (npcDataProp.objectReferenceValue != null)
-            {
-                EditorUtility.SetDirty(npcDataProp.objectReferenceValue);
-            }
+            EditorGUILayout.HelpBox("NPCController组件或NPCData未设置", MessageType.Warning);
+            return;
         }
         
-        if (Application.isPlaying && manager.npcData != null)
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("NPC事件信息", EditorStyles.boldLabel);
+        
+        EditorGUILayout.LabelField($"当前分数: {controller.Data.currentScore}", EditorStyles.boldLabel);
+        
+        if (Application.isPlaying)
         {
-            EditorGUILayout.LabelField($"当前分数: {manager.GetCurrentScore()}", EditorStyles.boldLabel);
+            // 事件触发器
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("事件触发", EditorStyles.boldLabel);
             
-            if (GUILayout.Button("重置 NPC 分数"))
+            if (controller.Data.events != null && controller.Data.events.Count > 0)
             {
-                manager.npcData.currentScore = 0;
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                
+                foreach (var npcEvent in controller.Data.events)
+                {
+                    if (string.IsNullOrEmpty(npcEvent.eventID)) continue;
+                    
+                    EditorGUILayout.BeginHorizontal();
+                    
+                    EditorGUILayout.LabelField(npcEvent.eventID, GUILayout.Width(150));
+                    
+                    if (GUILayout.Button("触发", GUILayout.Width(60)))
+                    {
+                        eventManager.TriggerEventByID(npcEvent.eventID);
+                    }
+                    
+                    EditorGUILayout.EndHorizontal();
+                }
+                
+                EditorGUILayout.EndVertical();
             }
+            else
+            {
+                EditorGUILayout.HelpBox("NPCData中没有设置事件", MessageType.Info);
+            }
+            
+            // 分数调整
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("分数调整", EditorStyles.boldLabel);
+            
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("加分 (+10)"))
+            {
+                controller.UpdateScore(10);
+            }
+            
+            if (GUILayout.Button("减分 (-10)"))
+            {
+                controller.UpdateScore(-10);
+            }
+            EditorGUILayout.EndHorizontal();
+            
+            // 路径决策点
+            if (controller.Data.pathDecisions != null && controller.Data.pathDecisions.Count > 0)
+            {
+                EditorGUILayout.Space(5);
+                EditorGUILayout.LabelField("路径决策点", EditorStyles.boldLabel);
+                
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                
+                foreach (var decision in controller.Data.pathDecisions)
+                {
+                    if (string.IsNullOrEmpty(decision.decisionPointID)) continue;
+                    
+                    EditorGUILayout.LabelField(decision.decisionPointID, EditorStyles.boldLabel);
+                    
+                    if (decision.pathOptions.Count > 0)
+                    {
+                        // 显示可能的路径选择
+                        EditorGUI.indentLevel++;
+                        foreach (var option in decision.pathOptions)
+                        {
+                            string pathName = option.path != null ? option.path.name : "未设置";
+                            string selected = controller.Data.currentScore >= option.scoreThreshold ? " ✓" : "";
+                            
+                            EditorGUILayout.LabelField($"阈值 {option.scoreThreshold}: {pathName}{selected}");
+                        }
+                        EditorGUI.indentLevel--;
+                    }
+                    
+                    EditorGUILayout.Space(5);
+                }
+                
+                EditorGUILayout.EndVertical();
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("游戏运行时可测试功能", MessageType.Info);
         }
         
         // 场景视图可视化控制
@@ -55,15 +137,13 @@ public class NPCEventManagerEditor : Editor
     // 在场景视图中绘制可视化帮助
     private void OnSceneGUI()
     {
-        NPCEventManager manager = (NPCEventManager)target;
-        
-        if (manager.npcData == null)
+        if (controller == null || controller.Data == null)
             return;
             
         // 绘制事件触发区域
         if (showEvents)
         {
-            foreach (var npcEvent in manager.npcData.events)
+            foreach (var npcEvent in controller.Data.events)
             {
                 if (npcEvent.triggerLocation == null)
                     continue;
@@ -78,21 +158,13 @@ public class NPCEventManagerEditor : Editor
                     $"事件: {npcEvent.eventID}",
                     EditorStyles.whiteBoldLabel
                 );
-                
-                // 删除对时间范围的引用
-                // var timeText = $"时间: {npcEvent.triggerTimeRange.x}-{npcEvent.triggerTimeRange.y}";
-                // Handles.Label(
-                //     npcEvent.triggerLocation.position + Vector3.up * 1.2f, 
-                //     timeText,
-                //     EditorStyles.whiteLabel
-                // );
             }
         }
         
         // 绘制路径决策点
         if (showPathDecisions)
         {
-            foreach (var decision in manager.npcData.pathDecisions)
+            foreach (var decision in controller.Data.pathDecisions)
             {
                 if (decision.decisionLocation == null)
                     continue;

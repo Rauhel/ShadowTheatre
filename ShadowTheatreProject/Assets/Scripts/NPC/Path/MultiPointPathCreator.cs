@@ -30,6 +30,10 @@ public class MultiPointPathCreator : MonoBehaviour
     [Range(0.1f, 2f)]
     public float transitionSpacing = 0.5f;
 
+    [Header("ID")]
+    [Tooltip("路径的唯一标识符 (自动生成)")]
+    public string pathID;
+
     // 临时路径存储
     private NavMeshPath tempPath;
 
@@ -37,6 +41,15 @@ public class MultiPointPathCreator : MonoBehaviour
     {
         tempPath = new NavMeshPath();
         UpdateStartAndEndPoints();
+
+        // 确保路径ID不为空
+        if (string.IsNullOrEmpty(pathID))
+        {
+            pathID = System.Guid.NewGuid().ToString().Substring(0, 8);
+        }
+
+        // 注册到路径注册表
+        PathRegistry.RegisterPath(pathID, this);
     }
 
     // 更新起点和终点引用

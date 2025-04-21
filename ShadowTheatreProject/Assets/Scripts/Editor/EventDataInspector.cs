@@ -94,20 +94,34 @@ public class EventDataInspector
         EditorGUILayout.PrefixLabel("触发位置");
         EditorGUI.BeginChangeCheck();
         
-        // 使用 ObjectField 时确保类型为 Transform
+        // 使用 ObjectField 接受任何 Transform
         npcEvent.triggerLocation = EditorGUILayout.ObjectField(
             npcEvent.triggerLocation, 
             typeof(Transform), 
-            true  // 允许场景对象
+            true
         ) as Transform;
         
-        if (EditorGUI.EndChangeCheck() && npcEvent.triggerLocation != null)
+        if (EditorGUI.EndChangeCheck())
         {
-            // 确保 NPCData 被标记为已修改
+            // 验证所选对象是否是路径点
+            bool isValidPathPoint = false;
+            if (npcEvent.triggerLocation != null)
+            {
+                Transform parent = npcEvent.triggerLocation.parent;
+                if (parent != null && parent.name.Contains("PathPoints"))
+                {
+                    isValidPathPoint = true;
+                }
+                else if (!isValidPathPoint)
+                {
+                    Debug.LogWarning("所选对象不是路径点，建议选择路径点作为触发位置");
+                }
+            }
+            
             EditorUtility.SetDirty(data);
         }
         
-        // 添加一个定位按钮
+        // 添加定位按钮
         if (npcEvent.triggerLocation != null && GUILayout.Button("定位", GUILayout.Width(50)))
         {
             Selection.activeGameObject = npcEvent.triggerLocation.gameObject;
@@ -115,13 +129,39 @@ public class EventDataInspector
         }
         EditorGUILayout.EndHorizontal();
         
-        // 显示触发点在路径上的相对位置
+        // 显示路径点信息
         if (npcEvent.triggerLocation != null)
         {
-            string posInfo = data.GetPathPointRelativePosition(npcEvent.triggerLocation);
-            if (posInfo != "未知")
+            // 检查是否是路径点
+            Transform point = npcEvent.triggerLocation;
+            Transform parent = point.parent;
+            
+            // 路径点通常在 PathPoints 下
+            if (parent != null && parent.name.Contains("PathPoints"))
             {
-                EditorGUILayout.LabelField($"路径位置: {posInfo}", EditorStyles.boldLabel);
+                string posInfo = data.GetPathPointRelativePosition(point);
+                if (posInfo != "未知")
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.PrefixLabel("路径位置");
+                    EditorGUILayout.LabelField(posInfo, EditorStyles.boldLabel);
+                    
+                    // 添加一个跳转到路径按钮
+                    if (GUILayout.Button("查看路径", GUILayout.Width(80)))
+                    {
+                        // 查找路径对象 (父对象的父对象)
+                        if (parent.parent != null)
+                        {
+                            Selection.activeGameObject = parent.parent.gameObject;
+                            SceneView.FrameLastActiveSceneView();
+                        }
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+            }
+            else
+            {
+                EditorGUILayout.HelpBox("当前选择的不是路径点。建议选择路径点作为触发位置，以获得更好的位置精度。", MessageType.Warning);
             }
         }
         

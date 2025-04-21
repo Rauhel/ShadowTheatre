@@ -150,12 +150,22 @@ public class PathGraphRenderer
 
         foreach (var connection in npcData.pathConnections)
         {
-            if (connection.path == path || 
-                (connection.pathCreator != null && connection.pathCreator.transform == path))
+            // 直接检查路径变换是否匹配
+            if (connection.path == path)
+                return connection;
+            
+            // 检查是否指向同一个路径创建器
+            MultiPointPathCreator pathCreator = path.GetComponent<MultiPointPathCreator>();
+            if (pathCreator != null && connection.pathCreator == pathCreator)
+                return connection;
+            
+            // 检查路径点的父路径
+            if (path.parent != null && path.parent.name.Contains("PathPoints") &&
+                path.parent.parent == connection.path)
                 return connection;
         }
 
-        return null;  // 确保所有路径都返回值
+        return null;
     }
 
     // 路径布局方法
@@ -275,7 +285,7 @@ public class PathGraphRenderer
         }
     }
 
-    // 绘制路径连接线
+    // 修复 DrawPathConnections 方法中的错误
     private void DrawPathConnections()
     {
         if (npcData == null) return;
@@ -290,11 +300,11 @@ public class PathGraphRenderer
                 // 将决策点放在路径下方的中间
                 float pathX = pathNodePositions[path].center.x;
                 float pathY = pathNodePositions[path].center.y;
-                float decisionY = pathY + verticalSpacing / 2;  // 使用 verticalSpacing
+                float decisionY = pathY + verticalSpacing / 2;
                 
                 // 绘制一个虚拟的决策点
                 Vector2 decisionPos = new Vector2(pathX, decisionY);
-                Rect decisionRect = new Rect(decisionPos.x - nodeSize/3, decisionPos.y - nodeSize/3, nodeSize*2/3, nodeSize*2/3);  // 使用 nodeSize
+                Rect decisionRect = new Rect(decisionPos.x - nodeSize/3, decisionPos.y - nodeSize/3, nodeSize*2/3, nodeSize*2/3);
                 
                 // 路径到决策点的连接
                 Vector2 start = new Vector2(pathNodePositions[path].center.x, pathNodePositions[path].yMax);
@@ -314,7 +324,6 @@ public class PathGraphRenderer
                     new Vector3(decisionRect.center.x, decisionRect.yMin, 0) // 闭合多边形
                 };
                 
-                // 使用修正后的绘制方法
                 Handles.DrawAAPolyLine(2f, diamond);
                 Handles.EndGUI();
                 
@@ -329,34 +338,81 @@ public class PathGraphRenderer
                 // 决策点到各选项的连接
                 foreach (var option in connection.scoreOptions)
                 {
-                    if (option.pathObject != null && pathNodePositions.ContainsKey(option.pathObject.transform))
+                    if (option.path != null)
                     {
-                        Vector2 decisionEnd = new Vector2(decisionRect.center.x, decisionRect.yMax);
-                        Vector2 optionStart = new Vector2(pathNodePositions[option.pathObject.transform].center.x, pathNodePositions[option.pathObject.transform].yMin);
+                        // 获取路径的根对象（MultiPointPathCreator所在的对象）
+                        Transform pathRoot = GetPathRootForDrawing(option.path);
                         
-                        float scoreRatio = Mathf.Clamp01(option.scoreThreshold / 100f);
-                        Color lineColor = Color.Lerp(Color.green, Color.red, scoreRatio);
-                        
-                        DrawNodeConnection(decisionEnd, optionStart, lineColor);
-                        
-                        // 在连线中点显示阈值
-                        Vector2 labelPos = Vector2.Lerp(decisionEnd, optionStart, 0.5f);
-                        GUI.Label(
-                            new Rect(labelPos.x - 30, labelPos.y - 10, 60, 20),
-                            $">= {option.scoreThreshold}"
-                        );
+                        if (pathRoot != null && pathNodePositions.ContainsKey(pathRoot))
+                        {
+                            Vector2 decisionEnd = new Vector2(decisionRect.center.x, decisionRect.yMax);
+                            Vector2 optionStart = new Vector2(pathNodePositions[pathRoot].center.x, 
+                                                             pathNodePositions[pathRoot].yMin);
+                            
+                            float scoreRatio = Mathf.Clamp01(option.scoreThreshold / 100f);
+                            Color lineColor = Color.Lerp(Color.green, Color.red, scoreRatio);
+                            
+                            DrawNodeConnection(decisionEnd, optionStart, lineColor);
+                            
+                            // 在连线中点显示阈值
+                            Vector2 labelPos = Vector2.Lerp(decisionEnd, optionStart, 0.5f);
+                            GUI.Label(
+                                new Rect(labelPos.x - 30, labelPos.y - 10, 60, 20),
+                                $">= {option.scoreThreshold}"
+                            );
+                        }
                     }
                 }
             }
             else if (!connection.isEndPoint && connection.branchType == PathBranchType.Direct && 
-                     connection.nextPathObject != null && pathNodePositions.ContainsKey(connection.nextPathObject.transform))
+                     connection.nextPath != null)
             {
-                // 直接到下一路径的连接
-                Vector2 start = new Vector2(pathNodePositions[path].center.x, pathNodePositions[path].yMax);
-                Vector2 end = new Vector2(pathNodePositions[connection.nextPathObject.transform].center.x, pathNodePositions[connection.nextPathObject.transform].yMin);
-                DrawNodeConnection(start, end);
+                // 获取路径的根对象
+                Transform nextPathRoot = GetPathRootForDrawing(connection.nextPath);
+                
+                if (nextPathRoot != null && pathNodePositions.ContainsKey(nextPathRoot))
+                {
+                    // 绘制连接线
+                    Vector2 start = new Vector2(pathNodePositions[path].center.x, pathNodePositions[path].yMax);
+                    Vector2 end = new Vector2(pathNodePositions[nextPathRoot].center.x, pathNodePositions[nextPathRoot].yMin);
+                    DrawNodeConnection(start, end);
+                }
             }
         }
+    }
+
+    // 添加辅助方法获取路径根对象
+    private Transform GetPathRootForDrawing(Transform pathTransform)
+    {
+        if (pathTransform == null) return null;
+        
+        // 如果自身是路径节点并且已经在位置字典中，直接返回
+        if (pathNodePositions.ContainsKey(pathTransform))
+            return pathTransform;
+        
+        // 检查自身是否是路径根对象
+        if (pathTransform.GetComponent<MultiPointPathCreator>() != null)
+            return pathTransform;
+        
+        // 检查是否是路径点
+        if (pathTransform.parent != null && pathTransform.parent.name.Contains("PathPoints"))
+        {
+            Transform rootPath = pathTransform.parent.parent;
+            if (rootPath != null && pathNodePositions.ContainsKey(rootPath))
+                return rootPath;
+        }
+        
+        // 向上查找最近的路径根对象
+        Transform current = pathTransform;
+        while (current.parent != null)
+        {
+            current = current.parent;
+            if (current.GetComponent<MultiPointPathCreator>() != null && 
+                pathNodePositions.ContainsKey(current))
+                return current;
+        }
+        
+        return null;
     }
 
     // 绘制两点之间的连接线

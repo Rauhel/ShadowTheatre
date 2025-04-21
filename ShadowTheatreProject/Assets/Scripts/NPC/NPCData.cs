@@ -21,40 +21,53 @@ public class NPCData : ScriptableObject
     [Header("路径连接")]
     public List<PathConnection> pathConnections = new List<PathConnection>();
 
+    // 根据路径点获取路径根对象
+    public Transform GetPathRoot(Transform pathPoint)
+    {
+        if (pathPoint == null) return null;
+
+        // 检查自身是否是路径根对象
+        if (pathPoint.GetComponent<MultiPointPathCreator>() != null)
+            return pathPoint;
+
+        // 向上查找路径根对象
+        Transform current = pathPoint;
+        while (current.parent != null) // 修复：删除多余的右括号
+        {
+            if (current.parent.name.Contains("PathPoints"))
+            {
+                return current.parent.parent;
+            }
+            current = current.parent;
+        }
+
+        // 检查最终的对象
+        return current.GetComponent<MultiPointPathCreator>()?.transform;
+    }
+
+    // 获取路径点相对位置信息
     public string GetPathPointRelativePosition(Transform pathPoint)
     {
-        if (pathPoint == null)
-            return "未知";
+        if (pathPoint == null) return "未知";
 
-        // 查找该点所属的路径
-        Transform parentPath = pathPoint.parent;
-        if (parentPath == null || parentPath.parent == null)
-            return "未知";
-
-        // 获取路径创建器
-        MultiPointPathCreator pathCreator = parentPath.parent.GetComponent<MultiPointPathCreator>();
-        if (pathCreator == null || pathCreator.pathPointsParent != parentPath)
-            return "未知";
-
-        // 查找点的索引
-        int pointCount = parentPath.childCount;
-        int pointIndex = -1;
-
-        for (int i = 0; i < pointCount; i++)
+        Transform parent = pathPoint.parent;
+        if (parent != null && parent.name.Contains("PathPoints"))
         {
-            if (parentPath.GetChild(i) == pathPoint)
+            // 找到路径创建器
+            Transform rootPath = parent.parent;
+            MultiPointPathCreator pathCreator = rootPath.GetComponent<MultiPointPathCreator>();
+
+            if (pathCreator != null)
             {
-                pointIndex = i;
-                break;
+                int childCount = parent.childCount;
+                int childIndex = pathPoint.GetSiblingIndex();
+                float relativePos = (childCount > 1) ? (float)childIndex / (childCount - 1) : 0;
+
+                return $"{rootPath.name} 的 {relativePos:P0}";
             }
         }
 
-        if (pointIndex < 0)
-            return "未知";
-
-        // 计算相对位置
-        float relativePos = (float)pointIndex / (pointCount - 1);
-        return $"{relativePos:P0}";
+        return "未知";
     }
 
     public Transform GetPathPointByRelativePosition(MultiPointPathCreator pathCreator, float relativePosition)
@@ -171,23 +184,16 @@ public class GestureBranch : EventBranch
 [Serializable]
 public class PathConnection
 {
-    [SerializeField, HideInInspector]
-    private Transform _pathTransform;
-
-    [SerializeField, HideInInspector]
-    private Transform _nextPathTransform;
-
-    // Unity 编辑器可视属性
-    [Tooltip("路径对象")]
-    public GameObject pathObject;
+    [Tooltip("路径ID")]
+    public string pathID;
 
     [Header("路径分支类型")]
     [Tooltip("路径分支类型")]
     public PathBranchType branchType = PathBranchType.Direct;
 
     [Header("直接连接")]
-    [Tooltip("下一条路径（如果是直接连接）")]
-    public GameObject nextPathObject;
+    [Tooltip("下一条路径ID（如果是直接连接）")]
+    public string nextPathID;
 
     [Header("基于分数的分支")]
     [Tooltip("分支选项列表（如果是分数分支）")]
@@ -197,14 +203,12 @@ public class PathConnection
     [Tooltip("该路径是否是终点")]
     public bool isEndPoint = false;
 
-    // 获取缓存的 MultiPointPathCreator 组件
+    // 智能获取 MultiPointPathCreator 组件
     public MultiPointPathCreator pathCreator
     {
         get
         {
-            if (pathObject != null)
-                return pathObject.GetComponent<MultiPointPathCreator>();
-            return null;
+            return PathRegistry.GetPathCreatorByID(pathID);
         }
     }
 
@@ -212,9 +216,88 @@ public class PathConnection
     {
         get
         {
-            if (nextPathObject != null)
-                return nextPathObject.GetComponent<MultiPointPathCreator>();
-            return null;
+            return PathRegistry.GetPathCreatorByID(nextPathID);
+        }
+    }
+
+    // 兼容旧代码的属性
+    [System.NonSerialized]
+    private Transform _pathTransform;
+    public Transform path
+    {
+        get
+        {
+            var creator = pathCreator;
+            if (creator != null)
+                return creator.transform;
+            return _pathTransform;
+        }
+        set
+        {
+            _pathTransform = value;
+            if (value != null)
+            {
+                var creator = value.GetComponent<MultiPointPathCreator>();
+                if (creator != null)
+                {
+                    pathID = creator.pathID;
+                }
+                else
+                {
+                    // 尝试查找父级的路径创建器
+                    Transform current = value;
+                    while (current.parent != null)
+                    {
+                        current = current.parent;
+                        creator = current.GetComponent<MultiPointPathCreator>();
+                        if (creator != null)
+                        {
+                            pathID = creator.pathID;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    [System.NonSerialized]
+    private Transform _nextPathTransform;
+    public Transform nextPath
+    {
+        get
+        {
+            var creator = nextPathCreator;
+            if (creator != null)
+                return creator.transform;
+            return _nextPathTransform;
+        }
+        set
+        {
+            _nextPathTransform = value;
+            if (value != null)
+            {
+                var creator = value.GetComponent<MultiPointPathCreator>();
+                if (creator != null)
+                {
+                    nextPathID = creator.pathID;
+                }
+                else
+                {
+                    // 尝试查找父级的路径创建器
+                    Transform current = value;
+                    while (current.parent != null)
+                    {
+                        current = current.parent;
+                        creator = current.GetComponent<MultiPointPathCreator>();
+                        if (creator != null)
+                        {
+                            nextPathID = creator.pathID;
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -229,79 +312,37 @@ public class PathConnection
         return pathCreator?.endPoint;
     }
 
-    // 保持与旧代码的兼容性
-    public Transform path
-    {
-        get
-        {
-            if (pathObject != null)
-                return pathObject.transform;
-            return _pathTransform;
-        }
-        set
-        {
-            _pathTransform = value;
-            if (value != null)
-            {
-                pathObject = value.gameObject;
-            }
-            else
-            {
-                pathObject = null;
-            }
-        }
-    }
-
-    public Transform nextPath
-    {
-        get
-        {
-            if (nextPathObject != null)
-                return nextPathObject.transform;
-            return _nextPathTransform;
-        }
-        set
-        {
-            _nextPathTransform = value;
-            if (value != null)
-            {
-                nextPathObject = value.gameObject;
-            }
-            else
-            {
-                nextPathObject = null;
-            }
-        }
-    }
-
     // 根据分数选择下一个路径
     public Transform SelectNextPathBasedOnScore(float currentScore)
     {
         if (branchType == PathBranchType.Direct || scoreOptions == null || scoreOptions.Count == 0)
         {
-            return nextPath;
+            return nextPathCreator?.transform;
         }
 
-        // 默认使用第一个路径选项
-        PathScoreOption firstOption = scoreOptions[0];
-        Transform selectedPath = firstOption != null && firstOption.pathObject != null ?
-                                firstOption.pathObject.transform : null;
+        // 默认使用第一个选项
+        Transform selectedPath = null;
 
-        // 遍历所有路径选项
+        if (scoreOptions.Count > 0)
+        {
+            MultiPointPathCreator firstCreator = scoreOptions[0].pathCreator;
+            if (firstCreator != null)
+                selectedPath = firstCreator.transform;
+        }
+
+        // 找到最高满足条件的分支
         foreach (var option in scoreOptions)
         {
-            if (option == null || option.pathObject == null)
-                continue;
+            MultiPointPathCreator optionCreator = option.pathCreator;
+            if (optionCreator == null) continue;
 
-            // 如果当前分数大于等于该选项的分数阈值，选择该路径
             if (currentScore >= option.scoreThreshold)
             {
-                selectedPath = option.pathObject.transform;
+                selectedPath = optionCreator.transform;
             }
             else
             {
-                // 一旦遇到分数不满足的选项，停止查找（假设选项已按阈值从低到高排序）
-                break;
+                break; // 停止在第一个超过分数的选项
             }
         }
 
@@ -322,18 +363,57 @@ public class PathScoreOption
 {
     public string optionName;
     public float scoreThreshold;
-    public GameObject pathObject;
+    public string pathID;
     [TextArea(1, 3)]
     public string description;
 
-    // 获取 MultiPointPathCreator 组件
+    // 通过 ID 获取路径创建器
     public MultiPointPathCreator pathCreator
     {
         get
         {
-            if (pathObject != null)
-                return pathObject.GetComponent<MultiPointPathCreator>();
-            return null;
+            return PathRegistry.GetPathCreatorByID(pathID);
+        }
+    }
+
+    // 兼容旧代码
+    [System.NonSerialized]
+    private Transform _pathTransform;
+    public Transform path
+    {
+        get
+        {
+            var creator = pathCreator;
+            if (creator != null)
+                return creator.transform;
+            return _pathTransform;
+        }
+        set
+        {
+            _pathTransform = value;
+            if (value != null)
+            {
+                var creator = value.GetComponent<MultiPointPathCreator>();
+                if (creator != null)
+                {
+                    pathID = creator.pathID;
+                }
+                else
+                {
+                    // 尝试查找父级的路径创建器
+                    Transform current = value;
+                    while (current.parent != null)
+                    {
+                        current = current.parent;
+                        creator = current.GetComponent<MultiPointPathCreator>();
+                        if (creator != null)
+                        {
+                            pathID = creator.pathID;
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }

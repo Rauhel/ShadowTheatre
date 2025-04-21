@@ -104,35 +104,91 @@ public class PathDataInspector
     // 修改后的 ShowDirectConnectionOptions 方法
     private void ShowDirectConnectionOptions(PathConnection connection, NPCData data)
     {
+        string currentPathID = connection.nextPathID;
+        string[] availablePathIDs = GetAvailablePathIDs();
+        string[] displayOptions = GetPathDisplayNames();
+        
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("下一路径");
         
-        // 使用 GameObject 字段
-        EditorGUI.BeginChangeCheck();
-        connection.nextPathObject = EditorGUILayout.ObjectField(
-            connection.nextPathObject,
-            typeof(GameObject), 
-            true
-        ) as GameObject;
-        
-        if (EditorGUI.EndChangeCheck())
+        // 查找当前路径ID在数组中的索引
+        int currentIndex = 0;
+        for (int i = 0; i < availablePathIDs.Length; i++)
         {
-            if (connection.nextPathObject != null)
+            if (availablePathIDs[i] == currentPathID)
             {
-                // 验证对象上是否有 MultiPointPathCreator 组件
-                MultiPointPathCreator pathComp = connection.nextPathObject.GetComponent<MultiPointPathCreator>();
-                if (pathComp == null)
-                {
-                    Debug.LogWarning($"选择的对象 {connection.nextPathObject.name} 不包含 MultiPointPathCreator 组件");
-                    // 可以选择清除引用或保留，取决于您的需求
-                    // connection.nextPathObject = null;
-                }
+                currentIndex = i;
+                break;
             }
-            
+        }
+        
+        // 使用下拉菜单选择路径ID
+        int newIndex = EditorGUILayout.Popup(currentIndex, displayOptions);
+        
+        // 如果选择发生变化，更新路径ID
+        if (newIndex != currentIndex && newIndex < availablePathIDs.Length)
+        {
+            connection.nextPathID = availablePathIDs[newIndex];
             EditorUtility.SetDirty(data);
         }
         
         EditorGUILayout.EndHorizontal();
+        
+        // 显示实际路径信息
+        var pathCreator = connection.nextPathCreator;
+        if (pathCreator != null)
+        {
+            EditorGUI.indentLevel++;
+            EditorGUILayout.LabelField("路径名称:", pathCreator.name);
+            EditorGUILayout.LabelField("路径ID:", connection.nextPathID);
+            
+            // 添加定位按钮
+            if (GUILayout.Button("在场景中定位"))
+            {
+                Selection.activeGameObject = pathCreator.gameObject;
+                SceneView.FrameLastActiveSceneView();
+            }
+            EditorGUI.indentLevel--;
+        }
+    }
+
+    // 添加辅助方法获取所有可用路径
+    private string[] GetAvailablePathIDs()
+    {
+        // 获取所有路径创建器
+        MultiPointPathCreator[] allPaths = Object.FindObjectsOfType<MultiPointPathCreator>();
+        
+        // 添加一个"无"选项
+        List<string> pathIDs = new List<string> { "" };
+        
+        foreach (var path in allPaths)
+        {
+            if (!string.IsNullOrEmpty(path.pathID))
+            {
+                pathIDs.Add(path.pathID);
+            }
+        }
+        
+        return pathIDs.ToArray();
+    }
+
+    // 获取路径的显示名称
+    private string[] GetPathDisplayNames()
+    {
+        MultiPointPathCreator[] allPaths = Object.FindObjectsOfType<MultiPointPathCreator>();
+        
+        // 添加一个"无"选项
+        List<string> displayNames = new List<string> { "无" };
+        
+        foreach (var path in allPaths)
+        {
+            string displayName = string.IsNullOrEmpty(path.pathID) ? 
+                $"{path.name} (无ID)" : 
+                $"{path.name} ({path.pathID})";
+            displayNames.Add(displayName);
+        }
+        
+        return displayNames.ToArray();
     }
 
     // 修改后的 ShowScoreBasedConnectionOptions 方法
@@ -164,29 +220,47 @@ public class PathDataInspector
             connection.scoreOptions[i].optionName = EditorGUILayout.TextField("名称", connection.scoreOptions[i].optionName);
             connection.scoreOptions[i].scoreThreshold = EditorGUILayout.FloatField("分数阈值", connection.scoreOptions[i].scoreThreshold);
             
-            EditorGUI.BeginChangeCheck();
-            connection.scoreOptions[i].pathObject = EditorGUILayout.ObjectField(
-                "目标路径", 
-                connection.scoreOptions[i].pathObject,
-                typeof(GameObject), 
-                true
-            ) as GameObject;
+            // 使用同样的ID选择器
+            string currentPathID = connection.scoreOptions[i].pathID;
+            string[] availablePathIDs = GetAvailablePathIDs();
+            string[] displayOptions = GetPathDisplayNames();
             
-            if (EditorGUI.EndChangeCheck())
+            int currentIndex = 0;
+            for (int j = 0; j < availablePathIDs.Length; j++)
             {
-                if (connection.scoreOptions[i].pathObject != null)
+                if (availablePathIDs[j] == currentPathID)
                 {
-                    // 验证对象上是否有 MultiPointPathCreator 组件
-                    MultiPointPathCreator pathComp = connection.scoreOptions[i].pathObject.GetComponent<MultiPointPathCreator>();
-                    if (pathComp == null)
-                    {
-                        Debug.LogWarning($"选择的对象 {connection.scoreOptions[i].pathObject.name} 不包含 MultiPointPathCreator 组件");
-                        // 可以选择清除引用或保留
-                        // connection.scoreOptions[i].pathObject = null;
-                    }
+                    currentIndex = j;
+                    break;
                 }
-                
+            }
+            
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel("目标路径");
+            int newIndex = EditorGUILayout.Popup(currentIndex, displayOptions);
+            EditorGUILayout.EndHorizontal();
+            
+            if (newIndex != currentIndex && newIndex < availablePathIDs.Length)
+            {
+                connection.scoreOptions[i].pathID = availablePathIDs[newIndex];
                 EditorUtility.SetDirty(data);
+            }
+            
+            // 显示实际路径信息
+            var pathCreator = connection.scoreOptions[i].pathCreator;
+            if (pathCreator != null)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.LabelField("路径名称:", pathCreator.name);
+                EditorGUILayout.LabelField("路径ID:", connection.scoreOptions[i].pathID);
+                
+                // 添加定位按钮
+                if (GUILayout.Button("在场景中定位"))
+                {
+                    Selection.activeGameObject = pathCreator.gameObject;
+                    SceneView.FrameLastActiveSceneView();
+                }
+                EditorGUI.indentLevel--;
             }
             
             connection.scoreOptions[i].description = EditorGUILayout.TextField("描述", connection.scoreOptions[i].description);

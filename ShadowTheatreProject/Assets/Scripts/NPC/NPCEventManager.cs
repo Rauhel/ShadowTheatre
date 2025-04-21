@@ -1,39 +1,23 @@
-using System;
+// 文件：NPCEventManager.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
-[RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(NPCController))]
+[RequireComponent(typeof(NPCPathManager))]
 public class NPCEventManager : MonoBehaviour
 {
-    [Header("NPC配置")]
-    public NPCData npcData;
-
-    [Header("引用")]
-    public Animator animator;
-
     // 内部状态
-    private NavMeshAgent agent;
-    private Transform currentPath;
-    private int currentPathPoint = 0;
+    private NPCController controller;
+    private NPCPathManager pathManager;
     private bool isProcessingEvent = false;
     private NPCEvent currentEvent = null;
     private Dictionary<string, float> gestureHoldTimes = new Dictionary<string, float>();
 
     void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
-
-        if (animator == null)
-        {
-            animator = GetComponent<Animator>();
-        }
-
-        if (npcData == null)
-        {
-            Debug.LogError($"[{gameObject.name}] 没有设置NPCData!");
-        }
+        controller = GetComponent<NPCController>();
+        pathManager = GetComponent<NPCPathManager>();
     }
 
     void Start()
@@ -60,22 +44,16 @@ public class NPCEventManager : MonoBehaviour
 
     void Update()
     {
-        if (isProcessingEvent || npcData == null)
+        if (isProcessingEvent || controller.Data == null)
             return;
 
         // 检查事件触发
         CheckEventTriggers();
-
-        // 检查路径分歧点
-        CheckPathDecisions();
-
-        // 路径移动
-        FollowCurrentPath();
     }
 
     private void CheckEventTriggers()
     {
-        foreach (var npcEvent in npcData.events)
+        foreach (var npcEvent in controller.Data.events)
         {
             if (npcEvent.triggerLocation == null)
                 continue;
@@ -103,7 +81,7 @@ public class NPCEventManager : MonoBehaviour
         currentEvent = npcEvent;
 
         // 停止当前路径跟随
-        agent.isStopped = true;
+        pathManager.PausePathProcessing(true);
 
         // 如果有全局事件，则通知EventCenter
         if (!string.IsNullOrEmpty(npcEvent.globalEventName) && EventCenter.Instance != null)
@@ -195,15 +173,15 @@ public class NPCEventManager : MonoBehaviour
     private IEnumerator ExecuteBranchCoroutine(EventBranch branch)
     {
         // 更新分数
-        npcData.currentScore += branch.scoreValue;
-        Debug.Log($"[{gameObject.name}] 分数更新: {npcData.currentScore} (+{branch.scoreValue})");
+        controller.UpdateScore(branch.scoreValue);
 
         // 播放动画
-        if (!string.IsNullOrEmpty(branch.animationName) && animator != null)
+        controller.PlayAnimation(branch.animationName);
+
+        // 如果有动画，等待动画完成
+        if (!string.IsNullOrEmpty(branch.animationName))
         {
-            animator.Play(branch.animationName);
-            // 等待动画完成（假设动画长度约为1秒）
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1f); // 假设动画长度约为1秒
         }
 
         // 显示对话（这里假设有DialogueManager）
@@ -211,29 +189,15 @@ public class NPCEventManager : MonoBehaviour
         {
             Debug.Log($"[{gameObject.name}] 对话: {branch.dialogueText}");
             // 如果有对话系统，这里调用显示对话
-            // DialogueManager.Instance.ShowDialogue(branch.dialogueText, npcData.npcName);
+            // DialogueManager.Instance.ShowDialogue(branch.dialogueText, controller.Data.npcName);
             yield return new WaitForSeconds(2f); // 给玩家时间阅读对话
         }
 
         // 处理覆盖路径
         if (branch.overridePath != null)
         {
-            // 临时更改路径
-            Transform originalPath = currentPath;
-            int originalPathPoint = currentPathPoint;
-
-            // 切换到覆盖路径
-            SwitchToPath(branch.overridePath);
-
-            // 等待路径完成
-            while (currentPathPoint < branch.overridePath.childCount)
-            {
-                yield return null;
-            }
-
-            // 恢复原路径
-            currentPath = originalPath;
-            currentPathPoint = originalPathPoint;
+            // 使用临时路径
+            yield return StartCoroutine(pathManager.FollowTemporaryPath(branch.overridePath));
         }
 
         // 分支完成延迟
@@ -244,173 +208,23 @@ public class NPCEventManager : MonoBehaviour
         currentEvent = null;
 
         // 恢复路径跟随
-        agent.isStopped = false;
+        pathManager.ResumePathProcessing();
     }
 
-    private void CheckPathDecisions()
+    // 直接触发事件的公共方法（例如从其他系统触发）
+    public void TriggerEventByID(string eventID)
     {
-        if (currentPath == null || npcData.pathDecisions.Count == 0)
+        if (isProcessingEvent || controller.Data == null)
             return;
 
-        foreach (var decision in npcData.pathDecisions)
+        NPCEvent targetEvent = controller.Data.events.Find(e => e.eventID == eventID);
+        if (targetEvent != null)
         {
-            if (decision.decisionLocation == null)
-                continue;
-
-            float distance = Vector3.Distance(transform.position, decision.decisionLocation.position);
-
-            if (distance <= decision.decisionRadius)
-            {
-                // 到达决策点，根据分数决定路径
-                Transform newPath = decision.SelectPathBasedOnScore(npcData.currentScore);
-
-                if (newPath != null)
-                {
-                    // 找到匹配的路径选项用于日志输出
-                    string pathDescription = "未知路径";
-                    foreach (var option in decision.pathOptions)
-                    {
-                        if (option.path == newPath)
-                        {
-                            pathDescription = $"{option.optionName} (阈值:{option.scoreThreshold})";
-                            break;
-                        }
-                    }
-
-                    Debug.Log($"[{gameObject.name}] 在决策点 {decision.decisionPointID} 选择路径: {pathDescription}");
-                    SwitchToPath(newPath);
-                }
-
-                break;
-            }
+            TriggerEvent(targetEvent);
         }
-    }
-
-    private void FollowCurrentPath()
-    {
-        if (currentPath == null || currentPathPoint >= currentPath.childCount)
-            return;
-
-        // 获取当前路径点
-        Transform targetPoint = currentPath.GetChild(currentPathPoint);
-
-        // 设置目标
-        agent.SetDestination(targetPoint.position);
-
-        // 检查是否到达当前点
-        float distanceToTarget = Vector3.Distance(transform.position, targetPoint.position);
-        if (distanceToTarget < 0.5f)
+        else
         {
-            // 前往下一个点
-            currentPathPoint++;
-
-            // 检查是否完成整个路径
-            if (currentPathPoint >= currentPath.childCount)
-            {
-                Debug.Log($"[{gameObject.name}] 完成路径: {currentPath.name}");
-
-                // 检查是否有路径连接信息
-                if (npcData != null)
-                {
-                    PathConnection connection = FindPathConnection(currentPath.parent.transform);
-                    if (connection != null)
-                    {
-                        if (connection.isEndPoint)
-                        {
-                            // 路径终点，停止移动
-                            Debug.Log($"[{gameObject.name}] 到达路径终点");
-                            currentPath = null;
-                        }
-                        else if (connection.branchType == PathBranchType.ScoreBased)
-                        {
-                            // 根据分数选择下一条路径
-                            Transform nextPath = connection.SelectNextPathBasedOnScore(npcData.currentScore);
-                            if (nextPath != null)
-                            {
-                                SwitchToPath(nextPath);
-                            }
-                            else
-                            {
-                                Debug.LogWarning($"[{gameObject.name}] 根据分数无法找到有效路径");
-                            }
-                        }
-                        else if (connection.branchType == PathBranchType.Direct && connection.nextPathCreator != null)
-                        {
-                            // 直接切换到下一路径
-                            SwitchToPath(connection.nextPathCreator.transform);
-                        }
-                    }
-                }
-            }
+            Debug.LogWarning($"[{gameObject.name}] 找不到ID为 {eventID} 的事件");
         }
-    }
-
-    // 根据路径查找路径连接信息
-    private PathConnection FindPathConnection(Transform path)
-    {
-        if (npcData == null || path == null)
-            return null;
-
-        foreach (var connection in npcData.pathConnections)
-        {
-            if (connection.path == path)
-                return connection;
-        }
-
-        return null;
-    }
-
-    // 根据ID查找决策点
-    private PathDecision FindDecisionByID(string decisionID)
-    {
-        if (npcData == null || string.IsNullOrEmpty(decisionID))
-            return null;
-
-        foreach (var decision in npcData.pathDecisions)
-        {
-            if (decision.decisionPointID == decisionID)
-                return decision;
-        }
-
-        return null;
-    }
-
-    // 切换到新路径
-    public void SwitchToPath(Transform newPath)
-    {
-        if (newPath == null)
-            return;
-
-        MultiPointPathCreator pathCreator = newPath.GetComponent<MultiPointPathCreator>();
-        if (pathCreator == null || pathCreator.pathPointsParent == null ||
-            pathCreator.pathPointsParent.childCount == 0)
-        {
-            Debug.LogWarning($"[{gameObject.name}] 无法切换到路径: {newPath.name}，该路径没有路径点");
-            return;
-        }
-
-        Debug.Log($"[{gameObject.name}] 切换到路径: {newPath.name}");
-
-        // 设置新路径
-        currentPath = pathCreator.pathPointsParent;
-        currentPathPoint = 0;
-
-        // 设置当前目标点
-        if (currentPath.childCount > 0)
-        {
-            agent.SetDestination(currentPath.GetChild(currentPathPoint).position);
-        }
-    }
-
-    // 公共API：设置初始路径
-    public void SetInitialPath(Transform path)
-    {
-        SwitchToPath(path);
-    }
-
-    // 调试用：获取当前NPC分数
-    public float GetCurrentScore()
-    {
-        return npcData.currentScore;
     }
 }

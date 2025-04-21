@@ -227,25 +227,146 @@ public class MultiPointPathCreatorEditor : Editor
         // 绘制和选择路径点
         if (pathCreator.pathPointsParent != null && pathCreator.pathPointsParent.childCount > 0)
         {
-            Handles.color = Color.cyan;
+            Transform pathRoot = pathCreator.transform;
             
             for (int i = 0; i < pathCreator.pathPointsParent.childCount; i++)
             {
                 Transform point = pathCreator.pathPointsParent.GetChild(i);
-                float size = HandleUtility.GetHandleSize(point.position) * 0.1f;
+                float size = HandleUtility.GetHandleSize(point.position) * 0.15f; // 增大尺寸使更容易选择
+                
+                // 检查是否被用作事件触发点
+                bool isUsedAsEventTrigger = IsPointUsedAsEventTrigger(point);
+                
+                // 设置颜色
+                Handles.color = isUsedAsEventTrigger ? Color.yellow : Color.cyan;
                 
                 // 绘制一个可以点击的小球
                 if (Handles.Button(point.position, Quaternion.identity, size, size, Handles.SphereHandleCap))
                 {
                     // 选中该路径点
-                    Selection.activeObject = point.gameObject;
+                    Selection.activeGameObject = point.gameObject;
+                    
+                    // 显示右键菜单以便设置为触发点
+                    if (Event.current.button == 1)
+                    {
+                        ShowPathPointContextMenu(point, pathRoot);
+                    }
                 }
                 
-                // 显示点的相对位置信息
+                // 显示点的相对位置信息和事件ID
                 float relativePos = (float)i / (pathCreator.pathPointsParent.childCount - 1);
-                Handles.Label(point.position + Vector3.up * 0.2f, $"{relativePos:P0}");
+                Handles.Label(point.position + Vector3.up * 0.3f, $"{relativePos:P0}");
+                
+                if (isUsedAsEventTrigger)
+                {
+                    string eventID = GetEventIDForPoint(point);
+                    if (!string.IsNullOrEmpty(eventID))
+                    {
+                        Handles.Label(point.position + Vector3.up * 0.6f, $"事件: {eventID}", EditorStyles.boldLabel);
+                    }
+                }
             }
         }
+    }
+    
+    // 检查一个点是否被用作触发点
+    private bool IsPointUsedAsEventTrigger(Transform point)
+    {
+        // 查找所有 NPCData 资源
+        string[] guids = AssetDatabase.FindAssets("t:NPCData");
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            NPCData data = AssetDatabase.LoadAssetAtPath<NPCData>(path);
+            
+            if (data != null && data.events != null)
+            {
+                foreach (var npcEvent in data.events)
+                {
+                    if (npcEvent.triggerLocation == point)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    // 获取使用此点作为触发点的事件ID
+    private string GetEventIDForPoint(Transform point)
+    {
+        // 查找所有 NPCData 资源
+        string[] guids = AssetDatabase.FindAssets("t:NPCData");
+        foreach (string guid in guids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            NPCData data = AssetDatabase.LoadAssetAtPath<NPCData>(path);
+            
+            if (data != null && data.events != null)
+            {
+                foreach (var npcEvent in data.events)
+                {
+                    if (npcEvent.triggerLocation == point)
+                        return npcEvent.eventID;
+                }
+            }
+        }
+        return string.Empty;
+    }
+    
+    // 显示路径点的右键菜单
+    private void ShowPathPointContextMenu(Transform point, Transform pathRoot)
+    {
+        GenericMenu menu = new GenericMenu();
+        
+        menu.AddItem(new GUIContent("复制路径点引用"), false, () => {
+            EditorGUIUtility.systemCopyBuffer = $"{pathRoot.name}/{point.parent.name}/{point.name}";
+            Debug.Log($"已复制路径点引用: {pathRoot.name}/{point.parent.name}/{point.name}");
+        });
+        
+        // 添加到所有NPC数据资源中的所有事件
+        string[] guids = AssetDatabase.FindAssets("t:NPCData");
+        bool hasNpcData = false;
+        
+        foreach (string guid in guids)
+        {
+            string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+            NPCData data = AssetDatabase.LoadAssetAtPath<NPCData>(assetPath);
+            
+            if (data == null || data.events == null || data.events.Count == 0)
+                continue;
+                
+            hasNpcData = true;
+            string dataName = data.name;
+            
+            menu.AddSeparator($"NPC数据/{dataName}/");
+            
+            foreach (var npcEvent in data.events)
+            {
+                string eventName = npcEvent.eventID;
+                bool isCurrentTrigger = (npcEvent.triggerLocation == point);
+                
+                menu.AddItem(
+                    new GUIContent($"NPC数据/{dataName}/设为事件 \"{eventName}\" 的触发点"),
+                    isCurrentTrigger,
+                    () => {
+                        Undo.RecordObject(data, "设置事件触发点");
+                        npcEvent.triggerLocation = point;
+                        // 可以考虑同时设置一个关联路径字段，便于后续操作
+                        // npcEvent.linkedPath = pathRoot; // 如果添加了这个字段
+                        EditorUtility.SetDirty(data);
+                        AssetDatabase.SaveAssets();
+                        Debug.Log($"已将 {point.name} 设置为 {dataName} 中事件 {eventName} 的触发点");
+                    }
+                );
+            }
+        }
+        
+        if (!hasNpcData)
+        {
+            menu.AddDisabledItem(new GUIContent("没有找到 NPC 数据资源"));
+        }
+        
+        menu.ShowAsContext();
     }
 }
 #endif

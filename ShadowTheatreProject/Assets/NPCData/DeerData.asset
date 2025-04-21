@@ -39,8 +39,8 @@ MonoBehaviour:
       scoreValue: 0
     gestureBranches: []
   pathConnections:
-  - pathCreator: {fileID: 0}
+  - pathID: DeerPath1
     branchType: 0
-    nextPathCreator: {fileID: 0}
+    nextPathID: 
     scoreOptions: []
-    isEndPoint: 0
+    isEndPoint: 1
