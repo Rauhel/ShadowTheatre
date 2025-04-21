@@ -41,6 +41,6 @@ MonoBehaviour:
   pathConnections:
   - pathID: DeerPath1
     branchType: 0
-    nextPathID: 
+    nextPathID: DeerPath2
     scoreOptions: []
-    isEndPoint: 1
+    isEndPoint: 0

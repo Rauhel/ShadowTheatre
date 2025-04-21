@@ -11,6 +11,8 @@ public class NPCPathManager : MonoBehaviour
     private Transform currentPath;
     private int currentPathPoint = 0;
     private bool pathProcessingPaused = false;
+    private float stuckTime = 0;
+    private float debugUpdateTime = 0;
 
     // 公共属性
     public Transform CurrentPath => currentPath;
@@ -37,6 +39,14 @@ public class NPCPathManager : MonoBehaviour
 
         // 路径移动
         FollowCurrentPath();
+
+        // 调试输出（每5秒一次）
+        debugUpdateTime += Time.deltaTime;
+        if (debugUpdateTime > 5.0f)
+        {
+            DebugPathStatus();
+            debugUpdateTime = 0;
+        }
     }
 
     // 路径初始化 - 只从NPCData获取数据
@@ -76,22 +86,73 @@ public class NPCPathManager : MonoBehaviour
         Transform targetPoint = currentPath.GetChild(currentPathPoint);
         NavMeshAgent agent = controller.GetComponent<NavMeshAgent>();
 
-        // 设置目标
-        agent.SetDestination(targetPoint.position);
-
-        // 检查是否到达当前点
-        float distanceToTarget = Vector3.Distance(transform.position, targetPoint.position);
-        if (distanceToTarget < 0.5f)
+        // 确保代理未停止
+        if (agent.isStopped)
         {
+            Debug.LogWarning($"[{gameObject.name}] 发现代理已停止，重新启动移动");
+            agent.isStopped = false;
+        }
+
+        // 检查当前目标是否有效
+        if (agent.pathPending)
+        {
+            return; // 路径计算中，等待
+        }
+
+        if (agent.pathStatus == NavMeshPathStatus.PathInvalid)
+        {
+            Debug.LogError($"[{gameObject.name}] 无法找到到达目标点的路径，尝试跳到下一点");
+            currentPathPoint++;
+            return;
+        }
+
+        // 设置目标（如果需要）
+        if (agent.destination != targetPoint.position)
+        {
+            agent.SetDestination(targetPoint.position);
+        }
+
+        // 检查是否到达当前点（使用更灵活的方法）
+        float distanceToTarget = Vector3.Distance(transform.position, targetPoint.position);
+        float stoppingDistance = agent.stoppingDistance;
+
+        // 使用停止距离或最小0.5作为判断标准
+        if (distanceToTarget <= Mathf.Max(stoppingDistance, 0.5f) || agent.remainingDistance <= stoppingDistance)
+        {
+            Debug.Log($"[{gameObject.name}] 到达路径点 {currentPathPoint} (距离: {distanceToTarget:F2})");
             // 前往下一个点
             currentPathPoint++;
 
+            // 立即设置下一个目标点（如果有）
+            if (currentPathPoint < currentPath.childCount)
+            {
+                Transform nextPoint = currentPath.GetChild(currentPathPoint);
+                agent.SetDestination(nextPoint.position);
+            }
             // 检查是否完成整个路径
-            if (currentPathPoint >= currentPath.childCount)
+            else
             {
                 Debug.Log($"[{gameObject.name}] 完成路径: {currentPath.name}");
                 ProcessPathCompletion();
             }
+        }
+
+        // 添加额外检查 - 如果速度接近零但未到达目标，可能卡住了
+        if (agent.velocity.magnitude < 0.1f && distanceToTarget > stoppingDistance + 0.5f)
+        {
+            // 如果已经停止移动但距离目标还远，可能是卡住了
+            stuckTime += Time.deltaTime;
+
+            if (stuckTime > 3.0f)  // 如果卡住超过3秒
+            {
+                Debug.LogWarning($"[{gameObject.name}] 可能卡住了，尝试跳到下一点");
+                currentPathPoint++;
+                stuckTime = 0;
+            }
+        }
+        else
+        {
+            stuckTime = 0;
         }
     }
 
@@ -220,17 +281,31 @@ public class NPCPathManager : MonoBehaviour
     public void SwitchToPath(Transform newPath)
     {
         if (newPath == null)
-            return;
-
-        MultiPointPathCreator pathCreator = newPath.GetComponent<MultiPointPathCreator>();
-        if (pathCreator == null || pathCreator.pathPointsParent == null ||
-            pathCreator.pathPointsParent.childCount == 0)
         {
-            Debug.LogWarning($"[{gameObject.name}] 无法切换到路径: {newPath.name}，该路径没有路径点");
+            Debug.LogError($"[{gameObject.name}] 尝试切换到空路径");
             return;
         }
 
-        Debug.Log($"[{gameObject.name}] 切换到路径: {newPath.name}");
+        MultiPointPathCreator pathCreator = newPath.GetComponent<MultiPointPathCreator>();
+        if (pathCreator == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 路径对象 {newPath.name} 没有 MultiPointPathCreator 组件");
+            return;
+        }
+
+        if (pathCreator.pathPointsParent == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 路径 {newPath.name} 的路径点父对象为空");
+            return;
+        }
+
+        if (pathCreator.pathPointsParent.childCount == 0)
+        {
+            Debug.LogError($"[{gameObject.name}] 路径 {newPath.name} 没有路径点");
+            return;
+        }
+
+        Debug.Log($"[{gameObject.name}] 切换到路径: {newPath.name} (包含 {pathCreator.pathPointsParent.childCount} 个点)");
 
         // 查找前一条路径和当前路径的连接点
         Transform previousEndPoint = null;
@@ -270,11 +345,33 @@ public class NPCPathManager : MonoBehaviour
             }
         }
 
+        // 重置卡住时间
+        stuckTime = 0;
+
+        // 获取NavMeshAgent并设置目标
+        NavMeshAgent agent = controller.GetComponent<NavMeshAgent>();
+
+        // 确保代理激活且未停止
+        agent.enabled = true;
+        agent.isStopped = false;
+
         // 设置当前目标点
         if (currentPath.childCount > currentPathPoint)
         {
-            controller.GetComponent<NavMeshAgent>().SetDestination(currentPath.GetChild(currentPathPoint).position);
-            controller.StopMovement(false); // 确保NPC开始移动
+            Transform targetPoint = currentPath.GetChild(currentPathPoint);
+            Debug.Log($"[{gameObject.name}] 设置初始目标点: {targetPoint.name}");
+
+            // 确保目标点在 NavMesh 上
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(targetPoint.position, out hit, 5f, NavMesh.AllAreas))
+            {
+                agent.SetDestination(hit.position);
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] 目标点不在 NavMesh 上，使用原始坐标");
+                agent.SetDestination(targetPoint.position);
+            }
         }
     }
 
@@ -345,6 +442,28 @@ public class NPCPathManager : MonoBehaviour
         else
         {
             Debug.LogError($"[{gameObject.name}] 路径索引 {pathIndex} 引用了空路径");
+        }
+    }
+
+    // 添加调试方法
+    private void DebugPathStatus()
+    {
+        if (currentPath == null)
+        {
+            Debug.Log($"[{gameObject.name}] 当前没有活动路径");
+            return;
+        }
+
+        NavMeshAgent agent = controller.GetComponent<NavMeshAgent>();
+
+        Debug.Log($"[{gameObject.name}] 路径状态: {currentPath.name}, 点: {currentPathPoint}/{currentPath.childCount}");
+        Debug.Log($"[{gameObject.name}] 代理状态: 停止={agent.isStopped}, 速度={agent.velocity.magnitude:F2}");
+
+        if (currentPathPoint < currentPath.childCount)
+        {
+            Transform targetPoint = currentPath.GetChild(currentPathPoint);
+            float distance = Vector3.Distance(transform.position, targetPoint.position);
+            Debug.Log($"[{gameObject.name}] 到目标点距离: {distance:F2}, 停止距离: {agent.stoppingDistance:F2}");
         }
     }
 }
