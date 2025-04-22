@@ -256,6 +256,16 @@ public class NPCDataEditor : Editor
             
             pathEvent.eventID = EditorGUILayout.TextField("事件ID", pathEvent.eventID);
             
+            // 添加幕数控制选项
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("事件可用性控制", EditorStyles.boldLabel);
+            
+            EditorGUILayout.BeginHorizontal();
+            pathEvent.enabledInAct1 = EditorGUILayout.Toggle("第一幕可用", pathEvent.enabledInAct1);
+            pathEvent.enabledInAct2 = EditorGUILayout.Toggle("第二幕可用", pathEvent.enabledInAct2);
+            pathEvent.enabledInAct3 = EditorGUILayout.Toggle("第三幕可用", pathEvent.enabledInAct3);
+            EditorGUILayout.EndHorizontal();
+            
             // 显示路径点选择
             MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(config.pathID);
             if (pathCreator != null && pathCreator.pathPointsParent != null)

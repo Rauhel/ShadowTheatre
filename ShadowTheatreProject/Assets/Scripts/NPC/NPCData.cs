@@ -120,6 +120,14 @@ public class PathEvent
     [Tooltip("触发半径")]
     public float triggerRadius = 2f;
 
+    [Header("事件可用性控制")]
+    [Tooltip("事件在第一幕是否可用")]
+    public bool enabledInAct1 = true;
+    [Tooltip("事件在第二幕是否可用")]
+    public bool enabledInAct2 = true;
+    [Tooltip("事件在第三幕是否可用")]
+    public bool enabledInAct3 = true;
+
     [Header("手势检测")]
     [Tooltip("手势保持的最短时间(秒)")]
     public float gestureHoldTime = 2.0f;
