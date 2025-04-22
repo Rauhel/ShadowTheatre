@@ -353,37 +353,43 @@ public class NPCDataEditor : Editor
         
         if (!isDefault)
         {
-            // 手势类型
+            // 手势类型 - 改为使用PlayerManager中定义的手影类型
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PrefixLabel("手势类型");
+            EditorGUILayout.PrefixLabel("手影类型");
             
-            // 显示手势选择器
-            string[] gestureTypes = new string[] { "Wave", "Beckon", "PointLeft", "PointRight", "RaiseHand", "LowerHand", "Clap" };
+            // 使用ShadowType枚举中的值
+            string[] shadowTypes = new string[] { "Bird", "Wolf", "Deer", "Sheep", "Goose" };
             int selectedIndex = 0;
             
-            for (int i = 0; i < gestureTypes.Length; i++)
+            for (int i = 0; i < shadowTypes.Length; i++)
             {
-                if (gestureTypes[i] == response.gestureType)
+                if (shadowTypes[i] == response.gestureType)
                 {
                     selectedIndex = i;
                     break;
                 }
             }
             
-            int newIndex = EditorGUILayout.Popup(selectedIndex, gestureTypes);
+            int newIndex = EditorGUILayout.Popup(selectedIndex, shadowTypes);
             if (newIndex != selectedIndex)
             {
-                response.gestureType = gestureTypes[newIndex];
+                response.gestureType = shadowTypes[newIndex];
                 EditorUtility.SetDirty(npcData);
             }
             
             EditorGUILayout.EndHorizontal();
             
-            response.minConfidence = EditorGUILayout.Slider("最低置信度", response.minConfidence, 0f, 1f);
+            // 删除置信度设置，这在您的系统中不需要
+            // response.minConfidence = EditorGUILayout.Slider("最低置信度", response.minConfidence, 0f, 1f);
         }
         
         // 基本响应配置
+        EditorGUILayout.LabelField("响应设置", EditorStyles.boldLabel);
+        
+        // 添加分数影响的说明文本
+        EditorGUILayout.HelpBox("分数影响可以是正值(增加)或负值(减少)", MessageType.Info);
         response.scoreEffect = EditorGUILayout.FloatField("分数影响", response.scoreEffect);
+        
         response.animationName = EditorGUILayout.TextField("动画名称", response.animationName);
         response.dialogueText = EditorGUILayout.TextArea(response.dialogueText, GUILayout.Height(40));
         response.completionDelay = EditorGUILayout.FloatField("完成延迟(秒)", response.completionDelay);
@@ -542,9 +548,9 @@ public class NPCDataEditor : Editor
     {
         GestureResponse newResponse = new GestureResponse
         {
-            gestureType = "Wave", // 默认值
+            gestureType = "Bird", // 默认值
             scoreEffect = 10,     // 默认加10分
-            minConfidence = 0.7f
+            //minConfidence = 0.7f
         };
         
         pathEvent.gestureResponses.Add(newResponse);

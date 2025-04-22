@@ -18,6 +18,13 @@ public class NPCEventManager : MonoBehaviour
     private List<PathEvent> currentPathEvents = new List<PathEvent>();
     private Transform currentPathPointsParent;
 
+    private GestureRecognitionManager gestureRecognitionManager;
+
+    // 添加一个选项来选择使用哪个系统
+    [Header("手势识别设置")]
+    [Tooltip("是否使用新的手势识别系统")]
+    public bool useNewGestureSystem = true;
+
     void Awake()
     {
         controller = GetComponent<NPCController>();
@@ -29,20 +36,38 @@ public class NPCEventManager : MonoBehaviour
         // 注册手势监听
         if (InputManager.Instance != null)
         {
-            InputManager.Instance.RegisterGestureListener(OnGestureUpdated);
+            // 只在使用旧系统时注册
+            if (!useNewGestureSystem)
+            {
+                InputManager.Instance.RegisterGestureListener(OnGestureUpdated);
+            }
         }
         else
         {
             Debug.LogError("找不到InputManager实例，手势检测将不可用");
+        }
+
+        // 获取手势识别管理器
+        gestureRecognitionManager = FindObjectOfType<GestureRecognitionManager>();
+        if (gestureRecognitionManager != null && useNewGestureSystem)
+        {
+            gestureRecognitionManager.OnGestureRecognized += HandleGestureRecognized;
+            gestureRecognitionManager.OnGestureTimedOut += HandleGestureTimedOut;
         }
     }
 
     void OnDestroy()
     {
         // 取消监听
-        if (InputManager.Instance != null)
+        if (InputManager.Instance != null && !useNewGestureSystem)
         {
             InputManager.Instance.UnregisterGestureListener(OnGestureUpdated);
+        }
+
+        if (gestureRecognitionManager != null && useNewGestureSystem)
+        {
+            gestureRecognitionManager.OnGestureRecognized -= HandleGestureRecognized;
+            gestureRecognitionManager.OnGestureTimedOut -= HandleGestureTimedOut;
         }
     }
 
@@ -110,58 +135,120 @@ public class NPCEventManager : MonoBehaviour
         // 停止当前路径跟随
         pathManager.PausePathProcessing(true);
 
-        // 开始手势检测倒计时
-        StartCoroutine(GestureDetectionCoroutine(pathEvent));
-    }
-
-    private IEnumerator GestureDetectionCoroutine(PathEvent pathEvent)
-    {
-        Debug.Log($"[{gameObject.name}] 事件 {pathEvent.eventID} 触发，等待手势输入...");
-
-        // 清空手势保持时间记录
-        gestureHoldTimes.Clear();
-
-        // 限时等待手势
-        float timeElapsed = 0;
-        bool gestureSuccess = false;
-        GestureResponse successResponse = null;
-
-        while (timeElapsed < pathEvent.gestureTimeLimit && !gestureSuccess)
+        // 根据选择的系统进行不同的处理
+        if (useNewGestureSystem)
         {
-            timeElapsed += Time.deltaTime;
-
-            // 检查各手势的保持时间
-            foreach (var response in pathEvent.gestureResponses)
+            // 使用新系统处理手势识别
+            if (pathEvent.gestureResponses.Count > 0)
             {
-                if (gestureHoldTimes.TryGetValue(response.gestureType, out float holdTime) &&
-                    holdTime >= pathEvent.gestureHoldTime)
-                {
-                    gestureSuccess = true;
-                    successResponse = response;
-                    break;
-                }
+                StartGestureRecognitionForEvent(pathEvent, pathEvent.gestureResponses[0].gestureType);
             }
-
-            yield return null;
-        }
-
-        // 根据检测结果执行反应
-        if (gestureSuccess && successResponse != null)
-        {
-            Debug.Log($"[{gameObject.name}] 检测到手势: {successResponse.gestureType}，执行对应反应");
-            ExecuteResponse(successResponse);
+            else
+            {
+                // 没有手势响应，使用默认响应
+                ExecuteGestureResponse(pathEvent.defaultResponse);
+            }
         }
         else
         {
-            Debug.Log($"[{gameObject.name}] 未检测到有效手势，执行默认反应");
-            ExecuteResponse(pathEvent.defaultResponse);
+            // 使用旧系统处理 - 这里不需要做特别处理，旧系统会通过 OnGestureUpdated 回调自动处理
+            // 清空手势保持时间
+            gestureHoldTimes.Clear();
+            Debug.Log($"[{gameObject.name}] 开始事件: {pathEvent.eventID}，等待手势...");
         }
+    }
+
+    // 当事件进入手势识别阶段时调用
+    private void StartGestureRecognitionForEvent(PathEvent pathEvent, string targetGestureType)
+    {
+        // 配置手势识别管理器
+        if (gestureRecognitionManager != null)
+        {
+            // 使用事件中配置的时间参数
+            gestureRecognitionManager.fullRecognitionTime = pathEvent.gestureHoldTime;
+            gestureRecognitionManager.timeLimit = pathEvent.gestureTimeLimit;
+
+            // 开始识别
+            gestureRecognitionManager.StartGestureRecognition(targetGestureType);
+        }
+    }
+
+    // 处理手势识别成功
+    private void HandleGestureRecognized(string recognizedGesture)
+    {
+        // 查找当前事件中匹配的手势响应
+        if (currentEvent != null)
+        {
+            GestureResponse matchedResponse = currentEvent.gestureResponses.Find(r => r.gestureType == recognizedGesture);
+
+            if (matchedResponse != null)
+            {
+                // 执行手势响应
+                ExecuteGestureResponse(matchedResponse);
+            }
+        }
+    }
+
+    // 处理手势识别超时
+    private void HandleGestureTimedOut()
+    {
+        // 执行默认响应
+        if (currentEvent != null && currentEvent.defaultResponse != null)
+        {
+            ExecuteGestureResponse(currentEvent.defaultResponse);
+        }
+    }
+
+    // 执行手势响应
+    private void ExecuteGestureResponse(GestureResponse response)
+    {
+        // 应用分数影响
+        if (controller != null && controller.Data != null)
+        {
+            controller.Data.currentScore += response.scoreEffect;
+            Debug.Log($"手势反应: 分数 {(response.scoreEffect >= 0 ? "+" : "")}{response.scoreEffect}，当前分数: {controller.Data.currentScore}");
+        }
+
+        // 播放动画
+        if (!string.IsNullOrEmpty(response.animationName))
+        {
+            controller.PlayAnimation(response.animationName);
+        }
+
+        // 显示对话
+        if (!string.IsNullOrEmpty(response.dialogueText))
+        {
+            Debug.Log($"[{gameObject.name}] 对话: {response.dialogueText}");
+            // 如果有对话系统，这里调用显示对话
+            // DialogueManager.Instance.ShowDialogue(response.dialogueText, controller.Data.npcName);
+        }
+
+        // 延迟完成
+        StartCoroutine(DelayedCompletion(response.completionDelay));
+    }
+
+    private IEnumerator DelayedCompletion(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        // 完成当前事件
+        CompleteCurrentEvent();
+    }
+
+    private void CompleteCurrentEvent()
+    {
+        // 事件处理完成
+        isProcessingEvent = false;
+        currentEvent = null;
+
+        // 恢复路径跟随
+        pathManager.ResumePathProcessing();
     }
 
     private void OnGestureUpdated(InputManager.GestureData gestureData)
     {
-        // 如果不在事件处理中，忽略手势
-        if (!isProcessingEvent || currentEvent == null)
+        // 如果使用新系统或不在事件处理中，忽略手势
+        if (useNewGestureSystem || !isProcessingEvent || currentEvent == null)
             return;
 
         // 检查这个手势是否匹配任何响应
@@ -182,8 +269,25 @@ public class NPCEventManager : MonoBehaviour
                 Debug.Log($"[{gameObject.name}] 检测到手势 {gestureData.type}，" +
                           $"置信度: {gestureData.confidence:F2}，" +
                           $"保持时间: {gestureHoldTimes[gestureData.type]:F2}/{currentEvent.gestureHoldTime}");
+
+                // 检查是否达到所需保持时间
+                if (gestureHoldTimes[gestureData.type] >= currentEvent.gestureHoldTime)
+                {
+                    // 手势识别成功，执行响应
+                    Debug.Log($"[{gameObject.name}] 手势 {gestureData.type} 保持时间达到要求，执行响应");
+                    ExecuteGestureResponse(response);
+                    return;
+                }
+            }
+            else
+            {
+                // 如果手势不匹配，则重置该手势的保持时间
+                gestureHoldTimes[response.gestureType] = 0;
             }
         }
+
+        // 检查是否超时
+        // (这里可以添加超时逻辑，但为了简化起见暂时略过)
     }
 
     private void ExecuteResponse(GestureResponse response)

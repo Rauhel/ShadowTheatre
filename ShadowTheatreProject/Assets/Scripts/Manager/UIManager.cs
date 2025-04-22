@@ -12,7 +12,6 @@ public class UIManager : MonoBehaviour
     public GameObject hudPanel;           // 游戏中的HUD面板
 
     [Header("主菜单按钮")]
-    public Button mouseControlButton;     // 鼠标控制按钮（同时作为开始游戏按钮）
     public Button gestureControlButton;   // 手势控制按钮（同时作为开始游戏按钮）
     public Button quitButton;             // 退出按钮
 
@@ -54,7 +53,6 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         // 设置按钮监听器
-        if (mouseControlButton) mouseControlButton.onClick.AddListener(OnMouseControlClicked);
         if (gestureControlButton) gestureControlButton.onClick.AddListener(OnGestureControlClicked);
         if (continueButton) continueButton.onClick.AddListener(OnContinueClicked);
         if (quitButton) quitButton.onClick.AddListener(OnQuitClicked);
@@ -90,16 +88,6 @@ public class UIManager : MonoBehaviour
             int seconds = Mathf.FloorToInt(gameTimer % 60);
             gameTimerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
         }
-    }
-
-    // 点击鼠标控制按钮 - 设置鼠标控制并开始游戏
-    private void OnMouseControlClicked()
-    {
-        // 启用鼠标控制
-        EnableMouseControl();
-
-        // 开始游戏
-        StartGame();
     }
 
     // 点击手势控制按钮 - 设置手势控制并开始游戏
@@ -179,22 +167,6 @@ public class UIManager : MonoBehaviour
 
             // 游戏暂停逻辑
             Time.timeScale = 0f;
-
-            // 暂停时显示当前控制方式
-            if (inputManager != null && inputMethodText != null)
-            {
-                string controlMethod = "当前控制: 未知";
-
-                if (inputManager.IsUsingMouseInput())
-                    controlMethod = "当前控制: 鼠标";
-                else if (inputManager.IsUsingGestureInput())
-                    controlMethod = "当前控制: 手势";
-
-                // 尝试在暂停菜单中找到文本组件显示控制方式
-                TextMeshProUGUI pauseInputText = pauseMenuPanel.GetComponentInChildren<TextMeshProUGUI>(true);
-                if (pauseInputText)
-                    pauseInputText.text = controlMethod;
-            }
         }
         else
         {
@@ -262,28 +234,11 @@ public class UIManager : MonoBehaviour
         EventCenter.Instance.Publish("ReturnToMainMenu");
     }
 
-    // 启用鼠标控制
-    private void EnableMouseControl()
-    {
-        if (inputManager != null)
-        {
-            inputManager.SetInputMethod(true, false);
-
-            // 更新HUD上的输入方式显示
-            if (inputMethodText)
-                inputMethodText.text = "控制方式: 鼠标";
-
-            Debug.Log("已切换到鼠标控制模式");
-        }
-    }
-
     // 启用手势控制
     private void EnableGestureControl()
     {
         if (inputManager != null)
         {
-            inputManager.SetInputMethod(false, true);
-
             // 更新HUD上的输入方式显示
             if (inputMethodText)
                 inputMethodText.text = "控制方式: 手势识别";
