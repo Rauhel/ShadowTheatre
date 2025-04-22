@@ -37,6 +37,12 @@ public class GestureRecognitionManager : MonoBehaviour
     [Header("调试设置")]
     public bool debugMode = false;
 
+    [Tooltip("实时手势进度文本")]
+    public Text debugProgressText;
+
+    [Tooltip("是否在UI上显示手势识别详细信息")]
+    public bool showDebugInfo = true;
+
     // 事件
     public event Action<string> OnGestureRecognized;
     public event Action OnGestureTimedOut;
@@ -49,6 +55,11 @@ public class GestureRecognitionManager : MonoBehaviour
     private float recognitionProgress = 0f;
     private float remainingTime = 0f;
     private Coroutine recognitionCoroutine;
+
+    // 调试信息
+    private string currentDebugText = "";
+    private Dictionary<string, float> gestureProgressMap = new Dictionary<string, float>();
+    private Dictionary<string, string> debugInfoMap = new Dictionary<string, string>();
 
     // 引用
     private InputManager inputManager;
@@ -76,6 +87,11 @@ public class GestureRecognitionManager : MonoBehaviour
         if (promptText != null)
         {
             promptText.gameObject.SetActive(false);
+        }
+
+        if (debugProgressText != null && !showDebugInfo)
+        {
+            debugProgressText.gameObject.SetActive(false);
         }
     }
 
@@ -107,6 +123,9 @@ public class GestureRecognitionManager : MonoBehaviour
             StopGestureRecognition();
         }
 
+        // 清空手势进度字典
+        gestureProgressMap.Clear();
+
         targetGesture = gestureType;
         isRecognizing = true;
         recognitionProgress = 0f;
@@ -130,6 +149,13 @@ public class GestureRecognitionManager : MonoBehaviour
             // 使用格式化方法避免转义符出现问题
             promptText.text = string.Format("请做出\"{0}\"手势", gestureType);
             promptText.gameObject.SetActive(true);
+        }
+
+        // 显示调试UI
+        if (debugProgressText != null && showDebugInfo)
+        {
+            debugProgressText.gameObject.SetActive(true);
+            debugProgressText.text = "等待手势数据...";
         }
 
         // 开始识别协程
@@ -169,23 +195,115 @@ public class GestureRecognitionManager : MonoBehaviour
             promptText.gameObject.SetActive(false);
         }
 
+        // 清空调试文本
+        if (debugProgressText != null)
+        {
+            debugProgressText.gameObject.SetActive(false);
+        }
+
+        // 清空手势进度映射
+        gestureProgressMap.Clear();
+
         Debug.Log("手势识别已停止");
     }
 
     /// <summary>
     /// 处理输入系统更新的手势类型
     /// </summary>
-    // 修改方法签名以匹配委托
     private void HandleGestureUpdated(string gestureType, float _)  // 使用下划线表示忽略的参数
     {
         if (!isRecognizing) return;
 
         currentGesture = gestureType;
 
+        // 记录或更新这个手势的进度
+        if (!gestureProgressMap.ContainsKey(gestureType))
+        {
+            gestureProgressMap[gestureType] = 0f;
+        }
+
         if (debugMode)
         {
             Debug.Log($"当前手势: {currentGesture}, 目标手势: {targetGesture}");
         }
+    }
+
+    private void Update()
+    {
+        // 如果在识别过程中，每帧尝试获取最新手势数据
+        if (isRecognizing && inputManager != null)
+        {
+            // 获取当前手势类型
+            InputManager.GestureData currentData = inputManager.GetCurrentGesture();
+            if (!string.IsNullOrEmpty(currentData.type))
+            {
+                currentGesture = currentData.type;
+
+                // 确保手势类型在字典中
+                if (!gestureProgressMap.ContainsKey(currentGesture))
+                {
+                    gestureProgressMap[currentGesture] = 0f;
+                }
+
+                if (debugMode)
+                {
+                    Debug.Log($"Update获取手势: {currentGesture}, 目标: {targetGesture}");
+                }
+            }
+
+            // 更新调试文本
+            UpdateDebugText();
+        }
+    }
+
+    /// <summary>
+    /// 设置调试信息的公共方法
+    /// </summary>
+    public void SetDebugInfo(string key, string value)
+    {
+        debugInfoMap[key] = value;
+    }
+
+    /// <summary>
+    /// 更新调试文本显示各手势的识别进度
+    /// </summary>
+    private void UpdateDebugText()
+    {
+        if (!showDebugInfo || debugProgressText == null) return;
+
+        currentDebugText = $"目标手势: {targetGesture} ({(recognitionProgress * 100):F0}%)\n";
+        currentDebugText += $"当前手势: {currentGesture}\n";
+        currentDebugText += $"剩余时间: {remainingTime:F1}s\n";
+
+        // 添加自定义调试信息
+        foreach (var info in debugInfoMap)
+        {
+            currentDebugText += $"{info.Key}: {info.Value}\n";
+        }
+
+        currentDebugText += "手势进度:\n";
+
+        foreach (var kvp in gestureProgressMap)
+        {
+            string gestureType = kvp.Key;
+            float progress = kvp.Value;
+
+            // 高亮显示当前和目标手势
+            if (gestureType == targetGesture)
+            {
+                currentDebugText += $"<color=green>* {gestureType}: {(progress * 100):F0}%</color>\n";
+            }
+            else if (gestureType == currentGesture && gestureType != targetGesture)
+            {
+                currentDebugText += $"<color=yellow>* {gestureType}: {(progress * 100):F0}%</color>\n";
+            }
+            else
+            {
+                currentDebugText += $"  {gestureType}: {(progress * 100):F0}%\n";
+            }
+        }
+
+        debugProgressText.text = currentDebugText;
     }
 
     /// <summary>
@@ -212,6 +330,13 @@ public class GestureRecognitionManager : MonoBehaviour
                 float speedMultiplier = 5.0f; // 加速系数
                 recognitionProgress += Time.deltaTime * progressIncreaseRate * speedMultiplier / fullRecognitionTime;
 
+                // 同时更新当前手势的进度
+                if (gestureProgressMap.ContainsKey(currentGesture))
+                {
+                    gestureProgressMap[currentGesture] += Time.deltaTime * progressIncreaseRate * speedMultiplier / fullRecognitionTime;
+                    gestureProgressMap[currentGesture] = Mathf.Clamp01(gestureProgressMap[currentGesture]);
+                }
+
                 // 可视化反馈 - 进度条变绿
                 if (gestureProgressBar != null)
                 {
@@ -222,6 +347,20 @@ public class GestureRecognitionManager : MonoBehaviour
             {
                 // 错误手势，减少进度
                 recognitionProgress -= Time.deltaTime * progressDecreaseRate / fullRecognitionTime;
+
+                // 降低当前目标手势的进度
+                if (gestureProgressMap.ContainsKey(targetGesture))
+                {
+                    gestureProgressMap[targetGesture] -= Time.deltaTime * progressDecreaseRate / fullRecognitionTime;
+                    gestureProgressMap[targetGesture] = Mathf.Clamp01(gestureProgressMap[targetGesture]);
+                }
+
+                // 但增加当前手势的进度（以较低的比例）
+                if (!string.IsNullOrEmpty(currentGesture) && gestureProgressMap.ContainsKey(currentGesture))
+                {
+                    gestureProgressMap[currentGesture] += Time.deltaTime * 0.1f;
+                    gestureProgressMap[currentGesture] = Mathf.Clamp01(gestureProgressMap[currentGesture]);
+                }
 
                 // 可视化反馈 - 进度条变红
                 if (gestureProgressBar != null)
@@ -241,6 +380,9 @@ public class GestureRecognitionManager : MonoBehaviour
 
             // 触发进度更新事件
             OnProgressChanged?.Invoke(recognitionProgress);
+
+            // 更新调试文本
+            UpdateDebugText();
 
             // 检查是否完成识别
             if (recognitionProgress >= 1.0f)

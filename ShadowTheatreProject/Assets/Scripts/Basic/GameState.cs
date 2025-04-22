@@ -208,4 +208,14 @@ public class GameState : MonoBehaviour
     {
         return Time.time - stateStartTime;
     }
+
+    // 在 GameState 类中添加
+    public void ResetGame()
+    {
+        // 广播游戏重置事件
+        EventCenter.Instance.Publish("Game_Reset");
+
+        // 重置为初始状态
+        ChangeState(State.GameStart);
+    }
 }

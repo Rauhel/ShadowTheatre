@@ -153,10 +153,8 @@ class GestureRecognition:
                         # 使用稳定器处理
                         current_gesture = self.gesture_stabilizer.add_gesture(raw_gesture)
                         
-                        # 显示在画面上
-                        status_text = f"双手: {raw_gesture}"
-                        if raw_gesture != current_gesture:
-                            status_text += f" -> {current_gesture}"
+                        # 显示在画面上 - 只在界面显示额外信息，不发送
+                        status_text = f"双手: {current_gesture}"
                         cv2.putText(image, status_text, (10, 30), 
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                         
@@ -185,10 +183,8 @@ class GestureRecognition:
                         # 使用稳定器处理
                         current_gesture = self.gesture_stabilizer.add_gesture(raw_gesture)
                         
-                        # 显示在画面上
-                        status_text = f"单手: {raw_gesture}"
-                        if raw_gesture != current_gesture:
-                            status_text += f" -> {current_gesture}"
+                        # 显示在画面上 - 只在界面显示额外信息，不发送
+                        status_text = f"单手: {current_gesture}"
                         cv2.putText(image, status_text, (10, 30), 
                                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
                         
@@ -204,17 +200,18 @@ class GestureRecognition:
                         # 发送手部检测状态：未检测到手
                         self.network.send_gesture("HandDetectionStatus|False")
                         last_hand_detected_time = time.time()
+                        current_gesture = "Unknown"  # 设置为未知手势
+                
                 if results.multi_hand_landmarks:
                     # 有手被检测到，发送检测状态
                     if time.time() - last_hand_detected_time > 1:  # 避免频繁发送状态
                         self.network.send_gesture("HandDetectionStatus|True")
                         last_hand_detected_time = time.time()  # 重置计时器
                 
-                # 只有当稳定手势变化时才发送
-                if current_gesture != last_sent_gesture:
-                    print(f"发送手势: {current_gesture}")
-                    self.network.send_gesture(current_gesture)
-                    last_sent_gesture = current_gesture
+                # 在每一帧发送当前手势，无论是否变化
+                print(f"发送手势: {current_gesture}")
+                self.network.send_gesture(current_gesture)
+                last_sent_gesture = current_gesture
                 
                 # 显示结果
                 window_title = '手势与位置跟踪' if self.enable_position_tracking else '手势识别'

@@ -44,8 +44,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5a4e77fed784ad4291e51b342cf48fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useMouseInput: 1
-  useGestureInput: 0
+  invertXAxis: 0
+  positionOffset: {x: 0, y: 0}
+  positionScale: {x: 1, y: 1}
 --- !u!1 &3442343396903393991
 GameObject:
   m_ObjectHideFlags: 0
@@ -79,6 +80,8 @@ Transform:
   - {fileID: 4365877291685358785}
   - {fileID: 5356320187383734516}
   - {fileID: 7573954960328420438}
+  - {fileID: 7780413583930026800}
+  - {fileID: 4174513136455415474}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2901985126254507752
@@ -93,6 +96,54 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 784d6d743363d1d42af89a9406676421, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &6610837034980698374
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7780413583930026800}
+  - component: {fileID: 835816204287180612}
+  m_Layer: 0
+  m_Name: Receiver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7780413583930026800
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6610837034980698374}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8577423420782024961}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &835816204287180612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6610837034980698374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 018b66010c2a7134ea025eea588cc5ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  positionPort: 5000
+  gesturePort: 8000
+  autoConnect: 1
+  messageDelimiter: '|'
 --- !u!1 &8204295620331614008
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,7 +192,6 @@ MonoBehaviour:
   startGamePanel: {fileID: 0}
   pauseMenuPanel: {fileID: 0}
   hudPanel: {fileID: 0}
-  mouseControlButton: {fileID: 0}
   gestureControlButton: {fileID: 0}
   quitButton: {fileID: 0}
   continueButton: {fileID: 0}
@@ -203,3 +253,57 @@ MonoBehaviour:
   defaultRequireKeyPress: 0
   defaultActivationKey: 101
   defaultPromptText: Press E to enter the next scene
+--- !u!1 &8499663656464951018
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4174513136455415474}
+  - component: {fileID: 6016753089543168765}
+  m_Layer: 0
+  m_Name: GestureRecognitionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4174513136455415474
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8499663656464951018}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8577423420782024961}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6016753089543168765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8499663656464951018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 678b30a617e89e24ab9b649d98750247, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fullRecognitionTime: 2
+  timeLimit: 3
+  progressIncreaseRate: 1
+  progressDecreaseRate: 0.8
+  gestureProgressBar: {fileID: 0}
+  countdownText: {fileID: 0}
+  promptText: {fileID: 0}
+  debugMode: 0
+  debugProgressText: {fileID: 0}
+  showDebugInfo: 1

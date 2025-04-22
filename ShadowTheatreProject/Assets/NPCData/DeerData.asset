@@ -14,25 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcID: 1
   npcName: Deer
-  currentScore: 30
+  currentScore: 0
   paths:
   - pathID: DeerPath1
     pathName: DeerPath1
     minScore: 0
     maxScore: 100
     events:
-    - eventID: 
+    - eventID: Event_DeerPath1_1
       pathPointIndex: 5
       triggerRadius: 2
+      availableInAct1: 1
+      availableInAct2: 1
+      availableInAct3: 1
       gestureHoldTime: 2
       gestureTimeLimit: 5
-      gestureResponses:
-      - gestureType: Deer
-        scoreEffect: 10
-        animationName: 
-        dialogueText: 
-        completionDelay: 1
-        minConfidence: 0.7
+      gestureResponses: []
       defaultResponse:
         gestureType: 
         scoreEffect: 0

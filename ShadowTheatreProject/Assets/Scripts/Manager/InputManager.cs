@@ -67,7 +67,7 @@ public class InputManager : MonoBehaviour
     /// <summary>
     /// 处理手势输入数据：标准化并分发
     /// </summary>
-    public void UpdateGestureData(string type, Vector2 rawPosition, float confidence = 1.0f, Dictionary<string, float> additionalData = null)
+    public void UpdateGestureData(string type, Vector2 rawPosition, Dictionary<string, float> additionalData = null)
     {
         // 检查是否是手部检测状态消息
         if (type == "HandDetectionStatus")
@@ -77,10 +77,6 @@ public class InputManager : MonoBehaviour
             if (additionalData != null && additionalData.ContainsKey("detected"))
             {
                 newHandDetectedState = additionalData["detected"] > 0.5f;
-            }
-            else if (confidence > 0.5f)
-            {
-                newHandDetectedState = true;
             }
 
             // 仅当状态变化时触发事件
@@ -96,7 +92,9 @@ public class InputManager : MonoBehaviour
         // 保存手势数据
         currentGesture.type = type;
         currentGesture.position = rawPosition;
-        currentGesture.confidence = confidence;
+
+        // 移除置信度相关代码
+        currentGesture.confidence = 1.0f; // 默认值设为1.0
 
         if (additionalData != null)
         {
@@ -110,8 +108,8 @@ public class InputManager : MonoBehaviour
         // 处理手势类型消息
         if (additionalData != null && additionalData.ContainsKey("is_gesture_type") && additionalData["is_gesture_type"] > 0.5f)
         {
-            // 触发手势类型事件
-            OnGestureTypeReceived?.Invoke(type, confidence);
+            // 触发手势类型事件 - 移除置信度参数或使用默认值1.0
+            OnGestureTypeReceived?.Invoke(type, 1.0f);
         }
         else if (type == "HandPosition" || type == "position") // 手部位置消息
         {
