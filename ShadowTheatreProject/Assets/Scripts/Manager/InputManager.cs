@@ -126,22 +126,29 @@ public class InputManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 标准化手势位置数据
+    /// 标准化手势位置数据，映射到屏幕的0.2-0.8范围内
     /// </summary>
     private Vector2 NormalizeGesturePosition(Vector2 gesturePos)
     {
-        // 应用缩放
+        // 步骤1: 应用缩放
         Vector2 scaledPos = new Vector2(
             gesturePos.x * positionScale.x,
             gesturePos.y * positionScale.y
         );
 
-        // 应用反转
+        // 步骤2: 应用反转
         if (invertXAxis) scaledPos.x = 1 - scaledPos.x;
         scaledPos.y = 1 - scaledPos.y;
 
-        // 应用偏移 (归一化值的偏移)
-        return scaledPos + positionOffset;
+        // 步骤3: 应用缩放到0.2-0.8范围
+        // 将0-1范围映射到0.2-0.8范围（缩放0.6倍然后加上0.2的偏移）
+        Vector2 centralizedPos = new Vector2(
+            scaledPos.x * 0.6f + 0.2f,
+            scaledPos.y * 0.6f + 0.2f
+        );
+
+        // 步骤4: 应用额外偏移（通过Inspector设置）
+        return centralizedPos + positionOffset;
     }
 
     // 获取当前手势数据

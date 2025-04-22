@@ -25,6 +25,24 @@ public class NPCEventManager : MonoBehaviour
     [Tooltip("是否使用新的手势识别系统")]
     public bool useNewGestureSystem = true;
 
+    [HideInInspector]
+    public bool isEventDetectable = false; // 当前是否处于事件可检测阶段
+    [HideInInspector]
+    public PathEvent currentPathEvent = null; // 当前可检测的事件
+
+    // 添加以下公共属性以访问私有变量
+    /// <summary>
+    /// 当前路径点的父对象
+    /// </summary>
+    [HideInInspector]
+    public Transform CurrentPathPointsParent => currentPathPointsParent;
+
+    /// <summary>
+    /// 当前路径上的所有事件
+    /// </summary>
+    [HideInInspector]
+    public List<PathEvent> CurrentPathEvents => currentPathEvents;
+
     void Awake()
     {
         controller = GetComponent<NPCController>();
@@ -102,7 +120,14 @@ public class NPCEventManager : MonoBehaviour
     private void CheckEventTriggers()
     {
         if (currentPathEvents.Count == 0 || currentPathPointsParent == null)
+        {
+            isEventDetectable = false;
+            currentPathEvent = null;
             return;
+        }
+
+        isEventDetectable = false;
+        currentPathEvent = null;
 
         foreach (var pathEvent in currentPathEvents)
         {
@@ -115,6 +140,13 @@ public class NPCEventManager : MonoBehaviour
             // 检查是否在触发区域内
             float distance = Vector3.Distance(transform.position, triggerPoint.position);
             bool isInTriggerArea = distance <= pathEvent.triggerRadius;
+
+            // 当NPC接近事件触发区域时标记为可检测（距离在触发半径的1.5倍内）
+            if (distance <= pathEvent.triggerRadius * 1f)
+            {
+                isEventDetectable = true;
+                currentPathEvent = pathEvent;
+            }
 
             if (isInTriggerArea)
             {
@@ -131,9 +163,6 @@ public class NPCEventManager : MonoBehaviour
 
         isProcessingEvent = true;
         currentEvent = pathEvent;
-
-        // 停止当前路径跟随
-        pathManager.PausePathProcessing(true);
 
         // 根据选择的系统进行不同的处理
         if (useNewGestureSystem)
@@ -241,8 +270,8 @@ public class NPCEventManager : MonoBehaviour
         isProcessingEvent = false;
         currentEvent = null;
 
-        // 恢复路径跟随
-        pathManager.ResumePathProcessing();
+        // 不再需要恢复路径跟踪，因为我们没有暂停它
+        // pathManager.ResumePathProcessing();
     }
 
     private void OnGestureUpdated(InputManager.GestureData gestureData)
@@ -300,7 +329,7 @@ public class NPCEventManager : MonoBehaviour
         // 更新分数
         controller.UpdateScore(response.scoreEffect);
 
-        // 播放动画
+        // 播放动画 - NPC会继续移动，同时播放动画
         controller.PlayAnimation(response.animationName);
 
         // 如果有动画，等待动画完成
@@ -325,8 +354,8 @@ public class NPCEventManager : MonoBehaviour
         isProcessingEvent = false;
         currentEvent = null;
 
-        // 恢复路径跟随
-        pathManager.ResumePathProcessing();
+        // 不再需要恢复路径跟踪，因为我们没有暂停它
+        // pathManager.ResumePathProcessing();
     }
 
     // 直接触发事件的公共方法（例如从其他系统触发）

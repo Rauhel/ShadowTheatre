@@ -109,8 +109,11 @@ public class PlayerMovement : MonoBehaviour
     /// <summary>
     /// 处理手部位置更新
     /// </summary>
+    // 在PlayerMovement.cs的HandleHandPositionUpdated方法中
     private void HandleHandPositionUpdated(Vector2 normalizedPosition)
     {
+        // normalizedPosition现在已经在0.2-0.8范围内
+
         // 转换为屏幕坐标
         Vector2 screenPosition = new Vector2(
             normalizedPosition.x * Screen.width,
@@ -122,6 +125,9 @@ public class PlayerMovement : MonoBehaviour
 
         // 设置指针状态为活跃
         isPointerActive = true;
+
+        // 可视化帮助调试
+        //Debug.Log($"手部位置: 归一化={normalizedPosition}, 屏幕={screenPosition}, 世界={currentPointerPosition}");
     }
 
     /// <summary>
@@ -166,7 +172,7 @@ public class PlayerMovement : MonoBehaviour
                 debugPointer.SetActive(true);
             }
 
-            Debug.Log($"PlayerMovement: 指针位置更新 - 屏幕={screenPosition}, 世界={hitPoint}");
+            //Debug.Log($"PlayerMovement: 指针位置更新 - 屏幕={screenPosition}, 世界={hitPoint}");
         }
         else
         {

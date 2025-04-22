@@ -314,7 +314,7 @@ public class GestureReceiver : MonoBehaviour
                 }
             }
 
-            Debug.Log($"【手势识别】: 消息类型={messageType}, 手势类型={gestureType}, 置信度={confidence:F3}");
+            ///Debug.Log($"【手势识别】: 消息类型={messageType}, 手势类型={gestureType}, 置信度={confidence:F3}");
 
             // 解析额外数据
             Dictionary<string, float> additionalData = new Dictionary<string, float>();
