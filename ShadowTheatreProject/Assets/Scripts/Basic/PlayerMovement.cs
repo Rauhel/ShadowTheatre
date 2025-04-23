@@ -18,11 +18,18 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float pointerGroundHeight = 0f;
     [SerializeField] private bool showDebugPointer = true;
 
+    [Header("Hover Detection")]
+    [SerializeField] private bool enableHoverStop = true;
+    [SerializeField] private Vector2 hoverMinThreshold = new Vector2(0.4f, 0.4f);
+    [SerializeField] private Vector2 hoverMaxThreshold = new Vector2(0.6f, 0.6f);
+    [SerializeField] private Color hoverDebugColor = new Color(1f, 0.5f, 0f, 0.5f); // 橙色
+
     // 引用和内部变量
     private Vector3 currentVelocity = Vector3.zero;
     private Vector3 targetPosition;
     private Vector3 currentPointerPosition;
     private bool isPointerActive = false;
+    private bool isHovering = false;
 
     private InputManager inputManager;
     private Camera mainCamera;
@@ -109,10 +116,27 @@ public class PlayerMovement : MonoBehaviour
     /// <summary>
     /// 处理手部位置更新
     /// </summary>
-    // 在PlayerMovement.cs的HandleHandPositionUpdated方法中
     private void HandleHandPositionUpdated(Vector2 normalizedPosition)
     {
         // normalizedPosition现在已经在0.2-0.8范围内
+
+        // 检查是否在悬停区域内 (0.4-0.6)
+        bool newHoverState = IsPositionInHoverArea(normalizedPosition);
+        if (newHoverState != isHovering)
+        {
+            isHovering = newHoverState;
+            Debug.Log($"PlayerMovement: 悬停状态变更为 {(isHovering ? "悬停中" : "移动中")}");
+
+            // 如果启用了调试指针，更新颜色以反映悬停状态
+            if (debugPointer != null && debugPointer.activeSelf)
+            {
+                Renderer renderer = debugPointer.GetComponent<Renderer>();
+                if (renderer != null)
+                {
+                    renderer.material.color = isHovering ? hoverDebugColor : Color.green;
+                }
+            }
+        }
 
         // 转换为屏幕坐标
         Vector2 screenPosition = new Vector2(
@@ -125,9 +149,6 @@ public class PlayerMovement : MonoBehaviour
 
         // 设置指针状态为活跃
         isPointerActive = true;
-
-        // 可视化帮助调试
-        //Debug.Log($"手部位置: 归一化={normalizedPosition}, 屏幕={screenPosition}, 世界={currentPointerPosition}");
     }
 
     /// <summary>
@@ -202,8 +223,8 @@ public class PlayerMovement : MonoBehaviour
             if (!isInitialized) return;
         }
 
-        // 仅当指针活跃时处理移动
-        if (!isPointerActive) // 使用自己的 isPointerActive 标志，而不是调用 InputManager.IsPointerActive()
+        // 仅当指针活跃时且不在悬停区域时处理移动
+        if (!isPointerActive || (enableHoverStop && isHovering))
         {
             return;
         }
@@ -295,6 +316,17 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 检查位置是否在悬停区域内
+    /// </summary>
+    private bool IsPositionInHoverArea(Vector2 normalizedPosition)
+    {
+        return normalizedPosition.x >= hoverMinThreshold.x &&
+               normalizedPosition.x <= hoverMaxThreshold.x &&
+               normalizedPosition.y >= hoverMinThreshold.y &&
+               normalizedPosition.y <= hoverMaxThreshold.y;
+    }
+
     // 在Unity编辑器中显示目标位置的可视化
     private void OnDrawGizmos()
     {
@@ -306,9 +338,60 @@ public class PlayerMovement : MonoBehaviour
 
         if (Application.isPlaying && currentPointerPosition != Vector3.zero && isPointerActive)
         {
-            Gizmos.color = Color.yellow;
+            Gizmos.color = isHovering ? hoverDebugColor : Color.yellow;
             Gizmos.DrawWireSphere(currentPointerPosition, 0.3f);
         }
+
+        // 可视化悬停区域
+        if (enableHoverStop && mainCamera != null)
+        {
+            Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f); // 半透明橙色
+
+            // 计算悬停区域的四个角
+            Vector2 screenMin = new Vector2(
+                hoverMinThreshold.x * Screen.width,
+                hoverMinThreshold.y * Screen.height
+            );
+            Vector2 screenMax = new Vector2(
+                hoverMaxThreshold.x * Screen.width,
+                hoverMaxThreshold.y * Screen.height
+            );
+
+            // 将四个角转换为世界坐标
+            Vector3 worldBL = GetWorldPositionFromScreenPoint(screenMin);
+            Vector3 worldTL = GetWorldPositionFromScreenPoint(new Vector2(screenMin.x, screenMax.y));
+            Vector3 worldTR = GetWorldPositionFromScreenPoint(screenMax);
+            Vector3 worldBR = GetWorldPositionFromScreenPoint(new Vector2(screenMax.x, screenMin.y));
+
+            // 绘制悬停区域
+            Gizmos.DrawLine(worldBL, worldTL);
+            Gizmos.DrawLine(worldTL, worldTR);
+            Gizmos.DrawLine(worldTR, worldBR);
+            Gizmos.DrawLine(worldBR, worldBL);
+        }
+    }
+
+    /// <summary>
+    /// 辅助方法：将屏幕坐标转换为世界坐标（用于Gizmos）
+    /// </summary>
+    private Vector3 GetWorldPositionFromScreenPoint(Vector2 screenPoint)
+    {
+        if (mainCamera == null) return Vector3.zero;
+
+        Ray ray = mainCamera.ScreenPointToRay(new Vector3(screenPoint.x, screenPoint.y, 0));
+        if (groundPlane.Raycast(ray, out float distance))
+        {
+            return ray.GetPoint(distance);
+        }
+
+        // 备用方案
+        float t = (pointerGroundHeight - ray.origin.y) / ray.direction.y;
+        if (t > 0)
+        {
+            return ray.origin + ray.direction * t;
+        }
+
+        return Vector3.zero;
     }
 
     // 公共方法：更新地面平面高度
@@ -316,5 +399,11 @@ public class PlayerMovement : MonoBehaviour
     {
         pointerGroundHeight = height;
         groundPlane = new Plane(Vector3.up, new Vector3(0, height, 0));
+    }
+
+    // 公共方法：获取当前悬停状态
+    public bool IsHovering()
+    {
+        return isHovering && enableHoverStop;
     }
 }

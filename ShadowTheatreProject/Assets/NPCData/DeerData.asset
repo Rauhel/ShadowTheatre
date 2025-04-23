@@ -23,13 +23,19 @@ MonoBehaviour:
     events:
     - eventID: Event_DeerPath1_1
       pathPointIndex: 5
-      triggerRadius: 2
-      availableInAct1: 1
-      availableInAct2: 1
-      availableInAct3: 1
-      gestureHoldTime: 2
-      gestureTimeLimit: 5
-      gestureResponses: []
+      triggerRadius: 4
+      enabledInAct1: 1
+      enabledInAct2: 1
+      enabledInAct3: 1
+      gestureHoldTime: 1
+      gestureTimeLimit: 3
+      gestureResponses:
+      - gestureType: Deer
+        scoreEffect: 30
+        animationName: 
+        dialogueText: 
+        completionDelay: 1
+        minConfidence: 0.7
       defaultResponse:
         gestureType: 
         scoreEffect: 0
@@ -37,6 +43,8 @@ MonoBehaviour:
         dialogueText: 
         completionDelay: 1
         minConfidence: 0.7
+      playerInteractionRadius: 3
+      showInteractionRange: 1
     nextPaths:
     - nextPathID: DeerPath2
       minScore: 0

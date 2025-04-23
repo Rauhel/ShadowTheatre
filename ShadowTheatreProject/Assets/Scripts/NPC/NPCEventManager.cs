@@ -10,7 +10,7 @@ public class NPCEventManager : MonoBehaviour
     // 核心组件引用
     private NPCController controller;
     private NPCPathManager pathManager;
-    private GestureRecognitionManager gestureRecognitionManager;
+    private GestureEventHandler gestureHandler;
 
     // 当前状态
     private bool isProcessingEvent = false;
@@ -25,10 +25,7 @@ public class NPCEventManager : MonoBehaviour
     private bool isEventDetectable = false;
     private PathEvent currentPathEvent = null;
 
-    // 玩家设置
-    [Header("玩家交互设置")]
-    public Transform playerTransform;
-    public bool requirePlayerInRange = true;
+    // 交互范围指示器
     private GameObject interactionRangeVisual;
 
     // 游戏当前幕数
@@ -49,44 +46,30 @@ public class NPCEventManager : MonoBehaviour
     {
         controller = GetComponent<NPCController>();
         pathManager = GetComponent<NPCPathManager>();
+
+        // 获取或添加手势处理器
+        gestureHandler = GetComponent<GestureEventHandler>();
+        if (gestureHandler == null)
+        {
+            gestureHandler = gameObject.AddComponent<GestureEventHandler>();
+        }
     }
 
     void Start()
     {
-        // 查找手势识别管理器
-        gestureRecognitionManager = FindObjectOfType<GestureRecognitionManager>();
-        if (gestureRecognitionManager != null)
-        {
-            gestureRecognitionManager.OnGestureRecognized += OnGestureRecognized;
-            gestureRecognitionManager.OnGestureTimedOut += OnGestureTimedOut;
-        }
-
-        // 查找玩家
-        if (playerTransform == null)
-        {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                playerTransform = player.transform;
-            }
-        }
-
         // 创建交互范围指示器
         CreateInteractionRangeIndicator();
 
         // 订阅游戏状态事件
         SubscribeToGameEvents();
+
+        // 订阅手势处理器事件
+        gestureHandler.OnGestureSuccess += OnGestureSuccessCallback;
+        gestureHandler.OnGestureFailure += OnGestureFailureCallback;
     }
 
     void OnDestroy()
     {
-        // 清理手势回调
-        if (gestureRecognitionManager != null)
-        {
-            gestureRecognitionManager.OnGestureRecognized -= OnGestureRecognized;
-            gestureRecognitionManager.OnGestureTimedOut -= OnGestureTimedOut;
-        }
-
         // 清理交互范围指示器
         if (interactionRangeVisual != null)
         {
@@ -95,6 +78,13 @@ public class NPCEventManager : MonoBehaviour
 
         // 取消订阅事件
         UnsubscribeFromGameEvents();
+
+        // 取消订阅手势处理器事件
+        if (gestureHandler != null)
+        {
+            gestureHandler.OnGestureSuccess -= OnGestureSuccessCallback;
+            gestureHandler.OnGestureFailure -= OnGestureFailureCallback;
+        }
     }
 
     void Update()
@@ -108,19 +98,6 @@ public class NPCEventManager : MonoBehaviour
 
         // 检查是否有事件在范围内
         CheckEventsInRange();
-
-        // 如果正在处理事件，检查玩家是否在交互范围内
-        if (isProcessingEvent && gestureRecognitionManager != null && requirePlayerInRange)
-        {
-            bool playerInRange = IsPlayerInInteractionRange();
-            gestureRecognitionManager.SetRecognitionPaused(!playerInRange);
-
-            // 更新调试信息
-            if (gestureRecognitionManager.debugMode)
-            {
-                UpdateGestureManagerDebugInfo(playerInRange);
-            }
-        }
     }
 
     // 检查周围是否有事件 - 只检查当前路径上的事件
@@ -252,9 +229,9 @@ public class NPCEventManager : MonoBehaviour
         currentEvent = pathEvent;
 
         // 启动手势识别
-        if (pathEvent.gestureResponses.Count > 0 && gestureRecognitionManager != null)
+        if (pathEvent.gestureResponses.Count > 0 && gestureHandler != null)
         {
-            StartGestureRecognition(pathEvent);
+            gestureHandler.StartGestureRecognition(pathEvent);
         }
         else
         {
@@ -301,18 +278,6 @@ public class NPCEventManager : MonoBehaviour
     {
         isProcessingEvent = false;
         currentEvent = null;
-    }
-
-    // 检查玩家是否在交互范围内
-    private bool IsPlayerInInteractionRange()
-    {
-        if (!requirePlayerInRange || playerTransform == null || currentEvent == null)
-        {
-            return true;
-        }
-
-        float distance = Vector3.Distance(transform.position, playerTransform.position);
-        return distance <= currentEvent.playerInteractionRadius;
     }
 
     // 创建交互范围指示器
@@ -382,43 +347,8 @@ public class NPCEventManager : MonoBehaviour
         }
     }
 
-    // 启动手势识别
-    private void StartGestureRecognition(PathEvent pathEvent)
-    {
-        // 获取此事件接受的所有手势类型
-        List<string> acceptableGestures = new List<string>();
-        foreach (var response in pathEvent.gestureResponses)
-        {
-            if (!string.IsNullOrEmpty(response.gestureType) && !acceptableGestures.Contains(response.gestureType))
-            {
-                acceptableGestures.Add(response.gestureType);
-            }
-        }
-
-        if (acceptableGestures.Count > 0)
-        {
-            // 设置手势识别参数
-            gestureRecognitionManager.fullRecognitionTime = pathEvent.gestureHoldTime;
-            gestureRecognitionManager.timeLimit = pathEvent.gestureTimeLimit;
-
-            // 启动识别第一个手势
-            gestureRecognitionManager.StartGestureRecognition(acceptableGestures[0]);
-
-            // 如果有多个手势，添加到调试信息
-            if (acceptableGestures.Count > 1)
-            {
-                gestureRecognitionManager.SetDebugInfo("可接受手势", string.Join(", ", acceptableGestures));
-            }
-        }
-        else
-        {
-            // 没有可接受的手势，使用默认响应
-            ExecuteResponse(pathEvent.defaultResponse);
-        }
-    }
-
     // 手势识别成功回调
-    private void OnGestureRecognized(string gestureType)
+    private void OnGestureSuccessCallback(string gestureType)
     {
         if (currentEvent == null || !isProcessingEvent)
             return;
@@ -438,8 +368,8 @@ public class NPCEventManager : MonoBehaviour
         }
     }
 
-    // 手势识别超时回调
-    private void OnGestureTimedOut()
+    // 手势识别失败回调
+    private void OnGestureFailureCallback()
     {
         if (currentEvent == null || !isProcessingEvent)
             return;
@@ -476,25 +406,6 @@ public class NPCEventManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         CompleteCurrentEvent();
-    }
-
-    // 更新手势管理器的调试信息
-    private void UpdateGestureManagerDebugInfo(bool playerInRange)
-    {
-        if (gestureRecognitionManager == null)
-            return;
-
-        gestureRecognitionManager.SetDebugInfo("玩家在范围内", playerInRange ? "是" : "否");
-
-        if (currentEvent != null)
-        {
-            gestureRecognitionManager.SetDebugInfo("交互范围", $"{currentEvent.playerInteractionRadius}米");
-            if (playerTransform != null)
-            {
-                float distance = Vector3.Distance(transform.position, playerTransform.position);
-                gestureRecognitionManager.SetDebugInfo("当前距离", $"{distance:F1}米");
-            }
-        }
     }
 
     // 订阅游戏状态事件

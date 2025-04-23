@@ -59,6 +59,7 @@ public class GestureRecognitionManager : MonoBehaviour
     private float recognitionProgress = 0f;
     private float remainingTime = 0f;
     private Coroutine recognitionCoroutine;
+    public string CurrentGesture => currentGesture;
 
     // 调试信息
     private string currentDebugText = "";
