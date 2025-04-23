@@ -4,12 +4,16 @@ using UnityEngine;
 [RequireComponent(typeof(NPCController))]
 [RequireComponent(typeof(NPCPathManager))]
 [RequireComponent(typeof(NPCEventManager))]
+[RequireComponent(typeof(NPCDialogueManager))]
+[RequireComponent(typeof(NPCAnimationManager))] // 添加动画管理器需求
 public class NPCMain : MonoBehaviour
 {
     // 组件引用
     private NPCController controller;
     private NPCPathManager pathManager;
     private NPCEventManager eventManager;
+    private NPCDialogueManager dialogueManager;
+    private NPCAnimationManager animationManager; // 添加动画管理器引用
 
     void Awake()
     {
@@ -17,12 +21,47 @@ public class NPCMain : MonoBehaviour
         controller = GetComponent<NPCController>();
         pathManager = GetComponent<NPCPathManager>();
         eventManager = GetComponent<NPCEventManager>();
+        dialogueManager = GetComponent<NPCDialogueManager>();
+        animationManager = GetComponent<NPCAnimationManager>(); // 初始化动画管理器
+
+        // 确保所有组件都存在
+        if (controller == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 缺少 NPCController 组件");
+        }
+
+        if (pathManager == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 缺少 NPCPathManager 组件");
+        }
+
+        if (eventManager == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 缺少 NPCEventManager 组件");
+        }
+
+        if (dialogueManager == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 缺少 NPCDialogueManager 组件");
+        }
+
+        if (animationManager == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 缺少 NPCAnimationManager 组件");
+        }
     }
 
     // 提供公共接口用于其他系统交互
     public void TriggerEvent(string eventID)
     {
-        eventManager.TriggerEventByID(eventID);
+        if (eventManager != null)
+        {
+            eventManager.TriggerEventByID(eventID);
+        }
+        else
+        {
+            Debug.LogError($"[{gameObject.name}] 无法触发事件：缺少 NPCEventManager 组件");
+        }
     }
 
     public void SwitchToPath(string pathID)
@@ -32,7 +71,7 @@ public class NPCMain : MonoBehaviour
 
     public void UpdateScore(float amount)
     {
-        controller.UpdateScore(amount);
+        controller.AdjustScore(amount); // 使用新的方法名
     }
 
     public void StopNPC(bool stop)
@@ -102,5 +141,18 @@ public class NPCMain : MonoBehaviour
 
         Debug.LogWarning($"[{gameObject.name}] 无法获取 NPCData，NPCController 可能未设置或未初始化");
         return null;
+    }
+
+    // 添加播放动画的公共接口
+    public void PlayAnimation(string animName, bool loop = false, float duration = 0)
+    {
+        if (animationManager != null)
+        {
+            animationManager.PlayAnimation(animName, loop, duration);
+        }
+        else
+        {
+            Debug.LogError($"[{gameObject.name}] 无法播放动画：缺少 NPCAnimationManager 组件");
+        }
     }
 }

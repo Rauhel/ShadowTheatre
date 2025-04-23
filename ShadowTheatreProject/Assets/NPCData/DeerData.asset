@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcID: 1
   npcName: Deer
-  currentScore: 30
+  currentScore: 60
   paths:
   - pathID: DeerPath1
     pathName: DeerPath1
@@ -22,29 +22,41 @@ MonoBehaviour:
     maxScore: 100
     events:
     - eventID: Event_DeerPath1_1
-      pathPointIndex: 5
-      triggerRadius: 4
+      startPointIndex: 2
+      endPointIndex: 8
+      playerInteractionRadius: 3
+      showInteractionRange: 1
+      gestureHoldTime: 1
+      maxRecognitionDistance: 8
       enabledInAct1: 1
       enabledInAct2: 1
       enabledInAct3: 1
-      gestureHoldTime: 1
-      gestureTimeLimit: 3
       gestureResponses:
       - gestureType: Deer
         scoreEffect: 30
-        animationName: 
+        actions:
+        - dialogueText: 
+          displayDuration: 1.5
+          voiceClip: {fileID: 0}
+          animationName: 
+          delay: 0
+          overridePrevious: 1
         dialogueText: 
-        completionDelay: 1
-        minConfidence: 0.7
+        animationName: 
+        displayDuration: 2
       defaultResponse:
         gestureType: 
         scoreEffect: 0
-        animationName: 
+        actions:
+        - dialogueText: 
+          displayDuration: 1.5
+          voiceClip: {fileID: 0}
+          animationName: 
+          delay: 0
+          overridePrevious: 1
         dialogueText: 
-        completionDelay: 1
-        minConfidence: 0.7
-      playerInteractionRadius: 3
-      showInteractionRange: 1
+        animationName: 
+        displayDuration: 2
     nextPaths:
     - nextPathID: DeerPath2
       minScore: 0
@@ -56,16 +68,22 @@ MonoBehaviour:
       maxScore: 100
       requiredScore: 30
       description: 30
-  events:
-  - eventID: 
-    triggerLocation: {fileID: 0}
-    triggerRadius: 0
-    globalEventName: 
-    gestureHoldTime: 0
-    gestureTimeLimit: 0
-    defaultBranch:
-      scoreValue: 0
-    gestureBranches: []
+    pathDialogues: []
+    pathActions:
+    - dialogueText: 1111
+      displayDuration: 1
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      overridePrevious: 1
+      pathPointIndex: 0
+    - dialogueText: 2222
+      displayDuration: 1
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      overridePrevious: 1
+      pathPointIndex: 4
   pathConnections:
   - pathID: 
     path: {fileID: 0}

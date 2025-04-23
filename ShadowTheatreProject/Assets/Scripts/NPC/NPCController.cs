@@ -49,14 +49,20 @@ public class NPCController : MonoBehaviour
         }
     }
 
-    // 提供公共接口用于分数更新
-    public virtual void UpdateScore(float amount)
+    // 修改方法名，保持向后兼容性
+    public virtual void AdjustScore(float amount)
     {
         if (npcData != null)
         {
             npcData.currentScore += amount;
             Debug.Log($"[{gameObject.name}] 分数更新: {npcData.currentScore} ({(amount >= 0 ? "+" : "")}{amount})");
         }
+    }
+
+    // 为了保持兼容性，添加原名称的方法
+    public virtual void UpdateScore(float amount)
+    {
+        AdjustScore(amount); // 调用改名后的方法
     }
 
     // 提供公共接口用于停止/恢复移动

@@ -1043,7 +1043,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2bc145a3de5e4146a557893d794efc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentAct: 1
+  controller: {fileID: 0}
+  pathManager: {fileID: 0}
+  gestureHandler: {fileID: 0}
+  currentEvent:
+    eventID: 
+    startPointIndex: 0
+    endPointIndex: 0
+    enabledInAct1: 1
+    enabledInAct2: 1
+    enabledInAct3: 1
+    gestureHoldTime: 2
+    maxRecognitionDistance: 8
+    gestureResponses: []
+    defaultResponse:
+      gestureType: 
+      scoreEffect: 0
+      animationName: 
+      dialogueText: 
+      completionDelay: 1
+      minConfidence: 0.7
+    playerInteractionRadius: 3
+    showInteractionRange: 1
+    useCustomDialogueArea: 0
+    dialogueStartPointIndex: 0
+    outcomeDialogues: []
+  isProcessingEvent: 0
+  isDetectingGesture: 0
+  currentPathID: 
+  currentPathPointsParent: {fileID: 0}
+  <CurrentPathEvents>k__BackingField: []
+  eventStartPosition: {x: 0, y: 0, z: 0}
+  hasRecordedStartPosition: 0
 --- !u!114 &1742255559
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1056,6 +1087,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1427ce870345be4498e4f9e16cc9d7db, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controller: {fileID: 0}
+  eventManager: {fileID: 0}
+  currentPathCreator: {fileID: 0}
+  currentPathPoints: {fileID: 0}
+  currentPathPointIndex: 0
+  pathProcessingPaused: 0
+  stuckTime: 0
+  lastReachedPointIndex: -1
+  reachDistance: 0.5
+  agent: {fileID: 0}
+  <CurrentPathConfig>k__BackingField:
+    pathID: 
+    pathName: 
+    minScore: 0
+    maxScore: 100
+    events: []
+    nextPaths: []
+    pathDialogues: []
 --- !u!114 &1742255560
 MonoBehaviour:
   m_ObjectHideFlags: 0

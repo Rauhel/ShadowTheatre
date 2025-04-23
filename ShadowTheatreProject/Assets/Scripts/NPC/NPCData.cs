@@ -82,6 +82,9 @@ public class PathConfig
     [Tooltip("此路径结束后的下一条路径")]
     public List<PathBranch> nextPaths = new List<PathBranch>();
 
+    [Header("路径动作")]
+    public List<ActionData> pathActions = new List<ActionData>();
+
     // 根据分数选择下一条路径
     public string SelectNextPathByScore(float score)
     {
@@ -107,62 +110,49 @@ public class PathConfig
 }
 
 [Serializable]
+public class ActionData
+{
+    [Header("基础内容")]
+    public string dialogueText = "";        // 对话文本
+    public float displayDuration = 1.5f;    // 显示时间
+    public AudioClip voiceClip;             // 语音片段
+    public string animationName = "";       // 动画名称
+    public float delay = 0f;                // 执行延迟
+    public bool overridePrevious = true;    // 是否覆盖前一个动作
+
+    [Header("执行条件")]
+    public int pathPointIndex = 0;          // 路径点索引
+}
+
+[Serializable]
 public class PathEvent
 {
-    [Header("事件基本信息")]
     public string eventID;
-
-    [Tooltip("事件起始点在路径点的索引位置")]
     public int startPointIndex;
-
-    [Tooltip("事件结束点在路径点的索引位置")]
     public int endPointIndex;
+    public float playerInteractionRadius = 3.0f;
+    public bool showInteractionRange = true;
 
-    [Header("事件可用性控制")]
-    [Tooltip("事件在第一幕是否可用")]
-    public bool enabledInAct1 = true;
-    [Tooltip("事件在第二幕是否可用")]
-    public bool enabledInAct2 = true;
-    [Tooltip("事件在第三幕是否可用")]
-    public bool enabledInAct3 = true;
-
-    [Header("手势检测")]
-    [Tooltip("手势保持的最短时间(秒)")]
-    public float gestureHoldTime = 2.0f;
-
-    [Tooltip("最远识别距离(米) - 超出此距离将无法识别手势")]
+    // 手势设置
+    public float gestureHoldTime = 1.0f;
     public float maxRecognitionDistance = 8.0f;
 
-    [Header("手势反应")]
+    // 事件可用性控制
+    public bool enabledInAct1 = true;
+    public bool enabledInAct2 = true;
+    public bool enabledInAct3 = true;
+
+    // 手势响应
     public List<GestureResponse> gestureResponses = new List<GestureResponse>();
-    [Tooltip("默认反应(无手势时)")]
     public GestureResponse defaultResponse = new GestureResponse();
-
-    [Header("玩家交互设置")]
-    [Tooltip("玩家需要在NPC周围多少距离内才能交互")]
-    public float playerInteractionRadius = 3f;
-
-    [Tooltip("是否在游戏中显示交互范围")]
-    public bool showInteractionRange = true;
 }
 
 [Serializable]
 public class GestureResponse
 {
-    [Tooltip("手势类型")]
-    public string gestureType; // 留空表示默认反应
-    [Tooltip("分数影响")]
-    public float scoreEffect;
-    [Tooltip("动画名称")]
-    public string animationName;
-    [Tooltip("对话内容")]
-    [TextArea(2, 4)]
-    public string dialogueText;
-    [Tooltip("完成后延迟(秒)")]
-    public float completionDelay = 1f;
-    [Tooltip("最低置信度")]
-    [Range(0f, 1f)]
-    public float minConfidence = 0.7f;
+    public string gestureType;              // 手势类型
+    public float scoreEffect;               // 分数影响
+    public List<ActionData> actions = new List<ActionData>(); // 统一使用 ActionData
 }
 
 [Serializable]
