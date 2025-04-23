@@ -266,6 +266,13 @@ public class NPCDataEditor : Editor
             pathEvent.enabledInAct3 = EditorGUILayout.Toggle("第三幕可用", pathEvent.enabledInAct3);
             EditorGUILayout.EndHorizontal();
             
+            // 添加玩家交互范围设置
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField("玩家交互设置", EditorStyles.boldLabel);
+            
+            pathEvent.playerInteractionRadius = EditorGUILayout.Slider("玩家交互范围", pathEvent.playerInteractionRadius, 1f, 10f);
+            pathEvent.showInteractionRange = EditorGUILayout.Toggle("显示交互范围", pathEvent.showInteractionRange);
+            
             // 显示路径点选择
             MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(config.pathID);
             if (pathCreator != null && pathCreator.pathPointsParent != null)

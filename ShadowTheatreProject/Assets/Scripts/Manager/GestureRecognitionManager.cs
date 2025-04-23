@@ -43,6 +43,10 @@ public class GestureRecognitionManager : MonoBehaviour
     [Tooltip("是否在UI上显示手势识别详细信息")]
     public bool showDebugInfo = true;
 
+    [Header("高级设置")]
+    [Tooltip("当玩家不在交互范围内时是否暂停进度")]
+    public bool pauseWhenOutOfRange = true;
+
     // 事件
     public event Action<string> OnGestureRecognized;
     public event Action OnGestureTimedOut;
@@ -63,6 +67,9 @@ public class GestureRecognitionManager : MonoBehaviour
 
     // 引用
     private InputManager inputManager;
+
+    // 新增控制暂停/恢复的变量
+    private bool isRecognitionPaused = false;
 
     private void Awake()
     {
@@ -208,6 +215,28 @@ public class GestureRecognitionManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 暂停或恢复手势识别
+    /// </summary>
+    public void SetRecognitionPaused(bool paused)
+    {
+        isRecognitionPaused = paused;
+
+        // 更新UI显示
+        if (gestureProgressBar != null)
+        {
+            // 当暂停时，进度条变成灰色
+            gestureProgressBar.gameObject.GetComponent<Image>().color =
+                isRecognitionPaused ? Color.gray : Color.green;
+        }
+
+        // 更新调试信息
+        if (debugMode)
+        {
+            SetDebugInfo("识别状态", isRecognitionPaused ? "已暂停" : "进行中");
+        }
+    }
+
+    /// <summary>
     /// 处理输入系统更新的手势类型
     /// </summary>
     private void HandleGestureUpdated(string gestureType, float _)  // 使用下划线表示忽略的参数
@@ -274,6 +303,7 @@ public class GestureRecognitionManager : MonoBehaviour
         currentDebugText = $"目标手势: {targetGesture} ({(recognitionProgress * 100):F0}%)\n";
         currentDebugText += $"当前手势: {currentGesture}\n";
         currentDebugText += $"剩余时间: {remainingTime:F1}s\n";
+        currentDebugText += $"状态: {(isRecognitionPaused ? "已暂停" : "进行中")}\n";
 
         // 添加自定义调试信息
         foreach (var info in debugInfoMap)
@@ -313,7 +343,7 @@ public class GestureRecognitionManager : MonoBehaviour
     {
         while (isRecognizing && remainingTime > 0)
         {
-            // 更新剩余时间
+            // 更新剩余时间 - 即使暂停也会倒计时
             remainingTime -= Time.deltaTime;
 
             // 更新倒计时UI
@@ -322,64 +352,68 @@ public class GestureRecognitionManager : MonoBehaviour
                 countdownText.text = Mathf.Max(0, remainingTime).ToString("F1") + "s";
             }
 
-            // 检查当前手势与目标手势的匹配
-            if (currentGesture == targetGesture)
+            // 只有在未暂停状态下才处理手势识别
+            if (!isRecognitionPaused)
             {
-                // 正确手势，大幅增加进度
-                // 增加系数让进度条增长更快，原来是每秒只增加 progressIncreaseRate/fullRecognitionTime
-                float speedMultiplier = 5.0f; // 加速系数
-                recognitionProgress += Time.deltaTime * progressIncreaseRate * speedMultiplier / fullRecognitionTime;
-
-                // 同时更新当前手势的进度
-                if (gestureProgressMap.ContainsKey(currentGesture))
+                // 检查当前手势与目标手势的匹配
+                if (currentGesture == targetGesture)
                 {
-                    gestureProgressMap[currentGesture] += Time.deltaTime * progressIncreaseRate * speedMultiplier / fullRecognitionTime;
-                    gestureProgressMap[currentGesture] = Mathf.Clamp01(gestureProgressMap[currentGesture]);
+                    // 正确手势，大幅增加进度
+                    // 增加系数让进度条增长更快，原来是每秒只增加 progressIncreaseRate/fullRecognitionTime
+                    float speedMultiplier = 5.0f; // 加速系数
+                    recognitionProgress += Time.deltaTime * progressIncreaseRate * speedMultiplier / fullRecognitionTime;
+
+                    // 同时更新当前手势的进度
+                    if (gestureProgressMap.ContainsKey(currentGesture))
+                    {
+                        gestureProgressMap[currentGesture] += Time.deltaTime * progressIncreaseRate * speedMultiplier / fullRecognitionTime;
+                        gestureProgressMap[currentGesture] = Mathf.Clamp01(gestureProgressMap[currentGesture]);
+                    }
+
+                    // 可视化反馈 - 进度条变绿
+                    if (gestureProgressBar != null)
+                    {
+                        gestureProgressBar.gameObject.GetComponent<Image>().color = Color.green;
+                    }
+                }
+                else
+                {
+                    // 错误手势，减少进度
+                    recognitionProgress -= Time.deltaTime * progressDecreaseRate / fullRecognitionTime;
+
+                    // 降低当前目标手势的进度
+                    if (gestureProgressMap.ContainsKey(targetGesture))
+                    {
+                        gestureProgressMap[targetGesture] -= Time.deltaTime * progressDecreaseRate / fullRecognitionTime;
+                        gestureProgressMap[targetGesture] = Mathf.Clamp01(gestureProgressMap[targetGesture]);
+                    }
+
+                    // 但增加当前手势的进度（以较低的比例）
+                    if (!string.IsNullOrEmpty(currentGesture) && gestureProgressMap.ContainsKey(currentGesture))
+                    {
+                        gestureProgressMap[currentGesture] += Time.deltaTime * 0.1f;
+                        gestureProgressMap[currentGesture] = Mathf.Clamp01(gestureProgressMap[currentGesture]);
+                    }
+
+                    // 可视化反馈 - 进度条变红
+                    if (gestureProgressBar != null)
+                    {
+                        gestureProgressBar.gameObject.GetComponent<Image>().color = Color.red;
+                    }
                 }
 
-                // 可视化反馈 - 进度条变绿
+                // 限制进度范围
+                recognitionProgress = Mathf.Clamp01(recognitionProgress);
+
+                // 更新进度条
                 if (gestureProgressBar != null)
                 {
-                    gestureProgressBar.gameObject.GetComponent<Image>().color = Color.green;
+                    gestureProgressBar.value = recognitionProgress;
                 }
+
+                // 触发进度更新事件
+                OnProgressChanged?.Invoke(recognitionProgress);
             }
-            else
-            {
-                // 错误手势，减少进度
-                recognitionProgress -= Time.deltaTime * progressDecreaseRate / fullRecognitionTime;
-
-                // 降低当前目标手势的进度
-                if (gestureProgressMap.ContainsKey(targetGesture))
-                {
-                    gestureProgressMap[targetGesture] -= Time.deltaTime * progressDecreaseRate / fullRecognitionTime;
-                    gestureProgressMap[targetGesture] = Mathf.Clamp01(gestureProgressMap[targetGesture]);
-                }
-
-                // 但增加当前手势的进度（以较低的比例）
-                if (!string.IsNullOrEmpty(currentGesture) && gestureProgressMap.ContainsKey(currentGesture))
-                {
-                    gestureProgressMap[currentGesture] += Time.deltaTime * 0.1f;
-                    gestureProgressMap[currentGesture] = Mathf.Clamp01(gestureProgressMap[currentGesture]);
-                }
-
-                // 可视化反馈 - 进度条变红
-                if (gestureProgressBar != null)
-                {
-                    gestureProgressBar.gameObject.GetComponent<Image>().color = Color.red;
-                }
-            }
-
-            // 限制进度范围
-            recognitionProgress = Mathf.Clamp01(recognitionProgress);
-
-            // 更新进度条
-            if (gestureProgressBar != null)
-            {
-                gestureProgressBar.value = recognitionProgress;
-            }
-
-            // 触发进度更新事件
-            OnProgressChanged?.Invoke(recognitionProgress);
 
             // 更新调试文本
             UpdateDebugText();

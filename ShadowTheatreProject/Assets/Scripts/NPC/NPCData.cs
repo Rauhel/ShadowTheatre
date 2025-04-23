@@ -138,6 +138,13 @@ public class PathEvent
     public List<GestureResponse> gestureResponses = new List<GestureResponse>();
     [Tooltip("默认反应(无手势时)")]
     public GestureResponse defaultResponse = new GestureResponse();
+
+    [Header("玩家交互设置")]
+    [Tooltip("玩家需要在NPC周围多少距离内才能交互")]
+    public float playerInteractionRadius = 3f;
+
+    [Tooltip("是否在游戏中显示交互范围")]
+    public bool showInteractionRange = true;
 }
 
 [Serializable]

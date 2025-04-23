@@ -21,6 +21,8 @@ public class NPCEventManagerEditor : Editor
     {
         DrawDefaultInspector();
         
+        NPCEventManager eventManager = (NPCEventManager)target;
+        
         if (controller == null || controller.Data == null)
         {
             EditorGUILayout.HelpBox("NPCController组件或NPCData未设置", MessageType.Warning);

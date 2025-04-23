@@ -51,7 +51,7 @@ public class NPCEventGizmoDrawer
             else
             {
                 // 运行时根据状态变化颜色
-                triggerColor = (manager.isEventDetectable && manager.currentPathEvent == pathEvent) 
+                triggerColor = (manager.IsEventDetectable && manager.CurrentPathEvent == pathEvent) 
                     ? new Color(0.2f, 0.8f, 0.2f, 0.3f)  // 绿色半透明
                     : new Color(0.8f, 0.2f, 0.2f, 0.3f); // 红色半透明
             }
@@ -72,7 +72,7 @@ public class NPCEventGizmoDrawer
             Handles.Label(triggerPoint.position + Vector3.up * 0.5f, pathEvent.eventID, labelStyle);
             
             // 游戏运行时显示更多信息
-            if (Application.isPlaying && manager.isEventDetectable && manager.currentPathEvent == pathEvent)
+            if (Application.isPlaying && manager.IsEventDetectable && manager.CurrentPathEvent == pathEvent)
             {
                 // 显示手势要求和时间参数
                 string gestureInfo = "";
