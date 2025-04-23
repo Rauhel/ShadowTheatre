@@ -256,21 +256,33 @@ public class NPCDataEditor : Editor
             
             pathEvent.eventID = EditorGUILayout.TextField("事件ID", pathEvent.eventID);
             
-            // 添加幕数控制选项
+            // 改进幕数控制选项布局
             EditorGUILayout.Space(5);
             EditorGUILayout.LabelField("事件可用性控制", EditorStyles.boldLabel);
             
+            // 使用2列布局，更紧凑地显示可用性选项
             EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginVertical(GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.4f));
             pathEvent.enabledInAct1 = EditorGUILayout.Toggle("第一幕可用", pathEvent.enabledInAct1);
-            pathEvent.enabledInAct2 = EditorGUILayout.Toggle("第二幕可用", pathEvent.enabledInAct2);
             pathEvent.enabledInAct3 = EditorGUILayout.Toggle("第三幕可用", pathEvent.enabledInAct3);
+            EditorGUILayout.EndVertical();
+            
+            EditorGUILayout.BeginVertical();
+            pathEvent.enabledInAct2 = EditorGUILayout.Toggle("第二幕可用", pathEvent.enabledInAct2);
+            EditorGUILayout.EndVertical();
             EditorGUILayout.EndHorizontal();
             
             // 添加玩家交互范围设置
             EditorGUILayout.Space(5);
             EditorGUILayout.LabelField("玩家交互设置", EditorStyles.boldLabel);
             
-            pathEvent.playerInteractionRadius = EditorGUILayout.Slider("玩家交互范围", pathEvent.playerInteractionRadius, 1f, 10f);
+            // 显示精确数值
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel("玩家交互范围");
+            pathEvent.playerInteractionRadius = EditorGUILayout.Slider(pathEvent.playerInteractionRadius, 1f, 10f);
+            pathEvent.playerInteractionRadius = EditorGUILayout.FloatField(pathEvent.playerInteractionRadius, GUILayout.Width(50));
+            EditorGUILayout.EndHorizontal();
+            
             pathEvent.showInteractionRange = EditorGUILayout.Toggle("显示交互范围", pathEvent.showInteractionRange);
             
             // 显示路径点选择
@@ -287,34 +299,136 @@ public class NPCDataEditor : Editor
                 }
                 
                 // 确保索引在范围内
-                pathEvent.pathPointIndex = Mathf.Clamp(pathEvent.pathPointIndex, 0, pointCount - 1);
+                pathEvent.startPointIndex = Mathf.Clamp(pathEvent.startPointIndex, 0, pointCount - 1);
+                pathEvent.endPointIndex = Mathf.Clamp(pathEvent.endPointIndex, 0, pointCount - 1);
                 
+                // 起始点选择 - 更简洁的界面
+                EditorGUILayout.Space(5);
+                EditorGUILayout.LabelField("路径段设置", EditorStyles.boldLabel);
+                
+                // 添加起始点和结束点索引的精确值显示
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.PrefixLabel("触发点");
-                pathEvent.pathPointIndex = EditorGUILayout.Popup(pathEvent.pathPointIndex, pointOptions);
+                EditorGUILayout.PrefixLabel("起始点");
+                int newStartIndex = EditorGUILayout.Popup(pathEvent.startPointIndex, pointOptions, GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.5f - 80));
+                pathEvent.startPointIndex = EditorGUILayout.IntField(pathEvent.startPointIndex, GUILayout.Width(40));
+                if (newStartIndex != pathEvent.startPointIndex)
+                {
+                    pathEvent.startPointIndex = newStartIndex;
+                    EditorUtility.SetDirty(npcData);
+                }
                 
                 // 添加定位按钮
                 if (GUILayout.Button("定位", GUILayout.Width(50)))
                 {
-                    Transform point = pathCreator.pathPointsParent.GetChild(pathEvent.pathPointIndex);
+                    Transform point = pathCreator.pathPointsParent.GetChild(pathEvent.startPointIndex);
                     Selection.activeGameObject = point.gameObject;
                     SceneView.FrameLastActiveSceneView();
                 }
                 EditorGUILayout.EndHorizontal();
+                
+                // 结束点选择
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel("结束点");
+                int newEndIndex = EditorGUILayout.Popup(pathEvent.endPointIndex, pointOptions, GUILayout.Width(EditorGUIUtility.currentViewWidth * 0.5f - 80));
+                pathEvent.endPointIndex = EditorGUILayout.IntField(pathEvent.endPointIndex, GUILayout.Width(40));
+                if (newEndIndex != pathEvent.endPointIndex)
+                {
+                    pathEvent.endPointIndex = newEndIndex;
+                    EditorUtility.SetDirty(npcData);
+                }
+                
+                // 添加定位按钮
+                if (GUILayout.Button("定位", GUILayout.Width(50)))
+                {
+                    Transform point = pathCreator.pathPointsParent.GetChild(pathEvent.endPointIndex);
+                    Selection.activeGameObject = point.gameObject;
+                    SceneView.FrameLastActiveSceneView();
+                }
+                EditorGUILayout.EndHorizontal();
+                
+                // 添加一些辅助按钮，帮助快速设置点位置
+                EditorGUILayout.BeginHorizontal();
+                if (GUILayout.Button("设置结束点为起始点的下一个点"))
+                {
+                    pathEvent.endPointIndex = Mathf.Min(pathEvent.startPointIndex + 1, pointCount - 1);
+                    EditorUtility.SetDirty(npcData);
+                }
+                
+                if (GUILayout.Button("交换起始点和结束点"))
+                {
+                    int temp = pathEvent.startPointIndex;
+                    pathEvent.startPointIndex = pathEvent.endPointIndex;
+                    pathEvent.endPointIndex = temp;
+                    EditorUtility.SetDirty(npcData);
+                }
+                EditorGUILayout.EndHorizontal();
+                
+                // 添加一个按钮，方便设置路径段长度
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.PrefixLabel("路径段长度");
+                int segmentLength = Mathf.Abs(pathEvent.endPointIndex - pathEvent.startPointIndex);
+                int newSegmentLength = EditorGUILayout.IntSlider(segmentLength, 1, pointCount - 1 - Mathf.Min(pathEvent.startPointIndex, pathEvent.endPointIndex));
+                if (newSegmentLength != segmentLength)
+                {
+                    if (pathEvent.endPointIndex > pathEvent.startPointIndex)
+                    {
+                        pathEvent.endPointIndex = pathEvent.startPointIndex + newSegmentLength;
+                    }
+                    else
+                    {
+                        pathEvent.startPointIndex = pathEvent.endPointIndex + newSegmentLength;
+                    }
+                    EditorUtility.SetDirty(npcData);
+                }
+                EditorGUILayout.EndHorizontal();
+                
+                // 路径段可视化预览
+                if (pathEvent.startPointIndex != pathEvent.endPointIndex)
+                {
+                    string segmentInfo = "";
+                    int start = Mathf.Min(pathEvent.startPointIndex, pathEvent.endPointIndex);
+                    int end = Mathf.Max(pathEvent.startPointIndex, pathEvent.endPointIndex);
+                    
+                    for (int i = start; i <= end; i++)
+                    {
+                        float relativePos = (float)i / (pointCount - 1);
+                        segmentInfo += $"{relativePos:P0}";
+                        if (i < end)
+                            segmentInfo += " → ";
+                    }
+                    
+                    string direction = pathEvent.startPointIndex < pathEvent.endPointIndex ? "从前向后" : "从后向前";
+                    EditorGUILayout.HelpBox($"路径段: {segmentInfo}\n方向: {direction}", MessageType.Info);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("警告：起始点和结束点相同，这将导致不明确的路径段", MessageType.Warning);
+                }
             }
             else
             {
                 EditorGUILayout.HelpBox("找不到路径点，请确保选择了有效的路径ID且路径点已生成。", MessageType.Warning);
-                pathEvent.pathPointIndex = EditorGUILayout.IntField("触发点索引", pathEvent.pathPointIndex);
+                // 直接输入索引
+                pathEvent.startPointIndex = EditorGUILayout.IntField("起始点索引", pathEvent.startPointIndex);
+                pathEvent.endPointIndex = EditorGUILayout.IntField("结束点索引", pathEvent.endPointIndex);
             }
             
-            pathEvent.triggerRadius = EditorGUILayout.FloatField("触发半径", pathEvent.triggerRadius);
-            
-            // 手势检测设置
-            EditorGUILayout.Space(5);
+            // 手势检测设置 - 公开具体值
+            EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("手势检测设置", EditorStyles.boldLabel);
-            pathEvent.gestureHoldTime = EditorGUILayout.FloatField("手势保持时间(秒)", pathEvent.gestureHoldTime);
-            pathEvent.gestureTimeLimit = EditorGUILayout.FloatField("手势时间限制(秒)", pathEvent.gestureTimeLimit);
+            
+            // 使用滑块和字段一起显示，更清晰地展示数值
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel("手势保持时间(秒)");
+            float newGestureHoldTime = EditorGUILayout.Slider(pathEvent.gestureHoldTime, 0.5f, 5f);
+            pathEvent.gestureHoldTime = EditorGUILayout.FloatField(newGestureHoldTime, GUILayout.Width(50));
+            EditorGUILayout.EndHorizontal();
+            
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.PrefixLabel("最大识别距离(米)");
+            float newMaxDistance = EditorGUILayout.Slider(pathEvent.maxRecognitionDistance, 1f, 15f);
+            pathEvent.maxRecognitionDistance = EditorGUILayout.FloatField(newMaxDistance, GUILayout.Width(50));
+            EditorGUILayout.EndHorizontal();
             
             // 默认反应
             EditorGUILayout.Space(5);
@@ -545,10 +659,10 @@ public class NPCDataEditor : Editor
         PathEvent newEvent = new PathEvent
         {
             eventID = eventId,
-            pathPointIndex = 0,
-            triggerRadius = 2f,
-            gestureHoldTime = 2f,
-            gestureTimeLimit = 5f,
+            startPointIndex = 0, // 设置默认值
+            endPointIndex = 0,   // 设置默认值
+            maxRecognitionDistance = 8.0f, // 设置默认值
+            gestureHoldTime = 1f,
             gestureResponses = new List<GestureResponse>(),
             defaultResponse = new GestureResponse { scoreEffect = 0 }
         };

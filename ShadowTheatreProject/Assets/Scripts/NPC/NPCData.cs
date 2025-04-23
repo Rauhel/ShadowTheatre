@@ -13,10 +13,6 @@ public class NPCData : ScriptableObject
     [Header("路径配置")]
     public List<PathConfig> paths = new List<PathConfig>();
 
-    // 兼容旧编辑器脚本的字段
-    [HideInInspector]
-    public List<NPCEvent> events = new List<NPCEvent>();
-
     [HideInInspector]
     public List<PathConnection> pathConnections = new List<PathConnection>();
 
@@ -115,10 +111,12 @@ public class PathEvent
 {
     [Header("事件基本信息")]
     public string eventID;
-    [Tooltip("事件在路径点的索引位置")]
-    public int pathPointIndex;
-    [Tooltip("触发半径")]
-    public float triggerRadius = 2f;
+
+    [Tooltip("事件起始点在路径点的索引位置")]
+    public int startPointIndex;
+
+    [Tooltip("事件结束点在路径点的索引位置")]
+    public int endPointIndex;
 
     [Header("事件可用性控制")]
     [Tooltip("事件在第一幕是否可用")]
@@ -131,8 +129,9 @@ public class PathEvent
     [Header("手势检测")]
     [Tooltip("手势保持的最短时间(秒)")]
     public float gestureHoldTime = 2.0f;
-    [Tooltip("手势检测的总时限(秒)")]
-    public float gestureTimeLimit = 5.0f;
+
+    [Tooltip("最远识别距离(米) - 超出此距离将无法识别手势")]
+    public float maxRecognitionDistance = 8.0f;
 
     [Header("手势反应")]
     public List<GestureResponse> gestureResponses = new List<GestureResponse>();

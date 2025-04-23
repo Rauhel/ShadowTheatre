@@ -384,19 +384,63 @@ public class PathDataInspector
         EditorGUILayout.EndVertical();
     }
 
-    // 获取路径点上的事件ID
+    // 修改 GetEventIDForPoint 方法，不再使用 triggerLocation 属性
     private string GetEventIDForPoint(Transform pathPoint)
     {
         if (npcData == null || pathPoint == null)
             return string.Empty;
             
-        foreach (var npcEvent in npcData.events)
+        // 获取点在路径中的索引
+        int pointIndex = GetPointIndex(pathPoint);
+        if (pointIndex < 0)
+            return string.Empty;
+            
+        // 获取该点所属的路径创建器
+        MultiPointPathCreator pathCreator = null;
+        if (pathPoint.parent != null && pathPoint.parent.parent != null)
         {
-            if (npcEvent.triggerLocation == pathPoint)
-                return npcEvent.eventID;
+            pathCreator = pathPoint.parent.parent.GetComponent<MultiPointPathCreator>();
+        }
+        
+        if (pathCreator == null || string.IsNullOrEmpty(pathCreator.pathID))
+            return string.Empty;
+        
+        // 在所有路径配置中查找该点是否被用作事件的起始点或结束点
+        if (npcData.paths != null)
+        {
+            foreach (var path in npcData.paths)
+            {
+                if (path.pathID == pathCreator.pathID && path.events != null)
+                {
+                    foreach (var evt in path.events)
+                    {
+                        if (evt.startPointIndex == pointIndex || evt.endPointIndex == pointIndex)
+                            return evt.eventID;
+                    }
+                }
+            }
         }
         
         return string.Empty;
+    }
+
+    // 添加辅助方法获取点的索引
+    private int GetPointIndex(Transform point)
+    {
+        if (point == null || point.parent == null)
+            return -1;
+            
+        // 如果是在PathPoints下的点
+        if (point.parent.name.Contains("PathPoints"))
+        {
+            for (int i = 0; i < point.parent.childCount; i++)
+            {
+                if (point.parent.GetChild(i) == point)
+                    return i;
+            }
+        }
+        
+        return -1;
     }
 
     // 根据路径查找路径连接信息

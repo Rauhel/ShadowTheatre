@@ -14,7 +14,6 @@ public class NPCPathVisualizer : EditorWindow
     // 子系统引用
     private PathGraphRenderer graphRenderer;
     private PathDataInspector pathInspector;
-    private EventDataInspector eventInspector;
 
     [MenuItem("Shadow Theatre/NPC Path Visualizer")]
     public static void ShowWindow()
@@ -29,7 +28,6 @@ public class NPCPathVisualizer : EditorWindow
         // 初始化子系统
         graphRenderer = new PathGraphRenderer();
         pathInspector = new PathDataInspector();
-        eventInspector = new EventDataInspector();
     }
 
     private void OnGUI()
@@ -70,26 +68,128 @@ public class NPCPathVisualizer : EditorWindow
         }
         else if (showEvents && selectedNPCData != null)
         {
-            eventInspector.ShowEventsInfo(selectedNPCData);
+            ShowPathEventsInfo(selectedNPCData);
         }
+    }
+
+    private void ShowPathEventsInfo(NPCData data)
+    {
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        EditorGUILayout.LabelField("路径事件信息", EditorStyles.boldLabel);
+
+        if (data.paths != null && data.paths.Count > 0)
+        {
+            int totalEvents = 0;
+
+            // 计算总事件数
+            foreach (var path in data.paths)
+            {
+                if (path.events != null)
+                {
+                    totalEvents += path.events.Count;
+                }
+            }
+
+            if (totalEvents == 0)
+            {
+                EditorGUILayout.HelpBox("NPC没有配置任何事件。", MessageType.Info);
+            }
+            else
+            {
+                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(300));
+
+                foreach (var path in data.paths)
+                {
+                    if (path.events == null || path.events.Count == 0)
+                        continue;
+
+                    EditorGUILayout.Space(5);
+                    EditorGUILayout.LabelField($"路径: {path.pathName} ({path.pathID})", EditorStyles.boldLabel);
+
+                    for (int i = 0; i < path.events.Count; i++)
+                    {
+                        PathEvent pathEvent = path.events[i];
+                        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                        // 事件基本信息
+                        EditorGUILayout.LabelField($"事件 {i + 1}: {pathEvent.eventID}", EditorStyles.boldLabel);
+                        EditorGUILayout.Space(2);
+
+                        // 显示事件位置
+                        EditorGUILayout.LabelField($"起始点: {pathEvent.startPointIndex}, 结束点: {pathEvent.endPointIndex}");
+
+                        // 显示启用状态
+                        EditorGUILayout.BeginHorizontal();
+                        EditorGUILayout.LabelField("启用状态:", GUILayout.Width(80));
+                        EditorGUILayout.LabelField($"幕1: {(pathEvent.enabledInAct1 ? "√" : "×")}", GUILayout.Width(60));
+                        EditorGUILayout.LabelField($"幕2: {(pathEvent.enabledInAct2 ? "√" : "×")}", GUILayout.Width(60));
+                        EditorGUILayout.LabelField($"幕3: {(pathEvent.enabledInAct3 ? "√" : "×")}", GUILayout.Width(60));
+                        EditorGUILayout.EndHorizontal();
+
+                        // 显示手势信息
+                        EditorGUILayout.Space(2);
+                        EditorGUILayout.LabelField($"手势检测:", EditorStyles.boldLabel);
+                        EditorGUILayout.LabelField($"保持时间: {pathEvent.gestureHoldTime}秒, 最远距离: {pathEvent.maxRecognitionDistance}米");
+
+                        if (pathEvent.gestureResponses != null && pathEvent.gestureResponses.Count > 0)
+                        {
+                            EditorGUILayout.LabelField($"可接受手势:", EditorStyles.boldLabel);
+                            foreach (var gesture in pathEvent.gestureResponses)
+                            {
+                                EditorGUILayout.LabelField($"- {gesture.gestureType}: 分数影响 {(gesture.scoreEffect >= 0 ? "+" : "")}{gesture.scoreEffect}");
+                            }
+                        }
+                        else
+                        {
+                            EditorGUILayout.LabelField("没有设置手势响应");
+                        }
+
+                        // 定位按钮
+                        MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(path.pathID);
+                        if (pathCreator != null && pathCreator.pathPointsParent != null)
+                        {
+                            if (pathEvent.startPointIndex >= 0 && pathEvent.startPointIndex < pathCreator.pathPointsParent.childCount &&
+                                GUILayout.Button("在场景中定位"))
+                            {
+                                Transform point = pathCreator.pathPointsParent.GetChild(pathEvent.startPointIndex);
+                                Selection.activeGameObject = point.gameObject;
+                                SceneView.FrameLastActiveSceneView();
+                                EditorGUIUtility.PingObject(point);
+                            }
+                        }
+
+                        EditorGUILayout.EndVertical();
+                        EditorGUILayout.Space(5);
+                    }
+                }
+
+                EditorGUILayout.EndScrollView();
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("NPC没有配置任何路径。", MessageType.Info);
+        }
+
+        EditorGUILayout.EndVertical();
     }
 
     private void DrawToolbar()
     {
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
         GUILayout.FlexibleSpace();
-        
+
         if (GUILayout.Button("居中视图", EditorStyles.toolbarButton))
         {
             graphRenderer.RecenterView();
         }
-        
+
         if (GUILayout.Button("刷新", EditorStyles.toolbarButton))
         {
             graphRenderer.ClearCache();
             Repaint();
         }
-        
+
         showHelp = GUILayout.Toggle(showHelp, "帮助", EditorStyles.toolbarButton);
         EditorGUILayout.EndHorizontal();
     }
@@ -104,12 +204,10 @@ public class NPCPathVisualizer : EditorWindow
         {
             graphRenderer.ClearCache();
             pathInspector.ClearCache();
-            eventInspector.ClearCache();
 
             // 将数据传递给子系统
             graphRenderer.SetNPCData(selectedNPCData);
             pathInspector.SetNPCData(selectedNPCData);
-            eventInspector.SetNPCData(selectedNPCData);
         }
 
         EditorGUILayout.BeginHorizontal();
@@ -142,7 +240,7 @@ public class NPCPathVisualizer : EditorWindow
         EditorGUILayout.BeginHorizontal();
         bool oldShowPath = showPathPoints;
         bool oldShowEvents = showEvents;
-        
+
         if (graphRenderer.SelectedPath != null)
         {
             if (GUILayout.Toggle(showPathPoints && !showEvents, "路径点信息", EditorStyles.toolbarButton))
@@ -151,7 +249,7 @@ public class NPCPathVisualizer : EditorWindow
                 showEvents = false;
             }
         }
-        
+
         if (selectedNPCData != null)
         {
             if (GUILayout.Toggle(showEvents && !showPathPoints, "事件信息", EditorStyles.toolbarButton))
@@ -160,12 +258,12 @@ public class NPCPathVisualizer : EditorWindow
                 showPathPoints = false;
             }
         }
-        
+
         if (oldShowPath != showPathPoints || oldShowEvents != showEvents)
         {
             Repaint();
         }
-        
+
         EditorGUILayout.EndHorizontal();
         EditorGUILayout.EndVertical();
     }

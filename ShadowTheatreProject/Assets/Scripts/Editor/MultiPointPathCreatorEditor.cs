@@ -269,7 +269,7 @@ public class MultiPointPathCreatorEditor : Editor
         }
     }
     
-    // 检查一个点是否被用作触发点
+    // 修改 IsPointUsedAsEventTrigger 方法
     private bool IsPointUsedAsEventTrigger(Transform point)
     {
         // 查找所有 NPCData 资源
@@ -279,21 +279,54 @@ public class MultiPointPathCreatorEditor : Editor
             string path = AssetDatabase.GUIDToAssetPath(guid);
             NPCData data = AssetDatabase.LoadAssetAtPath<NPCData>(path);
             
-            if (data != null && data.events != null)
+            if (data != null && data.paths != null)
             {
-                foreach (var npcEvent in data.events)
+                foreach (var pathData in data.paths)
                 {
-                    if (npcEvent.triggerLocation == point)
-                        return true;
+                    if (pathData.events != null)
+                    {
+                        foreach (var npcEvent in pathData.events)
+                        {
+                            // 不再使用 triggerLocation，而是检查点的索引是否匹配
+                            // 获取点在路径中的索引
+                            int pointIndex = GetPointIndex(point);
+                            if (pointIndex >= 0 && (npcEvent.startPointIndex == pointIndex || npcEvent.endPointIndex == pointIndex))
+                                return true;
+                        }
+                    }
                 }
             }
         }
         return false;
     }
     
-    // 获取使用此点作为触发点的事件ID
+    // 添加获取点索引的辅助方法
+    private int GetPointIndex(Transform point)
+    {
+        if (point == null || point.parent == null || pathCreator.pathPointsParent == null)
+            return -1;
+            
+        // 如果是同一个父物体下的点
+        if (point.parent == pathCreator.pathPointsParent)
+        {
+            for (int i = 0; i < pathCreator.pathPointsParent.childCount; i++)
+            {
+                if (pathCreator.pathPointsParent.GetChild(i) == point)
+                    return i;
+            }
+        }
+        
+        return -1;
+    }
+    
+    // 修改 GetEventIDForPoint 方法
     private string GetEventIDForPoint(Transform point)
     {
+        // 获取点在路径中的索引
+        int pointIndex = GetPointIndex(point);
+        if (pointIndex < 0)
+            return string.Empty;
+            
         // 查找所有 NPCData 资源
         string[] guids = AssetDatabase.FindAssets("t:NPCData");
         foreach (string guid in guids)
@@ -301,27 +334,43 @@ public class MultiPointPathCreatorEditor : Editor
             string path = AssetDatabase.GUIDToAssetPath(guid);
             NPCData data = AssetDatabase.LoadAssetAtPath<NPCData>(path);
             
-            if (data != null && data.events != null)
+            if (data != null && data.paths != null)
             {
-                foreach (var npcEvent in data.events)
+                foreach (var pathData in data.paths)
                 {
-                    if (npcEvent.triggerLocation == point)
-                        return npcEvent.eventID;
+                    // 检查路径ID是否匹配
+                    if (pathData.pathID == pathCreator.pathID && pathData.events != null)
+                    {
+                        foreach (var npcEvent in pathData.events)
+                        {
+                            // 检查点索引是否匹配事件的起始点或结束点
+                            if (npcEvent.startPointIndex == pointIndex || npcEvent.endPointIndex == pointIndex)
+                                return npcEvent.eventID;
+                        }
+                    }
                 }
             }
         }
         return string.Empty;
     }
     
-    // 显示路径点的右键菜单
+    // 修改 ShowPathPointContextMenu 方法
     private void ShowPathPointContextMenu(Transform point, Transform pathRoot)
     {
         GenericMenu menu = new GenericMenu();
+        int pointIndex = GetPointIndex(point);
         
         menu.AddItem(new GUIContent("复制路径点引用"), false, () => {
             EditorGUIUtility.systemCopyBuffer = $"{pathRoot.name}/{point.parent.name}/{point.name}";
             Debug.Log($"已复制路径点引用: {pathRoot.name}/{point.parent.name}/{point.name}");
         });
+        
+        if (pointIndex < 0)
+        {
+            menu.AddDisabledItem(new GUIContent("无法确定点索引"));
+            menu.ShowAsContext();
+            return;
+        }
         
         // 添加到所有NPC数据资源中的所有事件
         string[] guids = AssetDatabase.FindAssets("t:NPCData");
@@ -332,7 +381,7 @@ public class MultiPointPathCreatorEditor : Editor
             string assetPath = AssetDatabase.GUIDToAssetPath(guid);
             NPCData data = AssetDatabase.LoadAssetAtPath<NPCData>(assetPath);
             
-            if (data == null || data.events == null || data.events.Count == 0)
+            if (data == null || data.paths == null)
                 continue;
                 
             hasNpcData = true;
@@ -340,24 +389,73 @@ public class MultiPointPathCreatorEditor : Editor
             
             menu.AddSeparator($"NPC数据/{dataName}/");
             
-            foreach (var npcEvent in data.events)
+            foreach (var pathData in data.paths)
             {
-                string eventName = npcEvent.eventID;
-                bool isCurrentTrigger = (npcEvent.triggerLocation == point);
-                
+                // 只处理与当前路径匹配的路径配置
+                if (pathData.pathID != pathCreator.pathID || pathData.events == null)
+                    continue;
+                    
+                // 添加"创建新事件"选项
                 menu.AddItem(
-                    new GUIContent($"NPC数据/{dataName}/设为事件 \"{eventName}\" 的触发点"),
-                    isCurrentTrigger,
+                    new GUIContent($"NPC数据/{dataName}/在此点创建新事件"),
+                    false,
                     () => {
-                        Undo.RecordObject(data, "设置事件触发点");
-                        npcEvent.triggerLocation = point;
-                        // 可以考虑同时设置一个关联路径字段，便于后续操作
-                        // npcEvent.linkedPath = pathRoot; // 如果添加了这个字段
+                        Undo.RecordObject(data, "创建新事件");
+                        
+                        // 创建新事件
+                        PathEvent newEvent = new PathEvent
+                        {
+                            eventID = $"Event_{pathData.pathName}_{pathData.events.Count + 1}",
+                            startPointIndex = pointIndex,
+                            endPointIndex = Mathf.Min(pointIndex + 1, pathCreator.pathPointsParent.childCount - 1),
+                            gestureHoldTime = 2.0f,
+                            maxRecognitionDistance = 8.0f,
+                            playerInteractionRadius = 3.0f,
+                            enabledInAct1 = true,
+                            enabledInAct2 = true,
+                            enabledInAct3 = true,
+                            gestureResponses = new List<GestureResponse>(),
+                            defaultResponse = new GestureResponse { scoreEffect = 0 }
+                        };
+                        
+                        pathData.events.Add(newEvent);
                         EditorUtility.SetDirty(data);
                         AssetDatabase.SaveAssets();
-                        Debug.Log($"已将 {point.name} 设置为 {dataName} 中事件 {eventName} 的触发点");
+                        Debug.Log($"已在 {dataName} 的路径 {pathData.pathName} 上创建新事件，起始点: {pointIndex}");
                     }
                 );
+                
+                // 添加为现有事件设置起始点/结束点的选项
+                foreach (var npcEvent in pathData.events)
+                {
+                    string eventName = npcEvent.eventID;
+                    bool isStartPoint = (npcEvent.startPointIndex == pointIndex);
+                    bool isEndPoint = (npcEvent.endPointIndex == pointIndex);
+                    
+                    menu.AddItem(
+                        new GUIContent($"NPC数据/{dataName}/设为事件 \"{eventName}\" 的起始点"),
+                        isStartPoint,
+                        () => {
+                            Undo.RecordObject(data, "设置事件起始点");
+                            npcEvent.startPointIndex = pointIndex;
+                            EditorUtility.SetDirty(data);
+                            AssetDatabase.SaveAssets();
+                            Debug.Log($"已将点 {pointIndex} 设置为 {dataName} 中事件 {eventName} 的起始点");
+                        }
+                    );
+                    
+                    menu.AddItem(
+                        new GUIContent($"NPC数据/{dataName}/设为事件 \"{eventName}\" 的结束点"),
+                        isEndPoint,
+                        () => {
+                            Undo.RecordObject(data, "设置事件结束点");
+                            npcEvent.endPointIndex = pointIndex;
+                            EditorUtility.SetDirty(data);
+                            AssetDatabase.SaveAssets();
+                            Debug.Log($"已将点 {pointIndex} 设置为 {dataName} 中事件 {eventName} 的结束点");
+                        }
+                    );
+                }
             }
         }
         

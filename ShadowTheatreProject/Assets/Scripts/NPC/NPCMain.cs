@@ -81,4 +81,26 @@ public class NPCMain : MonoBehaviour
             Debug.Log($"[{gameObject.name}] 下一路径分支数: {currentPathConfig.nextPaths.Count}");
         }
     }
+
+    public NPCData GetNPCData()
+    {
+        // 从 Controller 获取 NPCData
+        if (controller != null)
+        {
+            return controller.Data;
+        }
+
+        // 如果 controller 未初始化，尝试获取
+        if (controller == null)
+        {
+            controller = GetComponent<NPCController>();
+            if (controller != null)
+            {
+                return controller.Data;
+            }
+        }
+
+        Debug.LogWarning($"[{gameObject.name}] 无法获取 NPCData，NPCController 可能未设置或未初始化");
+        return null;
+    }
 }

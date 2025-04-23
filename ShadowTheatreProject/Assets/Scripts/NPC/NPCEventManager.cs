@@ -42,6 +42,8 @@ public class NPCEventManager : MonoBehaviour
     public bool IsEventDetectable => isEventDetectable;
     public PathEvent CurrentPathEvent => currentPathEvent;
 
+    private List<GameObject> pathSegmentMarkers = new List<GameObject>();
+
     void Awake()
     {
         controller = GetComponent<NPCController>();
@@ -100,50 +102,102 @@ public class NPCEventManager : MonoBehaviour
         CheckEventsInRange();
     }
 
-    // 检查周围是否有事件 - 只检查当前路径上的事件
+    // 修改 CheckEventsInRange 方法
     private void CheckEventsInRange()
     {
         if (activePathEvents.Count == 0 || currentPathPointsParent == null)
             return;
 
+        // 找到NPC当前在路径上的位置（最近的路径点索引）
+        int currentPathIndex = GetClosestPathPointIndex();
+
         foreach (var pathEvent in activePathEvents)
         {
-            if (pathEvent.pathPointIndex < 0 || pathEvent.pathPointIndex >= currentPathPointsParent.childCount)
+            // 检查事件路径段是否有效
+            if (pathEvent.startPointIndex < 0 || pathEvent.startPointIndex >= currentPathPointsParent.childCount ||
+                pathEvent.endPointIndex < 0 || pathEvent.endPointIndex >= currentPathPointsParent.childCount)
                 continue;
 
-            // 获取事件位置
-            Transform triggerPoint = currentPathPointsParent.GetChild(pathEvent.pathPointIndex);
+            // 事件起始点和结束点
+            Transform startPoint = currentPathPointsParent.GetChild(pathEvent.startPointIndex);
+            Transform endPoint = currentPathPointsParent.GetChild(pathEvent.endPointIndex);
 
-            // 检查NPC是否在触发范围内
-            float distance = Vector3.Distance(transform.position, triggerPoint.position);
-            bool inRange = distance <= pathEvent.triggerRadius;
+            // 检查NPC是否在事件路径段上
+            bool isInEventSegment = IsIndexInRange(currentPathIndex, pathEvent.startPointIndex, pathEvent.endPointIndex);
 
-            // 如果这个事件有显示范围，更新它的状态
+            // 检查NPC是否到达事件结束点
+            bool reachedEndPoint = false;
+            if (pathEvent == currentEvent)
+            {
+                float distanceToEnd = Vector3.Distance(transform.position, endPoint.position);
+                reachedEndPoint = distanceToEnd < 0.5f; // 使用适当的阈值
+            }
+
+            // 显示路径段（如果启用）
             if (pathEvent.showInteractionRange)
             {
-                // 只对第一个在范围内的事件显示交互范围
-                if (inRange && !isEventDetectable)
+                if ((pathEvent == currentEvent) || (isInEventSegment && !isProcessingEvent))
                 {
-                    isEventDetectable = true;
-                    currentPathEvent = pathEvent;
-
-                    // 显示该事件的交互范围为绿色（活跃）
-                    ShowInteractionRange(pathEvent, true);
-                }
-                // 对于不在范围内的事件，如果它是当前显示的事件，改为红色
-                else if (pathEvent == currentEvent)
-                {
-                    // 显示为红色（不活跃）
-                    ShowInteractionRange(pathEvent, false);
+                    ShowPathSegment(pathEvent, pathEvent == currentEvent);
                 }
             }
 
-            // 如果在范围内且尚未处理事件，触发事件
-            if (inRange && !isProcessingEvent)
+            // 如果NPC到达事件结束点，结束事件
+            if (reachedEndPoint && isProcessingEvent && pathEvent == currentEvent)
+            {
+                if (gestureHandler != null)
+                {
+                    gestureHandler.CancelGestureRecognition();
+                }
+                CompleteCurrentEvent();
+                return;
+            }
+
+            // 如果NPC在事件段内且事件未处理，则触发事件
+            if (isInEventSegment && !isProcessingEvent)
             {
                 TriggerEvent(pathEvent);
                 break; // 只触发一个事件
             }
+        }
+    }
+
+    // 获取当前NPC在路径上最接近的点索引
+    private int GetClosestPathPointIndex()
+    {
+        if (currentPathPointsParent == null || currentPathPointsParent.childCount == 0)
+            return -1;
+
+        int closestIndex = 0;
+        float closestDistance = float.MaxValue;
+
+        for (int i = 0; i < currentPathPointsParent.childCount; i++)
+        {
+            Transform point = currentPathPointsParent.GetChild(i);
+            float distance = Vector3.Distance(transform.position, point.position);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestIndex = i;
+            }
+        }
+
+        return closestIndex;
+    }
+
+    // 检查索引是否在范围内（考虑路径方向）
+    private bool IsIndexInRange(int currentIndex, int startIndex, int endIndex)
+    {
+        // 处理正向路径段
+        if (startIndex <= endIndex)
+        {
+            return currentIndex >= startIndex && currentIndex <= endIndex;
+        }
+        // 处理反向路径段（如果有循环路径）
+        else
+        {
+            return currentIndex >= startIndex || currentIndex <= endIndex;
         }
     }
 
@@ -273,9 +327,12 @@ public class NPCEventManager : MonoBehaviour
         }
     }
 
-    // 完成当前事件
+    // 修改事件完成方法
     private void CompleteCurrentEvent()
     {
+        // 隐藏路径段显示
+        HidePathSegment();
+
         isProcessingEvent = false;
         currentEvent = null;
     }
@@ -308,43 +365,94 @@ public class NPCEventManager : MonoBehaviour
         interactionRangeVisual.SetActive(false);
     }
 
-    // 显示/隐藏交互范围
-    private void ShowInteractionRange(PathEvent pathEvent, bool isActive)
+    // 显示路径段
+    private void ShowPathSegment(PathEvent pathEvent, bool isActive)
     {
-        if (interactionRangeVisual == null || pathEvent == null)
+        // 清除先前的路径段标记
+        HidePathSegment();
+
+        if (currentPathPointsParent == null)
             return;
 
-        if (pathEvent.showInteractionRange)
-        {
-            // 设置大小
-            interactionRangeVisual.transform.localScale = new Vector3(
-                pathEvent.playerInteractionRadius * 2,
-                pathEvent.playerInteractionRadius * 2,
-                pathEvent.playerInteractionRadius * 2
-            );
+        // 确保索引有效
+        if (pathEvent.startPointIndex < 0 || pathEvent.startPointIndex >= currentPathPointsParent.childCount ||
+            pathEvent.endPointIndex < 0 || pathEvent.endPointIndex >= currentPathPointsParent.childCount)
+            return;
 
-            // 设置颜色：活跃=绿色(NPC在范围内)，不活跃=红色(NPC不在范围内)
-            Renderer renderer = interactionRangeVisual.GetComponent<Renderer>();
+        // 确定起始和结束索引
+        int startIdx = Mathf.Min(pathEvent.startPointIndex, pathEvent.endPointIndex);
+        int endIdx = Mathf.Max(pathEvent.startPointIndex, pathEvent.endPointIndex);
+
+        // 设置颜色：绿色表示激活，红色表示未激活
+        Color segmentColor = isActive ?
+            new Color(0.2f, 0.8f, 0.2f, 0.3f) : // 绿色半透明
+            new Color(0.8f, 0.2f, 0.2f, 0.3f);  // 红色半透明
+
+        // 为路径段的每个点创建标记
+        for (int i = startIdx; i <= endIdx; i++)
+        {
+            Transform pathPoint = currentPathPointsParent.GetChild(i);
+
+            // 创建标记球体
+            GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            marker.name = $"PathSegmentMarker_{i}";
+            marker.transform.position = pathPoint.position;
+            marker.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+
+            // 设置材质
+            Renderer renderer = marker.GetComponent<Renderer>();
             if (renderer != null)
             {
-                if (isActive)
-                {
-                    // 活跃状态 - 绿色
-                    renderer.material.color = new Color(0.2f, 0.8f, 0.2f, 0.3f);
-                }
-                else
-                {
-                    // 不活跃状态 - 红色
-                    renderer.material.color = new Color(0.8f, 0.2f, 0.2f, 0.3f);
-                }
+                Material mat = new Material(Shader.Find("Transparent/Diffuse"));
+                mat.color = segmentColor;
+                renderer.material = mat;
             }
 
-            interactionRangeVisual.SetActive(true);
+            // 禁用碰撞
+            Collider collider = marker.GetComponent<Collider>();
+            if (collider != null)
+            {
+                Destroy(collider);
+            }
+
+            pathSegmentMarkers.Add(marker);
         }
-        else
+
+        // 连接点之间的线段
+        for (int i = startIdx; i < endIdx; i++)
         {
-            interactionRangeVisual.SetActive(false);
+            Transform start = currentPathPointsParent.GetChild(i);
+            Transform end = currentPathPointsParent.GetChild(i + 1);
+
+            // 创建线段
+            GameObject line = new GameObject($"PathSegmentLine_{i}");
+            LineRenderer lineRenderer = line.AddComponent<LineRenderer>();
+
+            lineRenderer.startWidth = 0.2f;
+            lineRenderer.endWidth = 0.2f;
+            lineRenderer.positionCount = 2;
+            lineRenderer.SetPosition(0, start.position);
+            lineRenderer.SetPosition(1, end.position);
+
+            // 设置材质
+            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            lineRenderer.startColor = segmentColor;
+            lineRenderer.endColor = segmentColor;
+
+            pathSegmentMarkers.Add(line);
         }
+    }
+
+    private void HidePathSegment()
+    {
+        foreach (var marker in pathSegmentMarkers)
+        {
+            if (marker != null)
+            {
+                Destroy(marker);
+            }
+        }
+        pathSegmentMarkers.Clear();
     }
 
     // 手势识别成功回调
@@ -428,5 +536,31 @@ public class NPCEventManager : MonoBehaviour
             EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act2.ToString(), () => SetCurrentAct(2));
             EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act3.ToString(), () => SetCurrentAct(3));
         }
+    }
+
+    // 获取当前 NPC 的数据
+    public NPCData GetNPCData()
+    {
+        NPCMain npcMain = GetComponent<NPCMain>();
+        if (npcMain != null)
+        {
+            // 根据 NPCMain 类的实际实现调整
+            return npcMain.GetNPCData();
+        }
+        return null;
+    }
+
+    // 添加一个用于测试触发事件的方法
+    public void TestTriggerEvent(string pathId, PathEvent pathEvent)
+    {
+        if (pathEvent == null)
+            return;
+
+        Debug.Log($"[事件测试] 触发事件: {pathEvent.eventID}");
+
+        // 设置当前路径和事件
+        // 这些代码需要根据 NPCEventManager 的实际实现进行调整
+        // SetCurrentPath(pathId);
+        // TriggerEvent(pathEvent);
     }
 }

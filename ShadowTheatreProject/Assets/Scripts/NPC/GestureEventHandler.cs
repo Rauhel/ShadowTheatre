@@ -66,103 +66,87 @@ public class GestureEventHandler : MonoBehaviour
 
     void Update()
     {
-        // 如果正在处理手势，检查玩家是否在交互范围内
+        // 如果正在处理手势，检查玩家和NPC之间的距离
         if (isProcessingGesture && currentEvent != null && !eventCompleted)
         {
-            // 计时
+            // 计算处理时间（用于调试）
             gestureProcessTime += Time.deltaTime;
 
-            // 检查是否超时
-            if (gestureProcessTime >= currentEvent.gestureTimeLimit)
+            // 检查两个条件:
+
+            // 1. NPC 到达事件的结束点时应该结束事件
+            Transform endPoint = GetEventEndPoint();
+            float distanceToEnd = endPoint ? Vector3.Distance(transform.position, endPoint.position) : float.MaxValue;
+
+            if (distanceToEnd <= 0.5f)  // 如果接近结束点
             {
                 if (enableDebugLogs)
                 {
-                    Debug.LogWarning($"[手势识别超时] NPC: {gameObject.name} | 事件: {currentEvent.eventID} | " +
-                                   $"时限: {currentEvent.gestureTimeLimit}s");
+                    Debug.Log($"[手势识别结束] NPC: {gameObject.name} | 事件: {currentEvent.eventID} | 原因: 已到达路径结束点");
                 }
+
+                // 这里可以选择是否视为失败
                 OnGestureFailure?.Invoke();
                 ResetGestureState();
                 return;
             }
 
-            // 检查玩家范围
-            bool playerInRange = IsPlayerInInteractionRange(currentEvent.playerInteractionRadius);
+            // 2. 检查玩家是否在手势识别范围内 - 使用 maxRecognitionDistance 作为交互半径
+            bool playerInRange = IsPlayerInInteractionRange(currentEvent.maxRecognitionDistance);
 
             // 检测范围状态变化
             bool rangeChanged = wasInRange != playerInRange;
             wasInRange = playerInRange;
 
-            // 获取当前检测到的手势
-            string currentGesture = gestureRecognitionManager.CurrentGesture;
-            bool gestureChanged = lastDetectedGesture != currentGesture;
-            lastDetectedGesture = currentGesture;
-
-            // 只有在范围内并且手势是有效的才累积进度
-            if (playerInRange && IsValidGesture(currentGesture))
+            // 只有在范围内时，才处理手势
+            if (playerInRange)
             {
-                // 更新进度
-                if (!gestureProgress.ContainsKey(currentGesture))
-                {
-                    gestureProgress[currentGesture] = 0f;
-                }
+                // 获取当前检测到的手势
+                string currentGesture = gestureRecognitionManager.CurrentGesture;
+                bool gestureChanged = lastDetectedGesture != currentGesture;
+                lastDetectedGesture = currentGesture;
 
-                // 累加进度
-                gestureProgress[currentGesture] += Time.deltaTime;
-
-                // 检查进度是否达到要求
-                if (gestureProgress[currentGesture] >= currentEvent.gestureHoldTime)
+                // 只有当手势有效时才累积进度
+                if (IsValidGesture(currentGesture))
                 {
-                    // 手势成功完成
-                    if (enableDebugLogs)
+                    // 更新进度
+                    if (!gestureProgress.ContainsKey(currentGesture))
                     {
-                        Debug.Log($"[手势识别成功] NPC: {gameObject.name} | 事件: {currentEvent.eventID} | " +
-                                $"手势: {currentGesture} | 进度: 100% | 耗时: {gestureProcessTime:F2}s");
+                        gestureProgress[currentGesture] = 0f;
                     }
 
-                    eventCompleted = true;
-                    OnGestureSuccess?.Invoke(currentGesture);
-                    return;
-                }
-            }
+                    // 累加进度
+                    gestureProgress[currentGesture] += Time.deltaTime;
 
-            // 显示详细调试信息
-            if (enableDebugLogs && (Time.frameCount % 20 == 0 || rangeChanged || gestureChanged))
+                    // 检查进度是否达到要求
+                    if (gestureProgress[currentGesture] >= currentEvent.gestureHoldTime)
+                    {
+                        // 手势成功完成
+                        if (enableDebugLogs)
+                        {
+                            Debug.Log($"[手势识别成功] NPC: {gameObject.name} | 事件: {currentEvent.eventID} | " +
+                                    $"手势: {currentGesture} | 进度: 100% | 耗时: {gestureProcessTime:F2}s");
+                        }
+
+                        eventCompleted = true;
+                        OnGestureSuccess?.Invoke(currentGesture);
+                        return;
+                    }
+                }
+
+                // 显示调试信息...
+            }
+            else if (rangeChanged)
             {
-                string gestureTypes = string.Join(", ", GetAcceptableGestures(currentEvent));
-                float timeRemaining = currentEvent.gestureTimeLimit - gestureProcessTime;
-
-                // 构建进度字符串
-                string progressInfo = "";
-                foreach (var pair in gestureProgress)
+                // 玩家刚刚离开范围，记录日志
+                if (enableDebugLogs)
                 {
-                    float percent = Mathf.Clamp01(pair.Value / currentEvent.gestureHoldTime) * 100f;
-                    progressInfo += $"{pair.Key}: {percent:F0}%, ";
+                    Debug.Log($"[玩家离开范围] NPC: {gameObject.name} | 事件: {currentEvent.eventID} | " +
+                            $"最大识别距离: {currentEvent.maxRecognitionDistance}米");
                 }
-
-                if (progressInfo.Length > 0)
-                {
-                    progressInfo = progressInfo.Substring(0, progressInfo.Length - 2);
-                }
-                else
-                {
-                    progressInfo = "无进度";
-                }
-
-                Debug.Log($"[手势处理] NPC: {gameObject.name} | " +
-                          $"事件: {currentEvent.eventID} | " +
-                          $"时间: {gestureProcessTime:F1}s / {currentEvent.gestureTimeLimit}s | " +
-                          $"剩余: {(timeRemaining > 0 ? timeRemaining : 0):F1}s | " +
-                          $"玩家在范围内: {(playerInRange ? "是" : "否")} | " +
-                          $"当前手势: {(string.IsNullOrEmpty(currentGesture) ? "无" : currentGesture)} | " +
-                          $"进度: {progressInfo} | " +
-                          $"可接受手势: {gestureTypes}");
             }
 
-            // 更新调试信息
-            if (gestureRecognitionManager != null && gestureRecognitionManager.debugMode)
-            {
-                UpdateGestureManagerDebugInfo(playerInRange, currentEvent.playerInteractionRadius);
-            }
+            // 更新调试信息...
         }
     }
 
@@ -183,7 +167,7 @@ public class GestureEventHandler : MonoBehaviour
         if (enableDebugLogs)
         {
             Debug.Log($"[手势识别开始] NPC: {gameObject.name} | 事件: {pathEvent.eventID} | " +
-                     $"时限: {pathEvent.gestureTimeLimit}s | 保持时间: {pathEvent.gestureHoldTime}s");
+                     $"最大距离: {pathEvent.maxRecognitionDistance:F1}m | 保持时间: {pathEvent.gestureHoldTime}s");
         }
 
         // 获取此事件接受的所有手势类型
@@ -193,7 +177,9 @@ public class GestureEventHandler : MonoBehaviour
         {
             // 设置手势识别参数
             gestureRecognitionManager.fullRecognitionTime = pathEvent.gestureHoldTime;
-            gestureRecognitionManager.timeLimit = pathEvent.gestureTimeLimit;
+
+            // 使用一个非常大的时间限制，因为我们现在用距离控制
+            gestureRecognitionManager.timeLimit = 999f;
 
             // 启动识别
             gestureRecognitionManager.StartGestureRecognition(acceptableGestures[0]);
@@ -201,13 +187,19 @@ public class GestureEventHandler : MonoBehaviour
             if (enableDebugLogs)
             {
                 Debug.Log($"[手势识别参数] 可接受手势: {string.Join(", ", acceptableGestures)} | " +
-                         $"保持时间: {pathEvent.gestureHoldTime}s | 时限: {pathEvent.gestureTimeLimit}s");
+                         $"保持时间: {pathEvent.gestureHoldTime}s");
             }
 
             // 如果有多个手势，添加到调试信息
             if (acceptableGestures.Count > 1)
             {
                 gestureRecognitionManager.SetDebugInfo("可接受手势", string.Join(", ", acceptableGestures));
+            }
+
+            // 显示手势提示指示器
+            if (GestureIndicatorManager.Instance != null)
+            {
+                GestureIndicatorManager.Instance.ShowGestureIndicators(transform, acceptableGestures);
             }
         }
         else
@@ -252,6 +244,12 @@ public class GestureEventHandler : MonoBehaviour
         lastDetectedGesture = null;
         eventCompleted = false;
         gestureProcessTime = 0f;
+
+        // 隐藏手势提示指示器
+        if (GestureIndicatorManager.Instance != null)
+        {
+            GestureIndicatorManager.Instance.HideGestureIndicators();
+        }
     }
 
     // 检查手势是否有效（在当前事件中可接受）
@@ -285,7 +283,7 @@ public class GestureEventHandler : MonoBehaviour
     {
         if (!requirePlayerInRange || playerTransform == null)
         {
-            return true;
+            return true; // 如果不需要检查或没有玩家引用，默认为在范围内
         }
 
         float distance = Vector3.Distance(transform.position, playerTransform.position);
@@ -333,5 +331,25 @@ public class GestureEventHandler : MonoBehaviour
             }
         }
         return gestures;
+    }
+
+    // 获取事件结束点的辅助方法
+    private Transform GetEventEndPoint()
+    {
+        if (currentEvent == null || transform.parent == null)
+            return null;
+
+        // 尝试找到事件对应的NPC管理器
+        NPCEventManager eventManager = GetComponent<NPCEventManager>();
+        if (eventManager != null && eventManager.CurrentPathPointsParent != null)
+        {
+            Transform pathPoints = eventManager.CurrentPathPointsParent;
+            if (currentEvent.endPointIndex >= 0 && currentEvent.endPointIndex < pathPoints.childCount)
+            {
+                return pathPoints.GetChild(currentEvent.endPointIndex);
+            }
+        }
+
+        return null;
     }
 }

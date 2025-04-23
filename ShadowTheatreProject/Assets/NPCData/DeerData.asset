@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcID: 1
   npcName: Deer
-  currentScore: 0
+  currentScore: 30
   paths:
   - pathID: DeerPath1
     pathName: DeerPath1
