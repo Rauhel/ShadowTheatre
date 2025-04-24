@@ -6,6 +6,8 @@ using UnityEngine;
 [RequireComponent(typeof(NPCEventManager))]
 [RequireComponent(typeof(NPCDialogueManager))]
 [RequireComponent(typeof(NPCAnimationManager))] // 添加动画管理器需求
+[RequireComponent(typeof(WorldSpaceUIElement))] // 添加世界空间UI元素需求
+[RequireComponent(typeof(GestureEventHandler))] // 添加手势事件处理器需求
 public class NPCMain : MonoBehaviour
 {
     // 组件引用
@@ -14,6 +16,8 @@ public class NPCMain : MonoBehaviour
     private NPCEventManager eventManager;
     private NPCDialogueManager dialogueManager;
     private NPCAnimationManager animationManager; // 添加动画管理器引用
+    private WorldSpaceUIElement worldSpaceUIElement; // 添加世界空间UI元素引用
+    private GestureEventHandler gestureEventHandler; // 添加手势事件处理器引用
 
     void Awake()
     {
@@ -23,6 +27,8 @@ public class NPCMain : MonoBehaviour
         eventManager = GetComponent<NPCEventManager>();
         dialogueManager = GetComponent<NPCDialogueManager>();
         animationManager = GetComponent<NPCAnimationManager>(); // 初始化动画管理器
+        worldSpaceUIElement = GetComponent<WorldSpaceUIElement>(); // 初始化世界空间UI元素
+        gestureEventHandler = GetComponent<GestureEventHandler>(); // 初始化手势事件处理器
 
         // 确保所有组件都存在
         if (controller == null)
@@ -48,6 +54,11 @@ public class NPCMain : MonoBehaviour
         if (animationManager == null)
         {
             Debug.LogError($"[{gameObject.name}] 缺少 NPCAnimationManager 组件");
+        }
+
+        if (worldSpaceUIElement == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 缺少 WorldSpaceUIElement 组件");
         }
     }
 
