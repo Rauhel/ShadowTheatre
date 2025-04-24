@@ -22,8 +22,8 @@ MonoBehaviour:
     maxScore: 100
     events:
     - eventID: Event_DeerPath1_1
-      startPointIndex: 5
-      endPointIndex: 8
+      startPointIndex: 1
+      endPointIndex: 5
       playerInteractionRadius: 3
       showInteractionRange: 1
       gestureHoldTime: 1
@@ -35,24 +35,24 @@ MonoBehaviour:
       - gestureType: Deer
         scoreEffect: 30
         actions:
-        - dialogueText: 33333333
+        - dialogueText: yesssss
           displayDuration: 1.5
           voiceClip: {fileID: 0}
           animationName: 
           delay: 0
           overridePrevious: 1
-          pathPointIndex: 5
+          pathPointIndex: 6
       defaultResponse:
         gestureType: 
         scoreEffect: 0
         actions:
-        - dialogueText: 
+        - dialogueText: noooo
           displayDuration: 1.5
           voiceClip: {fileID: 0}
           animationName: 
           delay: 0
           overridePrevious: 1
-          pathPointIndex: 0
+          pathPointIndex: 6
     nextPaths:
     - nextPathID: DeerPath2
       minScore: 0
@@ -72,13 +72,6 @@ MonoBehaviour:
       delay: 0
       overridePrevious: 1
       pathPointIndex: 0
-    - dialogueText: 2222
-      displayDuration: 1
-      voiceClip: {fileID: 0}
-      animationName: 
-      delay: 0
-      overridePrevious: 1
-      pathPointIndex: 4
   pathConnections:
   - pathID: 
     path: {fileID: 0}
