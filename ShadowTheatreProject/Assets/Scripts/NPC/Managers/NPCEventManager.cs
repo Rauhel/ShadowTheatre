@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[RequireComponent(typeof(NPCController))]
+[RequireComponent(typeof(NPCPathManager))]
 public class NPCEventManager : MonoBehaviour
 {
     [Header("组件引用")]
@@ -24,17 +26,35 @@ public class NPCEventManager : MonoBehaviour
     public delegate void EventCompletedHandler(string pathId, PathEvent completedEvent, string gestureType);
     public event EventCompletedHandler OnEventCompleted;
 
+    // 路径段可视化
+    private List<GameObject> pathSegmentMarkers = new List<GameObject>();
+    private GameObject interactionRangeVisual;
+
     // 重要公共属性
     public bool IsEventDetectable => isProcessingEvent && !isDetectingGesture;
     public PathEvent CurrentPathEvent => currentEvent;
     public Transform CurrentPathPointsParent => currentPathPointsParent;
     public List<PathEvent> CurrentPathEvents { get; private set; } = new List<PathEvent>();
 
+    // 当前活跃事件（根据当前幕数过滤）
+    private List<PathEvent> activePathEvents = new List<PathEvent>();
+
+    // 游戏当前幕数
+    [Header("事件控制")]
+    [Range(1, 3)]
+    [SerializeField] private int currentAct = 1;
+
     private void Awake()
     {
         controller = GetComponent<NPCController>();
         pathManager = GetComponent<NPCPathManager>();
+
+        // 获取或添加手势处理器
         gestureHandler = GetComponent<GestureEventHandler>();
+        if (gestureHandler == null)
+        {
+            gestureHandler = gameObject.AddComponent<GestureEventHandler>();
+        }
 
         if (gestureHandler != null)
         {
@@ -45,18 +65,21 @@ public class NPCEventManager : MonoBehaviour
         {
             Debug.LogWarning($"[{gameObject.name}] 缺少 GestureEventHandler 组件，无法处理手势事件");
         }
+
+        // 创建交互范围指示器
+        CreateInteractionRangeIndicator();
     }
 
     private void OnEnable()
     {
         // 订阅状态改变事件，当幕数变化时重新加载事件
-        EventCenter.Instance.Subscribe(GameState.EventNames.STATE_CHANGED, OnGameStateChanged);
+        SubscribeToGameEvents();
     }
 
     private void OnDisable()
     {
         // 取消订阅
-        EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_CHANGED, OnGameStateChanged);
+        UnsubscribeFromGameEvents();
     }
 
     private void OnDestroy()
@@ -65,6 +88,12 @@ public class NPCEventManager : MonoBehaviour
         {
             gestureHandler.OnGestureSuccess -= OnGestureSuccess;
             gestureHandler.OnGestureFailure -= OnGestureFailure;
+        }
+
+        // 清理交互范围指示器
+        if (interactionRangeVisual != null)
+        {
+            Destroy(interactionRangeVisual);
         }
     }
 
@@ -97,11 +126,15 @@ public class NPCEventManager : MonoBehaviour
 
         // 重新加载此路径的所有事件
         LoadPathEvents();
+
+        // 隐藏所有路径段标记
+        HidePathSegment();
     }
 
     private void LoadPathEvents()
     {
         CurrentPathEvents.Clear();
+        activePathEvents.Clear();
 
         if (controller == null || controller.Data == null || string.IsNullOrEmpty(currentPathID))
             return;
@@ -111,46 +144,58 @@ public class NPCEventManager : MonoBehaviour
 
         if (pathConfig != null && pathConfig.events != null)
         {
-            // 根据当前剧情幕数过滤事件
-            GameState.State currentGameState = GameState.Instance.GetCurrentState();
-            int currentAct = 1;
+            // 加载所有事件
+            CurrentPathEvents = new List<PathEvent>(pathConfig.events);
 
-            // 根据当前游戏状态确定幕数
-            switch (currentGameState)
+            // 筛选当前幕中可用的事件
+            RefreshActiveEvents();
+
+            Debug.Log($"[{gameObject.name}] 设置路径: {currentPathID}, 有 {CurrentPathEvents.Count} 个事件, 当前幕活跃: {activePathEvents.Count}");
+        }
+    }
+
+    // 筛选当前幕中可用的事件
+    private void RefreshActiveEvents()
+    {
+        activePathEvents.Clear();
+
+        foreach (var evt in CurrentPathEvents)
+        {
+            if (IsEventEnabledInCurrentAct(evt))
             {
-                case GameState.State.Act1:
-                    currentAct = 1;
-                    break;
-                case GameState.State.Act2:
-                    currentAct = 2;
-                    break;
-                case GameState.State.Act3:
-                    currentAct = 3;
-                    break;
+                activePathEvents.Add(evt);
+            }
+        }
+    }
+
+    // 检查事件在当前幕是否启用
+    private bool IsEventEnabledInCurrentAct(PathEvent pathEvent)
+    {
+        switch (currentAct)
+        {
+            case 1: return pathEvent.enabledInAct1;
+            case 2: return pathEvent.enabledInAct2;
+            case 3: return pathEvent.enabledInAct3;
+            default: return false;
+        }
+    }
+
+    // 设置当前幕数
+    public void SetCurrentAct(int act)
+    {
+        if (act >= 1 && act <= 3 && act != currentAct)
+        {
+            currentAct = act;
+            RefreshActiveEvents();
+
+            // 隐藏交互范围指示器，因为新幕可能有不同的活跃事件
+            if (interactionRangeVisual != null)
+            {
+                interactionRangeVisual.SetActive(false);
             }
 
-            foreach (var evt in pathConfig.events)
-            {
-                bool isEnabled = false;
-
-                switch (currentAct)
-                {
-                    case 1:
-                        isEnabled = evt.enabledInAct1;
-                        break;
-                    case 2:
-                        isEnabled = evt.enabledInAct2;
-                        break;
-                    case 3:
-                        isEnabled = evt.enabledInAct3;
-                        break;
-                }
-
-                if (isEnabled)
-                {
-                    CurrentPathEvents.Add(evt);
-                }
-            }
+            // 隐藏所有路径段标记
+            HidePathSegment();
         }
     }
 
@@ -159,23 +204,42 @@ public class NPCEventManager : MonoBehaviour
         // 当游戏状态改变时，重新加载路径事件
         if (!string.IsNullOrEmpty(currentPathID))
         {
-            LoadPathEvents();
+            // 获取当前游戏状态
+            GameState.State currentGameState = GameState.Instance.GetCurrentState();
+
+            // 根据当前游戏状态确定幕数
+            switch (currentGameState)
+            {
+                case GameState.State.Act1:
+                    SetCurrentAct(1);
+                    break;
+                case GameState.State.Act2:
+                    SetCurrentAct(2);
+                    break;
+                case GameState.State.Act3:
+                    SetCurrentAct(3);
+                    break;
+            }
         }
     }
 
     private void CheckForEvents()
     {
-        if (CurrentPathEvents.Count == 0 || currentPathPointsParent == null)
+        if (activePathEvents.Count == 0 || currentPathPointsParent == null)
             return;
 
         // 获取当前最近的路径点索引
         int currentPointIndex = GetCurrentPathPointIndex();
 
-        // 检查所有事件
-        foreach (var pathEvent in CurrentPathEvents)
+        // 检查所有活跃事件
+        foreach (var pathEvent in activePathEvents)
         {
             // 只有未激活的事件才需要检查
             if (pathEvent == currentEvent)
+                continue;
+
+            // 检查事件是否已完成
+            if (completedEventIDs.Contains(pathEvent.eventID))
                 continue;
 
             // 检查是否到达事件起始点
@@ -183,6 +247,13 @@ public class NPCEventManager : MonoBehaviour
             {
                 // 找到事件，激活它
                 TriggerEvent(pathEvent);
+
+                // 如果事件显示交互范围，则显示路径段
+                if (pathEvent.showInteractionRange)
+                {
+                    ShowPathSegment(pathEvent, true);
+                }
+
                 break;
             }
         }
@@ -233,6 +304,9 @@ public class NPCEventManager : MonoBehaviour
         currentEvent = pathEvent;
         isProcessingEvent = true;
         isDetectingGesture = true;
+
+        // 记录事件开始位置
+        RecordEventStartPosition();
 
         // 告诉手势处理器开始检测
         if (gestureHandler != null)
@@ -372,6 +446,9 @@ public class NPCEventManager : MonoBehaviour
             // 记录事件已完成
             completedEventIDs.Add(currentEvent.eventID);
 
+            // 隐藏路径段标记
+            HidePathSegment();
+
             // 触发事件完成事件
             OnEventCompleted?.Invoke(currentPathID, currentEvent, gestureType);
 
@@ -388,6 +465,124 @@ public class NPCEventManager : MonoBehaviour
                 gestureHandler.CancelGestureRecognition();
             }
         }
+    }
+
+    // 创建交互范围指示器
+    private void CreateInteractionRangeIndicator()
+    {
+        interactionRangeVisual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        interactionRangeVisual.name = "InteractionRange";
+        interactionRangeVisual.transform.SetParent(transform);
+        interactionRangeVisual.transform.localPosition = Vector3.zero;
+
+        // 设置半透明材质
+        Renderer renderer = interactionRangeVisual.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            Material mat = new Material(Shader.Find("Transparent/Diffuse"));
+            mat.color = new Color(0.2f, 0.8f, 0.2f, 0.3f); // 半透明绿色
+            renderer.material = mat;
+        }
+
+        // 禁用碰撞
+        Collider collider = interactionRangeVisual.GetComponent<Collider>();
+        if (collider != null)
+        {
+            Destroy(collider);
+        }
+
+        // 默认隐藏
+        interactionRangeVisual.SetActive(false);
+    }
+
+    // 显示路径段
+    private void ShowPathSegment(PathEvent pathEvent, bool isActive)
+    {
+        // 清除先前的路径段标记
+        HidePathSegment();
+
+        if (currentPathPointsParent == null)
+            return;
+
+        // 确保索引有效
+        if (pathEvent.startPointIndex < 0 || pathEvent.startPointIndex >= currentPathPointsParent.childCount ||
+            pathEvent.endPointIndex < 0 || pathEvent.endPointIndex >= currentPathPointsParent.childCount)
+            return;
+
+        // 确定起始和结束索引
+        int startIdx = Mathf.Min(pathEvent.startPointIndex, pathEvent.endPointIndex);
+        int endIdx = Mathf.Max(pathEvent.startPointIndex, pathEvent.endPointIndex);
+
+        // 设置颜色：绿色表示激活，红色表示未激活
+        Color segmentColor = isActive ?
+            new Color(0.2f, 0.8f, 0.2f, 0.3f) : // 绿色半透明
+            new Color(0.8f, 0.2f, 0.2f, 0.3f);  // 红色半透明
+
+        // 为路径段的每个点创建标记
+        for (int i = startIdx; i <= endIdx; i++)
+        {
+            Transform pathPoint = currentPathPointsParent.GetChild(i);
+
+            // 创建标记球体
+            GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            marker.name = $"PathSegmentMarker_{i}";
+            marker.transform.position = pathPoint.position;
+            marker.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
+
+            // 设置材质
+            Renderer renderer = marker.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                Material mat = new Material(Shader.Find("Transparent/Diffuse"));
+                mat.color = segmentColor;
+                renderer.material = mat;
+            }
+
+            // 禁用碰撞
+            Collider collider = marker.GetComponent<Collider>();
+            if (collider != null)
+            {
+                Destroy(collider);
+            }
+
+            pathSegmentMarkers.Add(marker);
+        }
+
+        // 连接点之间的线段
+        for (int i = startIdx; i < endIdx; i++)
+        {
+            Transform start = currentPathPointsParent.GetChild(i);
+            Transform end = currentPathPointsParent.GetChild(i + 1);
+
+            // 创建线段
+            GameObject line = new GameObject($"PathSegmentLine_{i}");
+            LineRenderer lineRenderer = line.AddComponent<LineRenderer>();
+
+            lineRenderer.startWidth = 0.2f;
+            lineRenderer.endWidth = 0.2f;
+            lineRenderer.positionCount = 2;
+            lineRenderer.SetPosition(0, start.position);
+            lineRenderer.SetPosition(1, end.position);
+
+            // 设置材质
+            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+            lineRenderer.startColor = segmentColor;
+            lineRenderer.endColor = segmentColor;
+
+            pathSegmentMarkers.Add(line);
+        }
+    }
+
+    private void HidePathSegment()
+    {
+        foreach (var marker in pathSegmentMarkers)
+        {
+            if (marker != null)
+            {
+                Destroy(marker);
+            }
+        }
+        pathSegmentMarkers.Clear();
     }
 
     // 添加检查事件是否完成的方法
@@ -420,6 +615,8 @@ public class NPCEventManager : MonoBehaviour
     {
         if (pathEvent == null)
             return;
+
+        Debug.Log($"[事件测试] 触发事件: {pathEvent.eventID}");
 
         // 临时设置路径ID
         currentPathID = pathId;
@@ -457,27 +654,82 @@ public class NPCEventManager : MonoBehaviour
         return Vector3.Distance(transform.position, eventStartPosition);
     }
 
-    // 添加这个方法到 NPCEventManager 类中
+    // 添加通过ID触发事件的方法
     public void TriggerEventByID(string eventID)
     {
-        if (string.IsNullOrEmpty(eventID) || controller?.Data == null)
+        if (string.IsNullOrEmpty(eventID) || isProcessingEvent)
             return;
 
-        // 遍历所有路径
-        foreach (var path in controller.Data.paths)
+        // 在当前活跃事件中寻找对应ID的事件
+        PathEvent targetEvent = activePathEvents.Find(e => e.eventID == eventID);
+
+        // 如果在活跃事件中找到了
+        if (targetEvent != null)
         {
-            // 遍历该路径的所有事件
-            foreach (var pathEvent in path.events)
+            Debug.Log($"[{gameObject.name}] 通过ID触发事件: {eventID}");
+            TriggerEvent(targetEvent);
+        }
+        else
+        {
+            // 尝试在所有当前路径事件中查找
+            targetEvent = CurrentPathEvents.Find(e => e.eventID == eventID);
+
+            if (targetEvent != null)
             {
-                if (pathEvent.eventID == eventID)
+                // 找到了，但该事件在当前幕不可用
+                Debug.LogWarning($"[{gameObject.name}] 事件 {eventID} 存在但在当前幕 {currentAct} 中不可用");
+            }
+            else
+            {
+                // 完全没找到对应事件，遍历所有路径查找
+                if (controller?.Data != null)
                 {
-                    // 找到匹配的事件ID，触发它
-                    TestTriggerEvent(path.pathID, pathEvent);
-                    return;
+                    foreach (var path in controller.Data.paths)
+                    {
+                        // 遍历该路径的所有事件
+                        foreach (var pathEvent in path.events)
+                        {
+                            if (pathEvent.eventID == eventID)
+                            {
+                                // 找到匹配的事件ID，触发它
+                                TestTriggerEvent(path.pathID, pathEvent);
+                                return;
+                            }
+                        }
+                    }
                 }
+
+                // 完全没找到对应事件
+                Debug.LogWarning($"[{gameObject.name}] 找不到ID为 {eventID} 的事件");
             }
         }
+    }
 
-        Debug.LogWarning($"[{gameObject.name}] 找不到事件ID: {eventID}");
+    // 订阅游戏状态事件
+    private void SubscribeToGameEvents()
+    {
+        if (EventCenter.Instance != null)
+        {
+            // 订阅状态改变事件
+            EventCenter.Instance.Subscribe(GameState.EventNames.STATE_CHANGED, OnGameStateChanged);
+
+            // 根据当前状态获取幕数 - 这是全局状态监听
+            EventCenter.Instance.Subscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act1.ToString(), () => SetCurrentAct(1));
+            EventCenter.Instance.Subscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act2.ToString(), () => SetCurrentAct(2));
+            EventCenter.Instance.Subscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act3.ToString(), () => SetCurrentAct(3));
+        }
+    }
+
+    // 取消订阅游戏状态事件
+    private void UnsubscribeFromGameEvents()
+    {
+        if (EventCenter.Instance != null)
+        {
+            EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_CHANGED, OnGameStateChanged);
+
+            EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act1.ToString(), () => SetCurrentAct(1));
+            EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act2.ToString(), () => SetCurrentAct(2));
+            EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act3.ToString(), () => SetCurrentAct(3));
+        }
     }
 }

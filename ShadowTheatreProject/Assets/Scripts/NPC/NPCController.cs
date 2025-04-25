@@ -74,6 +74,34 @@ public class NPCController : MonoBehaviour
         }
     }
 
+    // 重置当前NPC的分数
+    public virtual void ResetScore()
+    {
+        if (npcData != null)
+        {
+            npcData.ResetScore();
+            Debug.Log($"[{gameObject.name}] 分数已重置为0");
+        }
+    }
+
+    // 重置场景中所有NPC的分数
+    public static void ResetAllNPCScores()
+    {
+        NPCController[] allNpcs = GameObject.FindObjectsOfType<NPCController>();
+        int count = 0;
+
+        foreach (NPCController npc in allNpcs)
+        {
+            if (npc.npcData != null)
+            {
+                npc.npcData.ResetScore();
+                count++;
+            }
+        }
+
+        Debug.Log($"游戏结束: 已重置 {count} 个NPC的分数");
+    }
+
     // 调试工具
     public virtual void DebugStatus()
     {

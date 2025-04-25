@@ -100,6 +100,8 @@ public class GameState : MonoBehaviour
 
         // Start with the current state
         stateStartTime = Time.time;
+        // 在游戏管理器的GameOver方法中调用
+        NPCController.ResetAllNPCScores();
     }
 
     // Method to change the game state

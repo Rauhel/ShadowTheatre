@@ -60,6 +60,13 @@ public class NPCData : ScriptableObject
     {
         return paths.Find(p => p.pathID == pathId);
     }
+
+    // 重置NPC分数到0
+    public void ResetScore()
+    {
+        currentScore = 0f;
+        Debug.Log($"[{npcName}] 分数已重置为0");
+    }
 }
 
 [Serializable]
