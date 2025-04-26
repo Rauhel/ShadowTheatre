@@ -137,6 +137,12 @@ public class NPCPathManager : MonoBehaviour
                         animationManager.PlayAnimation(action.animationName, false, action.displayDuration);
                     }
 
+                    // 处理等待时间
+                    if (action.waitTime > 0)
+                    {
+                        StartCoroutine(WaitAtPathPoint(action.waitTime));
+                    }
+
                     // 不需要继续检查其他动作
                     return;
                 }
@@ -175,10 +181,32 @@ public class NPCPathManager : MonoBehaviour
                         animationManager.PlayAnimation(action.animationName, false, action.displayDuration);
                     }
 
+                    // 处理等待时间
+                    if (action.waitTime > 0)
+                    {
+                        StartCoroutine(WaitAtPathPoint(action.waitTime));
+                    }
+
                     return;
                 }
             }
         }
+    }
+
+    // 添加一个新的协程来处理等待
+    private IEnumerator WaitAtPathPoint(float waitTime)
+    {
+        Debug.Log($"[{gameObject.name}] 在路径点停留 {waitTime} 秒");
+
+        // 停止NPC移动
+        controller.StopMovement(true);
+
+        // 等待指定时间
+        yield return new WaitForSeconds(waitTime);
+
+        // 继续移动
+        controller.StopMovement(false);
+        Debug.Log($"[{gameObject.name}] 停留结束，继续移动");
     }
 
     // 路径初始化

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcID: 1
   npcName: Deer
-  currentScore: 0
+  currentScore: 30
   paths:
   - pathID: DeerPath1
     pathName: DeerPath1
@@ -35,13 +35,25 @@ MonoBehaviour:
       - gestureType: Deer
         scoreEffect: 30
         actions:
-        - dialogueText: yesssss
+        - dialogueText: deer
           displayDuration: 1.5
           voiceClip: {fileID: 0}
           animationName: 
           delay: 0
+          waitTime: 0
           overridePrevious: 1
-          pathPointIndex: 6
+          pathPointIndex: 8
+      - gestureType: Wolf
+        scoreEffect: 10
+        actions:
+        - dialogueText: wolf
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          delay: 0
+          waitTime: 0
+          overridePrevious: 1
+          pathPointIndex: 7
       defaultResponse:
         gestureType: 
         scoreEffect: 0
@@ -51,6 +63,7 @@ MonoBehaviour:
           voiceClip: {fileID: 0}
           animationName: 
           delay: 0
+          waitTime: 0
           overridePrevious: 1
           pathPointIndex: 6
     nextPaths:
@@ -65,11 +78,12 @@ MonoBehaviour:
       requiredScore: 30
       description: 30
     pathActions:
-    - dialogueText: 1111
-      displayDuration: 1
+    - dialogueText: 
+      displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
-      delay: 0
+      delay: 0.5
+      waitTime: 0
       overridePrevious: 1
       pathPointIndex: 0
   pathConnections:

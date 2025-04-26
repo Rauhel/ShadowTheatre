@@ -7,15 +7,110 @@ using System.Linq;
 public class NPCActionEditor
 {
     private NPCDataEditor mainEditor;
+    private List<string> cachedAnimations = new List<string>();
+    private string lastNpcName = "";
     
     public NPCActionEditor(NPCDataEditor editor)
     {
         mainEditor = editor;
+        // 初始化动画列表
+        RefreshAnimationList();
+    }
+    
+    // 刷新动画列表方法
+    private void RefreshAnimationList()
+    {
+        cachedAnimations.Clear();
+        
+        // 添加空选项
+        cachedAnimations.Add("(无动画)");
+        
+        // 获取当前NPC名称
+        string npcName = "";
+        if (mainEditor != null && mainEditor.Data != null)
+        {
+            npcName = mainEditor.Data.npcName;
+        }
+        
+        // 如果NPC名称为空，不执行筛选
+        if (string.IsNullOrEmpty(npcName))
+        {
+            return;
+        }
+        
+        // 记录当前NPC名称
+        lastNpcName = npcName;
+        
+        // 查找项目中所有动画剪辑
+        string[] animClipGuids = AssetDatabase.FindAssets("t:AnimationClip");
+        
+        foreach (string guid in animClipGuids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            AnimationClip clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
+            
+            if (clip != null)
+            {
+                // 只添加与NPC名称匹配的动画
+                if (clip.name.Contains(npcName) || path.Contains(npcName))
+                {
+                    if (!cachedAnimations.Contains(clip.name))
+                    {
+                        cachedAnimations.Add(clip.name);
+                    }
+                }
+            }
+        }
+        
+        // 同时查找所有Animator控制器中的动画
+        string[] animatorGuids = AssetDatabase.FindAssets("t:AnimatorController");
+        foreach (string guid in animatorGuids)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            
+            // 检查路径是否与NPC名称相关
+            if (path.Contains(npcName))
+            {
+                RuntimeAnimatorController controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(path);
+                if (controller != null)
+                {
+                    foreach (var clip in controller.animationClips)
+                    {
+                        if (!cachedAnimations.Contains(clip.name))
+                        {
+                            cachedAnimations.Add(clip.name);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // 如果没有找到任何动画，添加一些常见的预设动画名称
+        if (cachedAnimations.Count <= 1)
+        {
+            cachedAnimations.Add("Idle");
+            cachedAnimations.Add("Walk");
+            cachedAnimations.Add("Run");
+            cachedAnimations.Add("Talk");
+        }
+        
+        // 按字母顺序排序（保持"(无动画)"在第一位）
+        string noneOption = cachedAnimations[0];
+        cachedAnimations.RemoveAt(0);
+        cachedAnimations.Sort();
+        cachedAnimations.Insert(0, noneOption);
     }
     
     // ===== 路径动作编辑器 =====
     public void DrawPathActions(PathConfig config)
     {
+        // 检查NPC名称是否变更，如果变更则刷新动画列表
+        if (mainEditor != null && mainEditor.Data != null && 
+            mainEditor.Data.npcName != lastNpcName)
+        {
+            RefreshAnimationList();
+        }
+        
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         
         // 标题和表头
@@ -62,8 +157,16 @@ public class NPCActionEditor
             // 对话内容
             action.dialogueText = EditorGUILayout.TextField(action.dialogueText, GUILayout.Width(200));
             
-            // 动画
-            action.animationName = EditorGUILayout.TextField(action.animationName, GUILayout.Width(100));
+            // 动画下拉选择器
+            int currentAnimIndex = 0;
+            if (!string.IsNullOrEmpty(action.animationName))
+            {
+                currentAnimIndex = cachedAnimations.IndexOf(action.animationName);
+                if (currentAnimIndex < 0) currentAnimIndex = 0;
+            }
+
+            int newAnimIndex = EditorGUILayout.Popup(currentAnimIndex, cachedAnimations.ToArray(), GUILayout.Width(100));
+            action.animationName = (newAnimIndex > 0) ? cachedAnimations[newAnimIndex] : "";
             
             // 删除按钮
             if(GUILayout.Button("删除", GUILayout.Width(60)))
@@ -87,11 +190,13 @@ public class NPCActionEditor
             EditorGUILayout.EndHorizontal();
             
             // 时间设置
-            EditorGUILayout.BeginHorizontal(GUILayout.Width(200));
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(360));
             EditorGUILayout.LabelField("显示:", GUILayout.Width(40));
-            action.displayDuration = EditorGUILayout.FloatField(action.displayDuration, GUILayout.Width(40));
+            action.displayDuration = EditorGUILayout.FloatField(action.displayDuration, GUILayout.Width(80));
             EditorGUILayout.LabelField("延迟:", GUILayout.Width(40));
-            action.delay = EditorGUILayout.FloatField(action.delay, GUILayout.Width(40));
+            action.delay = EditorGUILayout.FloatField(action.delay, GUILayout.Width(80));
+            EditorGUILayout.LabelField("停留:", GUILayout.Width(40));
+            action.waitTime = EditorGUILayout.FloatField(action.waitTime, GUILayout.Width(80));
             EditorGUILayout.EndHorizontal();
             
             EditorGUILayout.EndHorizontal();
@@ -110,10 +215,18 @@ public class NPCActionEditor
             newAction.pathPointIndex = 0;
             newAction.delay = 0.5f;
             newAction.displayDuration = 2.0f;
+            newAction.waitTime = 0f;  // 默认不停留
             
             // 直接添加到路径动作列表
             config.pathActions.Add(newAction);
             EditorUtility.SetDirty(mainEditor.Data);
+        }
+        
+        // 在编辑器底部添加刷新动画列表按钮
+        EditorGUILayout.Space(5);
+        if (GUILayout.Button("刷新动画列表"))
+        {
+            RefreshAnimationList();
         }
         
         EditorGUILayout.EndVertical();
@@ -122,6 +235,13 @@ public class NPCActionEditor
     // ===== 事件动作编辑器 =====
     public void DrawEventActions(GestureResponse response)
     {
+        // 检查NPC名称是否变更，如果变更则刷新动画列表
+        if (mainEditor != null && mainEditor.Data != null && 
+            mainEditor.Data.npcName != lastNpcName)
+        {
+            RefreshAnimationList();
+        }
+        
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         
         // 标题和表头
@@ -207,8 +327,16 @@ public class NPCActionEditor
             // 对话内容
             action.dialogueText = EditorGUILayout.TextField(action.dialogueText, GUILayout.Width(200));
             
-            // 动画
-            action.animationName = EditorGUILayout.TextField(action.animationName, GUILayout.Width(100));
+            // 动画下拉选择器
+            int currentAnimIndex = 0;
+            if (!string.IsNullOrEmpty(action.animationName))
+            {
+                currentAnimIndex = cachedAnimations.IndexOf(action.animationName);
+                if (currentAnimIndex < 0) currentAnimIndex = 0;
+            }
+
+            int newAnimIndex = EditorGUILayout.Popup(currentAnimIndex, cachedAnimations.ToArray(), GUILayout.Width(100));
+            action.animationName = (newAnimIndex > 0) ? cachedAnimations[newAnimIndex] : "";
             
             // 删除按钮
             if(GUILayout.Button("删除", GUILayout.Width(60)))
@@ -232,11 +360,13 @@ public class NPCActionEditor
             EditorGUILayout.EndHorizontal();
             
             // 时间设置
-            EditorGUILayout.BeginHorizontal(GUILayout.Width(200));
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(360));
             EditorGUILayout.LabelField("显示:", GUILayout.Width(40));
-            action.displayDuration = EditorGUILayout.FloatField(action.displayDuration, GUILayout.Width(40));
+            action.displayDuration = EditorGUILayout.FloatField(action.displayDuration, GUILayout.Width(80));
             EditorGUILayout.LabelField("延迟:", GUILayout.Width(40));
-            action.delay = EditorGUILayout.FloatField(action.delay, GUILayout.Width(40));
+            action.delay = EditorGUILayout.FloatField(action.delay, GUILayout.Width(80));
+            EditorGUILayout.LabelField("停留:", GUILayout.Width(40));
+            action.waitTime = EditorGUILayout.FloatField(action.waitTime, GUILayout.Width(80));
             EditorGUILayout.EndHorizontal();
             
             EditorGUILayout.EndHorizontal();
@@ -255,10 +385,18 @@ public class NPCActionEditor
             newAction.pathPointIndex = 0;
             newAction.delay = 0.5f;
             newAction.displayDuration = 2.0f;
+            newAction.waitTime = 0f;  // 默认不停留
             
             // 添加到事件动作列表
             response.actions.Add(newAction);
             EditorUtility.SetDirty(mainEditor.Data);
+        }
+        
+        // 在编辑器底部添加刷新动画列表按钮
+        EditorGUILayout.Space(5);
+        if (GUILayout.Button("刷新动画列表"))
+        {
+            RefreshAnimationList();
         }
         
         EditorGUILayout.EndVertical();

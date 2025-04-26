@@ -125,6 +125,7 @@ public class ActionData
     public AudioClip voiceClip;             // 语音片段
     public string animationName = "";       // 动画名称
     public float delay = 0f;                // 执行延迟
+    public float waitTime = 0f;             // NPC在此点停留时间
     public bool overridePrevious = true;    // 是否覆盖前一个动作
 
     [Header("执行条件")]
