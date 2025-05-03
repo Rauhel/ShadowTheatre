@@ -2,14 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(Animator))]
+// 将新的 SpriteSheetAnimator 组件替代 Animator
+[RequireComponent(typeof(SpriteSheetAnimator))]
 public class NPCAnimationManager : MonoBehaviour
 {
     [Header("引用")]
     private NPCController controller;
     private NPCPathManager pathManager;
     private NPCEventManager eventManager;
-    private Animator animator;
+    private SpriteSheetAnimator animator; // 替代原来的 Animator
 
     [Header("动画设置")]
     public string defaultAnimationName = "Idle"; // 默认动画名称
@@ -21,7 +22,7 @@ public class NPCAnimationManager : MonoBehaviour
         controller = GetComponent<NPCController>();
         pathManager = GetComponent<NPCPathManager>();
         eventManager = GetComponent<NPCEventManager>();
-        animator = GetComponent<Animator>();
+        animator = GetComponent<SpriteSheetAnimator>();
 
         // 默认播放空闲动画
         currentAnimationName = defaultAnimationName;
@@ -249,8 +250,8 @@ public class NPCAnimationManager : MonoBehaviour
         // 保存当前动画名称
         currentAnimationName = animName;
 
-        // 播放动画
-        animator.Play(animName);
+        // 使用 SpriteSheetAnimator 播放动画
+        animator.Play(animName, loop);
 
         // 如果有持续时间且不循环，则设置计时器返回默认动画
         if (duration > 0 && !loop)
@@ -265,31 +266,19 @@ public class NPCAnimationManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         // 播放默认动画
-        animator.Play(defaultAnimationName);
+        animator.Play(defaultAnimationName, true);
         currentAnimationName = defaultAnimationName;
         currentAnimationCoroutine = null;
     }
 
-    // 删除 PlaySound 方法，声音完全由 DialogueManager 处理
-
-    // 获取当前可用的动画列表（用于编辑器）
     public List<string> GetAvailableAnimations()
     {
-        List<string> animNames = new List<string>();
-
         if (animator != null)
         {
-            // 尝试获取所有动画剪辑名称
-            RuntimeAnimatorController controller = animator.runtimeAnimatorController;
-            if (controller != null)
-            {
-                foreach (var clip in controller.animationClips)
-                {
-                    animNames.Add(clip.name);
-                }
-            }
+            return animator.GetAvailableAnimations();
         }
 
-        return animNames;
+        // 如果 animator 为空，返回空列表
+        return new List<string>();
     }
 }

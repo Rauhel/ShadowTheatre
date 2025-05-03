@@ -26,10 +26,6 @@ public class NPCEventManager : MonoBehaviour
     public delegate void EventCompletedHandler(string pathId, PathEvent completedEvent, string gestureType);
     public event EventCompletedHandler OnEventCompleted;
 
-    // 路径段可视化
-    private List<GameObject> pathSegmentMarkers = new List<GameObject>();
-    private GameObject interactionRangeVisual;
-
     // 重要公共属性
     public bool IsEventDetectable => isProcessingEvent && !isDetectingGesture;
     public PathEvent CurrentPathEvent => currentEvent;
@@ -65,9 +61,6 @@ public class NPCEventManager : MonoBehaviour
         {
             Debug.LogWarning($"[{gameObject.name}] 缺少 GestureEventHandler 组件，无法处理手势事件");
         }
-
-        // 创建交互范围指示器
-        CreateInteractionRangeIndicator();
     }
 
     private void OnEnable()
@@ -88,12 +81,6 @@ public class NPCEventManager : MonoBehaviour
         {
             gestureHandler.OnGestureSuccess -= OnGestureSuccess;
             gestureHandler.OnGestureFailure -= OnGestureFailure;
-        }
-
-        // 清理交互范围指示器
-        if (interactionRangeVisual != null)
-        {
-            Destroy(interactionRangeVisual);
         }
     }
 
@@ -126,9 +113,6 @@ public class NPCEventManager : MonoBehaviour
 
         // 重新加载此路径的所有事件
         LoadPathEvents();
-
-        // 隐藏所有路径段标记
-        HidePathSegment();
     }
 
     private void LoadPathEvents()
@@ -187,15 +171,6 @@ public class NPCEventManager : MonoBehaviour
         {
             currentAct = act;
             RefreshActiveEvents();
-
-            // 隐藏交互范围指示器，因为新幕可能有不同的活跃事件
-            if (interactionRangeVisual != null)
-            {
-                interactionRangeVisual.SetActive(false);
-            }
-
-            // 隐藏所有路径段标记
-            HidePathSegment();
         }
     }
 
@@ -247,12 +222,6 @@ public class NPCEventManager : MonoBehaviour
             {
                 // 找到事件，激活它
                 TriggerEvent(pathEvent);
-
-                // 如果事件显示交互范围，则显示路径段
-                if (pathEvent.showInteractionRange)
-                {
-                    ShowPathSegment(pathEvent, true);
-                }
 
                 break;
             }
@@ -446,9 +415,6 @@ public class NPCEventManager : MonoBehaviour
             // 记录事件已完成
             completedEventIDs.Add(currentEvent.eventID);
 
-            // 隐藏路径段标记
-            HidePathSegment();
-
             // 触发事件完成事件
             OnEventCompleted?.Invoke(currentPathID, currentEvent, gestureType);
 
@@ -465,124 +431,6 @@ public class NPCEventManager : MonoBehaviour
                 gestureHandler.CancelGestureRecognition();
             }
         }
-    }
-
-    // 创建交互范围指示器
-    private void CreateInteractionRangeIndicator()
-    {
-        interactionRangeVisual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        interactionRangeVisual.name = "InteractionRange";
-        interactionRangeVisual.transform.SetParent(transform);
-        interactionRangeVisual.transform.localPosition = Vector3.zero;
-
-        // 设置半透明材质
-        Renderer renderer = interactionRangeVisual.GetComponent<Renderer>();
-        if (renderer != null)
-        {
-            Material mat = new Material(Shader.Find("Transparent/Diffuse"));
-            mat.color = new Color(0.2f, 0.8f, 0.2f, 0.3f); // 半透明绿色
-            renderer.material = mat;
-        }
-
-        // 禁用碰撞
-        Collider collider = interactionRangeVisual.GetComponent<Collider>();
-        if (collider != null)
-        {
-            Destroy(collider);
-        }
-
-        // 默认隐藏
-        interactionRangeVisual.SetActive(false);
-    }
-
-    // 显示路径段
-    private void ShowPathSegment(PathEvent pathEvent, bool isActive)
-    {
-        // 清除先前的路径段标记
-        HidePathSegment();
-
-        if (currentPathPointsParent == null)
-            return;
-
-        // 确保索引有效
-        if (pathEvent.startPointIndex < 0 || pathEvent.startPointIndex >= currentPathPointsParent.childCount ||
-            pathEvent.endPointIndex < 0 || pathEvent.endPointIndex >= currentPathPointsParent.childCount)
-            return;
-
-        // 确定起始和结束索引
-        int startIdx = Mathf.Min(pathEvent.startPointIndex, pathEvent.endPointIndex);
-        int endIdx = Mathf.Max(pathEvent.startPointIndex, pathEvent.endPointIndex);
-
-        // 设置颜色：绿色表示激活，红色表示未激活
-        Color segmentColor = isActive ?
-            new Color(0.2f, 0.8f, 0.2f, 0.3f) : // 绿色半透明
-            new Color(0.8f, 0.2f, 0.2f, 0.3f);  // 红色半透明
-
-        // 为路径段的每个点创建标记
-        for (int i = startIdx; i <= endIdx; i++)
-        {
-            Transform pathPoint = currentPathPointsParent.GetChild(i);
-
-            // 创建标记球体
-            GameObject marker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            marker.name = $"PathSegmentMarker_{i}";
-            marker.transform.position = pathPoint.position;
-            marker.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
-
-            // 设置材质
-            Renderer renderer = marker.GetComponent<Renderer>();
-            if (renderer != null)
-            {
-                Material mat = new Material(Shader.Find("Transparent/Diffuse"));
-                mat.color = segmentColor;
-                renderer.material = mat;
-            }
-
-            // 禁用碰撞
-            Collider collider = marker.GetComponent<Collider>();
-            if (collider != null)
-            {
-                Destroy(collider);
-            }
-
-            pathSegmentMarkers.Add(marker);
-        }
-
-        // 连接点之间的线段
-        for (int i = startIdx; i < endIdx; i++)
-        {
-            Transform start = currentPathPointsParent.GetChild(i);
-            Transform end = currentPathPointsParent.GetChild(i + 1);
-
-            // 创建线段
-            GameObject line = new GameObject($"PathSegmentLine_{i}");
-            LineRenderer lineRenderer = line.AddComponent<LineRenderer>();
-
-            lineRenderer.startWidth = 0.2f;
-            lineRenderer.endWidth = 0.2f;
-            lineRenderer.positionCount = 2;
-            lineRenderer.SetPosition(0, start.position);
-            lineRenderer.SetPosition(1, end.position);
-
-            // 设置材质
-            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-            lineRenderer.startColor = segmentColor;
-            lineRenderer.endColor = segmentColor;
-
-            pathSegmentMarkers.Add(line);
-        }
-    }
-
-    private void HidePathSegment()
-    {
-        foreach (var marker in pathSegmentMarkers)
-        {
-            if (marker != null)
-            {
-                Destroy(marker);
-            }
-        }
-        pathSegmentMarkers.Clear();
     }
 
     // 添加检查事件是否完成的方法

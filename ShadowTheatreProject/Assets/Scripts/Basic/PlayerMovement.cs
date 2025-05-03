@@ -12,7 +12,7 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("是否让角色立即面向指针方向")]
     [SerializeField] private bool facePointerDirection = true;
     [Tooltip("选择移动方式：0=即时移动到指针位置，1=平滑移动到指针位置，2=朝指针方向移动")]
-    [SerializeField] private int movementType = 1;
+    [SerializeField] private int movementType = 2;
 
     [Header("Pointer Settings")]
     [SerializeField] private float pointerGroundHeight = 0f;
