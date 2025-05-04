@@ -19,6 +19,9 @@ public class SpriteSheetAnimator : MonoBehaviour
     [SerializeField] private int currentFrame;
     [SerializeField] private float frameTimer;
 
+    [Header("比例设置")]
+    [SerializeField] private bool respectStaticHandlerScale = true;
+
     // 私有字段
     private SpriteSheetAnimation currentAnimation;
     private MaterialPropertyBlock propertyBlock;
@@ -36,6 +39,18 @@ public class SpriteSheetAnimator : MonoBehaviour
         }
 
         propertyBlock = new MaterialPropertyBlock();
+    }
+
+    private void Start()
+    {
+        // 检查是否存在StaticTextureHandler组件，如果存在，则使用其调整的比例
+        StaticTextureHandler staticHandler = GetComponent<StaticTextureHandler>();
+        if (staticHandler != null && staticHandler.texture != null)
+        {
+            // 静态贴图处理器已经处理了初始大小和比例，不需要额外操作
+            // 我们可以使用该组件计算的尺寸比例来设置动画尺寸
+            Debug.Log($"[{gameObject.name}] 使用StaticTextureHandler的比例设置");
+        }
     }
 
     private void Update()
@@ -118,6 +133,13 @@ public class SpriteSheetAnimator : MonoBehaviour
             propertyBlock.SetFloat(FrameCountProperty, anim.frameCount);
             propertyBlock.SetFloat(FrameIndexProperty, currentFrame);
             targetRenderer.SetPropertyBlock(propertyBlock);
+
+            // 检查是否需要尊重静态处理器的比例
+            if (!respectStaticHandlerScale)
+            {
+                // 如果不使用静态处理器的比例，可以在这里添加自己的比例调整逻辑
+                // 例如，调整为动画贴图的比例
+            }
 
             Debug.Log($"[{gameObject.name}] 设置材质参数: 贴图={anim.spriteSheet != null}, 帧数={anim.frameCount}, 当前帧={currentFrame}");
         }

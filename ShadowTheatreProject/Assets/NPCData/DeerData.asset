@@ -27,7 +27,7 @@ MonoBehaviour:
       playerInteractionRadius: 3
       showInteractionRange: 1
       gestureHoldTime: 1
-      maxRecognitionDistance: 8
+      maxRecognitionDistance: 2.11
       enabledInAct1: 1
       enabledInAct2: 1
       enabledInAct3: 1
@@ -38,12 +38,13 @@ MonoBehaviour:
         - dialogueText: deer
           displayDuration: 1.5
           voiceClip: {fileID: 0}
-          animationName: 
+          animationName: Run
           delay: 0
           waitTime: 0
           overridePrevious: 1
           loopAnimation: 0
           pathPointIndex: 8
+          isActionActive: 1
       - gestureType: Wolf
         scoreEffect: 10
         actions:
@@ -56,6 +57,7 @@ MonoBehaviour:
           overridePrevious: 1
           loopAnimation: 0
           pathPointIndex: 7
+          isActionActive: 1
       defaultResponse:
         gestureType: 
         scoreEffect: 0
@@ -69,6 +71,7 @@ MonoBehaviour:
           overridePrevious: 1
           loopAnimation: 0
           pathPointIndex: 6
+          isActionActive: 1
     nextPaths:
     - nextPathID: DeerPath2
       minScore: 0
@@ -90,6 +93,7 @@ MonoBehaviour:
       overridePrevious: 1
       loopAnimation: 0
       pathPointIndex: 1
+      isActionActive: 1
   pathConnections:
   - pathID: 
     path: {fileID: 0}
