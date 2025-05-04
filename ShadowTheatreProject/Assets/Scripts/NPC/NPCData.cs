@@ -127,9 +127,11 @@ public class ActionData
     public float delay = 0f;                // 执行延迟
     public float waitTime = 0f;             // NPC在此点停留时间
     public bool overridePrevious = true;    // 是否覆盖前一个动作
+    public bool loopAnimation = false;
 
     [Header("执行条件")]
     public int pathPointIndex = 0;          // 路径点索引
+    public bool isActionActive = true;        // 动作是否可用
 }
 
 [Serializable]

@@ -22,7 +22,7 @@ MonoBehaviour:
     maxScore: 100
     events:
     - eventID: Event_DeerPath1_1
-      startPointIndex: 1
+      startPointIndex: 3
       endPointIndex: 5
       playerInteractionRadius: 3
       showInteractionRange: 1
@@ -42,6 +42,7 @@ MonoBehaviour:
           delay: 0
           waitTime: 0
           overridePrevious: 1
+          loopAnimation: 0
           pathPointIndex: 8
       - gestureType: Wolf
         scoreEffect: 10
@@ -53,6 +54,7 @@ MonoBehaviour:
           delay: 0
           waitTime: 0
           overridePrevious: 1
+          loopAnimation: 0
           pathPointIndex: 7
       defaultResponse:
         gestureType: 
@@ -61,10 +63,11 @@ MonoBehaviour:
         - dialogueText: noooo
           displayDuration: 1.5
           voiceClip: {fileID: 0}
-          animationName: 
+          animationName: Run
           delay: 0
           waitTime: 0
           overridePrevious: 1
+          loopAnimation: 0
           pathPointIndex: 6
     nextPaths:
     - nextPathID: DeerPath2
@@ -81,11 +84,12 @@ MonoBehaviour:
     - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
-      animationName: 
-      delay: 0.5
+      animationName: Run
+      delay: 0
       waitTime: 0
       overridePrevious: 1
-      pathPointIndex: 0
+      loopAnimation: 0
+      pathPointIndex: 1
   pathConnections:
   - pathID: 
     path: {fileID: 0}

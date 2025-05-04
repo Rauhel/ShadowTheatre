@@ -155,11 +155,11 @@ public class NPCMain : MonoBehaviour
     }
 
     // 添加播放动画的公共接口
-    public void PlayAnimation(string animName, bool loop = false, float duration = 0)
+    public void PlayAnimation(string animName, bool loop = false)
     {
         if (animationManager != null)
         {
-            animationManager.PlayAnimation(animName, loop, duration);
+            animationManager.PlayAnimation(animName, loop);
         }
         else
         {

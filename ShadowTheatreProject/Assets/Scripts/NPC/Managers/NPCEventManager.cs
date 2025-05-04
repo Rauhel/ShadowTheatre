@@ -22,6 +22,9 @@ public class NPCEventManager : MonoBehaviour
     // 添加一个字段存储已完成的事件ID
     private HashSet<string> completedEventIDs = new HashSet<string>();
 
+    // 添加一个字典来跟踪事件完成的手势类型
+    private Dictionary<string, string> eventCompletionGestures = new Dictionary<string, string>();
+
     // 事件相关委托
     public delegate void EventCompletedHandler(string pathId, PathEvent completedEvent, string gestureType);
     public event EventCompletedHandler OnEventCompleted;
@@ -134,7 +137,7 @@ public class NPCEventManager : MonoBehaviour
             // 筛选当前幕中可用的事件
             RefreshActiveEvents();
 
-            Debug.Log($"[{gameObject.name}] 设置路径: {currentPathID}, 有 {CurrentPathEvents.Count} 个事件, 当前幕活跃: {activePathEvents.Count}");
+            //Debug.Log($"[{gameObject.name}] 设置路径: {currentPathID}, 有 {CurrentPathEvents.Count} 个事件, 当前幕活跃: {activePathEvents.Count}");
         }
     }
 
@@ -172,6 +175,83 @@ public class NPCEventManager : MonoBehaviour
             currentAct = act;
             RefreshActiveEvents();
         }
+    }
+
+    // 新增：设置动作是否可用
+    public void SetActionActive(string eventID, string gestureType, int actionIndex, bool active)
+    {
+        foreach (var pathEvent in CurrentPathEvents)
+        {
+            if (pathEvent.eventID == eventID)
+            {
+                // 找到对应的事件
+                if (string.IsNullOrEmpty(gestureType) && pathEvent.defaultResponse != null)
+                {
+                    // 设置默认响应的动作
+                    if (actionIndex >= 0 && actionIndex < pathEvent.defaultResponse.actions.Count)
+                    {
+                        pathEvent.defaultResponse.actions[actionIndex].isActionActive = active;
+                        Debug.Log($"[{gameObject.name}] 设置事件 {eventID} 默认响应的动作 {actionIndex} 为 {(active ? "可用" : "不可用")}");
+                        return;
+                    }
+                }
+                else
+                {
+                    // 查找对应手势类型的响应
+                    foreach (var response in pathEvent.gestureResponses)
+                    {
+                        if (response.gestureType == gestureType)
+                        {
+                            // 设置该手势响应的动作
+                            if (actionIndex >= 0 && actionIndex < response.actions.Count)
+                            {
+                                response.actions[actionIndex].isActionActive = active;
+                                Debug.Log($"[{gameObject.name}] 设置事件 {eventID} 手势 {gestureType} 响应的动作 {actionIndex} 为 {(active ? "可用" : "不可用")}");
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Debug.LogWarning($"[{gameObject.name}] 找不到事件 {eventID} 或手势 {gestureType} 或动作索引 {actionIndex}");
+    }
+
+    // 新增：批量设置特定事件所有动作的可用状态
+    public void SetAllActionsForEvent(string eventID, bool active)
+    {
+        foreach (var pathEvent in CurrentPathEvents)
+        {
+            if (pathEvent.eventID == eventID)
+            {
+                // 设置默认响应的所有动作
+                if (pathEvent.defaultResponse != null && pathEvent.defaultResponse.actions != null)
+                {
+                    foreach (var action in pathEvent.defaultResponse.actions)
+                    {
+                        action.isActionActive = active;
+                    }
+                }
+
+                // 设置所有手势响应的所有动作
+                foreach (var response in pathEvent.gestureResponses)
+                {
+                    if (response.actions != null)
+                    {
+                        foreach (var action in response.actions)
+                        {
+                            action.isActionActive = active;
+                        }
+                    }
+                }
+
+                Debug.Log($"[{gameObject.name}] 已将事件 {eventID} 的所有动作设置为 {(active ? "可用" : "不可用")}");
+                return;
+            }
+        }
+
+        Debug.LogWarning($"[{gameObject.name}] 找不到事件 {eventID}");
     }
 
     private void OnGameStateChanged()
@@ -245,26 +325,11 @@ public class NPCEventManager : MonoBehaviour
     // 获取NPC在当前路径上的点索引
     public int GetCurrentPathPointIndex()
     {
-        if (currentPathPointsParent == null || currentPathPointsParent.childCount == 0)
-            return -1;
-
-        int closestIndex = 0;
-        float closestDistance = float.MaxValue;
-
-        // 找到最近的路径点
-        for (int i = 0; i < currentPathPointsParent.childCount; i++)
+        if (pathManager != null)
         {
-            Transform pathPoint = currentPathPointsParent.GetChild(i);
-            float distance = Vector3.Distance(transform.position, pathPoint.position);
-
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestIndex = i;
-            }
+            return pathManager.CurrentPathPointIndex;
         }
-
-        return closestIndex;
+        return -1;
     }
 
     // 触发事件
@@ -339,56 +404,8 @@ public class NPCEventManager : MonoBehaviour
             controller.AdjustScore(matchedResponse.scoreEffect);
         }
 
-        // 播放动作序列
-        NPCDialogueManager dialogueManager = GetComponent<NPCDialogueManager>();
-        if (dialogueManager != null && matchedResponse != null && matchedResponse.actions != null && matchedResponse.actions.Count > 0)
-        {
-            // 创建一个新的 List<ActionData> 来存储转换后的动作
-            List<ActionData> actionDataList = new List<ActionData>();
-
-            // 将所有 ActionData 添加到新列表中
-            foreach (var action in matchedResponse.actions)
-            {
-                actionDataList.Add(action);
-            }
-
-            // 直接使用动作序列中的对话
-            StartCoroutine(PlayDialogueActionSequence(actionDataList));
-        }
-
         // 完成当前事件
         CompleteCurrentEvent(gestureType);
-    }
-
-    // 添加播放对话序列的协程
-    private IEnumerator PlayDialogueActionSequence(List<ActionData> actions)
-    {
-        NPCDialogueManager dialogueManager = GetComponent<NPCDialogueManager>();
-        if (dialogueManager == null)
-            yield break;
-
-        foreach (var action in actions)
-        {
-            // 等待延迟
-            if (action.delay > 0)
-            {
-                yield return new WaitForSeconds(action.delay);
-            }
-
-            // 显示对话
-            if (!string.IsNullOrEmpty(action.dialogueText))
-            {
-                dialogueManager.DisplayDialogue(
-                    action.dialogueText,
-                    action.displayDuration,
-                    action.voiceClip,
-                    action.overridePrevious
-                );
-            }
-
-            // 等待此动作完成
-            yield return new WaitForSeconds(action.displayDuration);
-        }
     }
 
     // 手势失败回调
@@ -412,13 +429,18 @@ public class NPCEventManager : MonoBehaviour
     {
         if (currentEvent != null)
         {
+            string eventID = currentEvent.eventID;
+
             // 记录事件已完成
-            completedEventIDs.Add(currentEvent.eventID);
+            completedEventIDs.Add(eventID);
+
+            // 记录事件完成时使用的手势类型
+            eventCompletionGestures[eventID] = gestureType;
 
             // 触发事件完成事件
             OnEventCompleted?.Invoke(currentPathID, currentEvent, gestureType);
 
-            Debug.Log($"[事件完成] NPC: {gameObject.name} | 事件: {currentEvent.eventID} | 手势: {(string.IsNullOrEmpty(gestureType) ? "无" : gestureType)}");
+            Debug.Log($"[事件完成] NPC: {gameObject.name} | 事件: {eventID} | 手势: {(string.IsNullOrEmpty(gestureType) ? "无" : gestureType)}");
 
             // 重置状态
             currentEvent = null;
@@ -551,6 +573,73 @@ public class NPCEventManager : MonoBehaviour
                 Debug.LogWarning($"[{gameObject.name}] 找不到ID为 {eventID} 的事件");
             }
         }
+    }
+
+    // 添加一个方法来检查事件是否使用特定手势完成
+    public bool WasEventCompletedWithGesture(string eventID, string gestureType)
+    {
+        if (string.IsNullOrEmpty(eventID) || !completedEventIDs.Contains(eventID))
+            return false;
+
+        // 检查事件是否使用指定手势完成
+        if (eventCompletionGestures.TryGetValue(eventID, out string usedGesture))
+        {
+            return usedGesture == gestureType;
+        }
+
+        return false;
+    }
+
+    // 获取事件完成时使用的手势
+    public string GetEventCompletionGesture(string eventID)
+    {
+        if (string.IsNullOrEmpty(eventID) || !completedEventIDs.Contains(eventID))
+            return "";
+
+        if (eventCompletionGestures.TryGetValue(eventID, out string gesture))
+        {
+            return gesture;
+        }
+
+        return "";
+    }
+
+    // 添加方法检查动作是否应该激活
+    public bool ShouldActionBeActive(ActionData action, string eventID, string responseGestureType)
+    {
+        // 如果动作不是激活状态，直接返回false
+        if (!action.isActionActive)
+            return false;
+
+        // 如果事件未完成，不应该激活
+        if (!IsEventCompleted(eventID))
+            return false;
+
+        // 获取事件完成时使用的手势
+        string completionGesture = GetEventCompletionGesture(eventID);
+
+        // 1. 无手势响应的动作 - 只要事件完成就激活
+        if (string.IsNullOrEmpty(responseGestureType))
+            return true;
+
+        // 2. 特定手势响应的动作 - 必须事件是用该手势完成的
+        return responseGestureType == completionGesture;
+    }
+
+    // 获取所有已完成的事件
+    public List<PathEvent> GetAllCompletedEvents()
+    {
+        List<PathEvent> result = new List<PathEvent>();
+
+        foreach (var pathEvent in CurrentPathEvents)
+        {
+            if (completedEventIDs.Contains(pathEvent.eventID))
+            {
+                result.Add(pathEvent);
+            }
+        }
+
+        return result;
     }
 
     // 订阅游戏状态事件

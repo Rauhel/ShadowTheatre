@@ -189,16 +189,27 @@ public class NPCActionEditor
             action.voiceClip = (AudioClip)EditorGUILayout.ObjectField(action.voiceClip, typeof(AudioClip), false);
             EditorGUILayout.EndHorizontal();
             
-            // 时间设置
-            EditorGUILayout.BeginHorizontal(GUILayout.Width(360));
-            EditorGUILayout.LabelField("显示:", GUILayout.Width(40));
+            // 动画循环设置(新增)
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(100));
+            EditorGUILayout.LabelField("循环:", GUILayout.Width(40));
+            action.loopAnimation = EditorGUILayout.Toggle(action.loopAnimation, GUILayout.Width(20));
+            EditorGUILayout.EndHorizontal();
+            
+            // 时间设置 - 对话相关设置保持不变
+            EditorGUILayout.BeginHorizontal(GUILayout.Width(260));
+            EditorGUILayout.LabelField("对话显示:", GUILayout.Width(60));
             action.displayDuration = EditorGUILayout.FloatField(action.displayDuration, GUILayout.Width(80));
             EditorGUILayout.LabelField("延迟:", GUILayout.Width(40));
             action.delay = EditorGUILayout.FloatField(action.delay, GUILayout.Width(80));
-            EditorGUILayout.LabelField("停留:", GUILayout.Width(40));
-            action.waitTime = EditorGUILayout.FloatField(action.waitTime, GUILayout.Width(80));
             EditorGUILayout.EndHorizontal();
             
+            EditorGUILayout.EndHorizontal();
+            
+            // 第三行：停留时间(为了布局更整洁)
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("停留:", GUILayout.Width(40));
+            action.waitTime = EditorGUILayout.FloatField(action.waitTime, GUILayout.Width(80));
             EditorGUILayout.EndHorizontal();
             
             // 分隔线
@@ -214,7 +225,7 @@ public class NPCActionEditor
             ActionData newAction = new ActionData();
             newAction.pathPointIndex = 0;
             newAction.delay = 0.5f;
-            newAction.displayDuration = 2.0f;
+            newAction.displayDuration = 2.0f; // 默认对话显示时间
             newAction.waitTime = 0f;  // 默认不停留
             
             // 直接添加到路径动作列表
@@ -359,9 +370,9 @@ public class NPCActionEditor
             action.voiceClip = (AudioClip)EditorGUILayout.ObjectField(action.voiceClip, typeof(AudioClip), false);
             EditorGUILayout.EndHorizontal();
             
-            // 时间设置
+            // 时间设置 - 修改描述以明确这是对话时间而非动画时间
             EditorGUILayout.BeginHorizontal(GUILayout.Width(360));
-            EditorGUILayout.LabelField("显示:", GUILayout.Width(40));
+            EditorGUILayout.LabelField("对话显示:", GUILayout.Width(60));
             action.displayDuration = EditorGUILayout.FloatField(action.displayDuration, GUILayout.Width(80));
             EditorGUILayout.LabelField("延迟:", GUILayout.Width(40));
             action.delay = EditorGUILayout.FloatField(action.delay, GUILayout.Width(80));
@@ -384,7 +395,7 @@ public class NPCActionEditor
             ActionData newAction = new ActionData();
             newAction.pathPointIndex = 0;
             newAction.delay = 0.5f;
-            newAction.displayDuration = 2.0f;
+            newAction.displayDuration = 2.0f; // 默认对话显示时间
             newAction.waitTime = 0f;  // 默认不停留
             
             // 添加到事件动作列表

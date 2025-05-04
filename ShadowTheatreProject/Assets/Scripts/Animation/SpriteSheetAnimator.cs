@@ -41,7 +41,13 @@ public class SpriteSheetAnimator : MonoBehaviour
     private void Update()
     {
         if (!isPlaying || currentAnimation == null)
+        {
+            if (Time.frameCount % 300 == 0) // 每300帧检查一次
+            {
+                Debug.Log($"[{gameObject.name}] 动画未播放 - isPlaying:{isPlaying}, 有当前动画:{currentAnimation != null}");
+            }
             return;
+        }
 
         // 更新帧计时器
         frameTimer += Time.deltaTime;
@@ -59,16 +65,21 @@ public class SpriteSheetAnimator : MonoBehaviour
                 if (isLooping)
                 {
                     currentFrame = 0;
+                    Debug.Log($"[{gameObject.name}] 动画 {currentAnimationName} 循环");
                 }
                 else
                 {
                     currentFrame = currentAnimation.frameCount - 1;
                     isPlaying = false;
+                    Debug.Log($"[{gameObject.name}] 动画 {currentAnimationName} 完成播放");
                 }
             }
 
             // 更新渲染器显示当前帧
             UpdateFrame();
+
+            // 每次更新帧时记录日志
+            Debug.Log($"[{gameObject.name}] 更新帧: {currentFrame}/{currentAnimation.frameCount}, 动画:{currentAnimationName}");
         }
     }
 
@@ -77,17 +88,17 @@ public class SpriteSheetAnimator : MonoBehaviour
     /// </summary>
     public void Play(string animationName, bool loop = true)
     {
+        Debug.Log($"[{gameObject.name}] 尝试播放动画: {animationName}, 循环播放: {loop}");
+
         // 查找动画数据
         SpriteSheetAnimation anim = animations.Find(a => a.animationName == animationName);
         if (anim == null)
         {
-            Debug.LogWarning($"动画未找到: {animationName}");
+            Debug.LogWarning($"[{gameObject.name}] 动画未找到: {animationName}, 可用动画: {string.Join(", ", GetAvailableAnimations())}");
             return;
         }
 
-        // 如果已经在播放此动画且设置一致，不重复设置
-        if (currentAnimation == anim && isPlaying && isLooping == loop)
-            return;
+        Debug.Log($"[{gameObject.name}] 找到动画: {animationName}, 帧数: {anim.frameCount}, 帧率: {anim.frameRate}");
 
         // 设置当前动画
         currentAnimation = anim;
@@ -107,6 +118,12 @@ public class SpriteSheetAnimator : MonoBehaviour
             propertyBlock.SetFloat(FrameCountProperty, anim.frameCount);
             propertyBlock.SetFloat(FrameIndexProperty, currentFrame);
             targetRenderer.SetPropertyBlock(propertyBlock);
+
+            Debug.Log($"[{gameObject.name}] 设置材质参数: 贴图={anim.spriteSheet != null}, 帧数={anim.frameCount}, 当前帧={currentFrame}");
+        }
+        else
+        {
+            Debug.LogError($"[{gameObject.name}] targetRenderer为空，无法设置材质属性");
         }
     }
 
@@ -140,11 +157,16 @@ public class SpriteSheetAnimator : MonoBehaviour
     private void UpdateFrame()
     {
         if (currentAnimation == null || targetRenderer == null)
+        {
+            Debug.LogWarning($"[{gameObject.name}] UpdateFrame失败: currentAnimation={currentAnimation != null}, targetRenderer={targetRenderer != null}");
             return;
+        }
 
         targetRenderer.GetPropertyBlock(propertyBlock);
         propertyBlock.SetFloat(FrameIndexProperty, currentFrame);
         targetRenderer.SetPropertyBlock(propertyBlock);
+
+        Debug.Log($"[{gameObject.name}] 更新材质属性: 帧={currentFrame}");
     }
 
     /// <summary>

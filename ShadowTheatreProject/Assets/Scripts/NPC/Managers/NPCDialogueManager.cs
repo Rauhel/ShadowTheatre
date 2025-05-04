@@ -24,12 +24,6 @@ public class NPCDialogueManager : MonoBehaviour
     // 上次触发对话的路径点索引
     private int lastPathPointIndex = -1;
 
-    // 当前活跃事件的对话信息
-    private bool isPlayingEventOutcomeDialogue = false;
-    // 删除对 PathPointDialogue 的引用，改用 ActionData
-    private List<ActionData> currentEventDialogues;
-    private int currentEventDialogueIndex = 0;
-
     private void Awake()
     {
         controller = GetComponent<NPCController>();
@@ -60,7 +54,7 @@ public class NPCDialogueManager : MonoBehaviour
 
         if (eventManager != null)
         {
-            eventManager.OnEventCompleted += PlayEventOutcomeDialogue;
+            eventManager.OnEventCompleted += OnEventCompleted;
         }
     }
 
@@ -74,7 +68,7 @@ public class NPCDialogueManager : MonoBehaviour
 
         if (eventManager != null)
         {
-            eventManager.OnEventCompleted -= PlayEventOutcomeDialogue;
+            eventManager.OnEventCompleted -= OnEventCompleted;
         }
 
         // 停止所有协程
@@ -88,10 +82,6 @@ public class NPCDialogueManager : MonoBehaviour
     // 检查当前路径点是否有对话
     private void CheckForPathDialogue(int pathPointIndex)
     {
-        // 如果正在播放事件对话，不处理路径对话
-        if (isPlayingEventOutcomeDialogue)
-            return;
-
         // 获取当前路径配置
         NPCData npcData = controller.Data;
         if (npcData == null)
@@ -101,86 +91,85 @@ public class NPCDialogueManager : MonoBehaviour
         if (currentPath == null)
             return;
 
+        Debug.Log($"[{gameObject.name}] 对话管理器 - 检查路径点 {pathPointIndex} 的对话");
+
         // 检查是否有与此路径点关联的已完成事件
         if (eventManager != null)
         {
+            // 获取与此路径点关联的已完成事件
             PathEvent completedEvent = eventManager.FindCompletedEventForPathPoint(pathPointIndex);
 
-            // 查找是否有未完成的事件与此路径点关联
-            bool hasUncompletedEventForPathPoint = false;
-            foreach (var evt in eventManager.CurrentPathEvents)
-            {
-                if (!eventManager.IsEventCompleted(evt.eventID) &&
-                    eventManager.IsPathPointInEventRange(pathPointIndex, evt))
-                {
-                    hasUncompletedEventForPathPoint = true;
-                    break;
-                }
-            }
-
-            // 情况1: 有已完成的事件关联到此路径点
             if (completedEvent != null)
             {
-                Debug.Log($"[{gameObject.name}] 对话管理器 - 路径点 {pathPointIndex} 有已完成的事件: {completedEvent.eventID}");
+                string eventID = completedEvent.eventID;
+                string completionGesture = eventManager.GetEventCompletionGesture(eventID);
 
-                // 寻找此事件响应中的路径点动作
-                foreach (var action in completedEvent.defaultResponse.actions)
+                // 首先处理默认响应的对话 - 这总是执行
+                bool defaultDialoguePlayed = false;
+                if (completedEvent.defaultResponse != null)
                 {
-                    if (action.pathPointIndex == pathPointIndex && !string.IsNullOrEmpty(action.dialogueText))
+                    foreach (var action in completedEvent.defaultResponse.actions)
                     {
-                        // 显示对话
-                        DisplayDialogue(
-                            action.dialogueText,
-                            action.displayDuration,
-                            action.voiceClip,
-                            action.overridePrevious
-                        );
-
-                        lastPathPointIndex = pathPointIndex;
-                        return;
-                    }
-                }
-            }
-            // 情况2: 有未完成的事件关联到此路径点 - 使用默认响应
-            else if (hasUncompletedEventForPathPoint)
-            {
-                // 查找未完成事件的默认响应
-                foreach (var evt in eventManager.CurrentPathEvents)
-                {
-                    if (!eventManager.IsEventCompleted(evt.eventID) &&
-                        eventManager.IsPathPointInEventRange(pathPointIndex, evt))
-                    {
-                        // 查找默认响应中的动作
-                        foreach (var action in evt.defaultResponse.actions)
+                        if (action.pathPointIndex == pathPointIndex &&
+                            action.isActionActive &&
+                            !string.IsNullOrEmpty(action.dialogueText))
                         {
-                            if (action.pathPointIndex == pathPointIndex && !string.IsNullOrEmpty(action.dialogueText))
-                            {
-                                // 显示对话
-                                DisplayDialogue(
-                                    action.dialogueText,
-                                    action.displayDuration,
-                                    action.voiceClip,
-                                    action.overridePrevious
-                                );
-                                lastPathPointIndex = pathPointIndex;
-                                return;
-                            }
+                            // 显示对话
+                            DisplayDialogue(
+                                action.dialogueText,
+                                action.displayDuration,
+                                action.voiceClip,
+                                action.overridePrevious
+                            );
+                            defaultDialoguePlayed = true;
+                            break; // 只显示第一个匹配的
                         }
                     }
                 }
 
-                Debug.Log($"[{gameObject.name}] 对话管理器 - 路径点 {pathPointIndex} 有未完成的事件，使用默认响应");
-                return;
+                // 如果有特定手势响应，并且使用了该手势完成事件，执行对应对话
+                if (!string.IsNullOrEmpty(completionGesture))
+                {
+                    foreach (var response in completedEvent.gestureResponses)
+                    {
+                        if (response.gestureType == completionGesture)
+                        {
+                            foreach (var action in response.actions)
+                            {
+                                if (action.pathPointIndex == pathPointIndex &&
+                                    action.isActionActive &&
+                                    !string.IsNullOrEmpty(action.dialogueText))
+                                {
+                                    if (action.overridePrevious || !defaultDialoguePlayed)
+                                    {
+                                        // 显示对话
+                                        DisplayDialogue(
+                                            action.dialogueText,
+                                            action.displayDuration,
+                                            action.voiceClip,
+                                            true
+                                        );
+                                    }
+                                    return; // 找到对应手势的动作后退出
+                                }
+                            }
+                            break; // 已找到对应手势响应，跳出循环
+                        }
+                    }
+                }
+
+                // 如果已经显示了默认对话，直接返回
+                if (defaultDialoguePlayed)
+                    return;
             }
         }
 
-        // 情况3: 没有事件关联到此路径点，执行默认路径动作
-        Debug.Log($"[{gameObject.name}] 对话管理器 - 检查路径点 {pathPointIndex} 的默认对话");
-
-        // 查找当前路径点对应的对话
+        // 如果没有已完成事件的可用对话，查找默认路径动作中的可用对话
         foreach (var action in currentPath.pathActions)
         {
-            if (action.pathPointIndex == pathPointIndex && !string.IsNullOrEmpty(action.dialogueText))
+            if (action.pathPointIndex == pathPointIndex &&
+                action.isActionActive &&
+                !string.IsNullOrEmpty(action.dialogueText))
             {
                 // 显示对话
                 DisplayDialogue(
@@ -189,45 +178,71 @@ public class NPCDialogueManager : MonoBehaviour
                     action.voiceClip,
                     action.overridePrevious
                 );
-
                 lastPathPointIndex = pathPointIndex;
                 return;
             }
         }
     }
 
-    // 播放事件结果对话
-    private void PlayEventOutcomeDialogue(string pathId, PathEvent completedEvent, string gestureType)
+    // 事件完成回调
+    private void OnEventCompleted(string pathId, PathEvent completedEvent, string gestureType)
     {
         if (completedEvent == null)
             return;
 
-        // 获取匹配的响应
-        GestureResponse response = null;
+        Debug.Log($"[{gameObject.name}] 对话管理器 - 事件完成回调：事件={completedEvent.eventID}，手势={gestureType}");
 
-        if (!string.IsNullOrEmpty(gestureType))
+        // 准备要显示的动作列表
+        List<ActionData> actionsToPlay = new List<ActionData>();
+
+        // 首先处理默认响应的对话 - 这总是执行
+        if (completedEvent.defaultResponse != null)
         {
-            foreach (var r in completedEvent.gestureResponses)
+            foreach (var action in completedEvent.defaultResponse.actions)
             {
-                if (r.gestureType == gestureType)
+                if (action.isActionActive && !string.IsNullOrEmpty(action.dialogueText))
                 {
-                    response = r;
-                    break;
+                    actionsToPlay.Add(action);
                 }
             }
         }
 
-        // 如果没有找到响应，使用默认响应
-        if (response == null)
+        // 如果有特定手势响应且使用的是该手势，执行对应对话
+        if (!string.IsNullOrEmpty(gestureType))
         {
-            response = completedEvent.defaultResponse;
+            GestureResponse gestureResponse = null;
+
+            foreach (var response in completedEvent.gestureResponses)
+            {
+                if (response.gestureType == gestureType)
+                {
+                    gestureResponse = response;
+                    break;
+                }
+            }
+
+            if (gestureResponse != null && gestureResponse.actions != null)
+            {
+                foreach (var action in gestureResponse.actions)
+                {
+                    if (action.isActionActive && !string.IsNullOrEmpty(action.dialogueText))
+                    {
+                        // 检查是否覆盖默认响应
+                        if (action.overridePrevious)
+                        {
+                            // 如果要覆盖，清空之前的所有动作
+                            actionsToPlay.Clear();
+                        }
+                        actionsToPlay.Add(action);
+                    }
+                }
+            }
         }
 
-        // 如果响应包含动作，播放动作序列中的对话
-        if (response != null && response.actions != null && response.actions.Count > 0)
+        // 如果有要播放的动作，启动序列
+        if (actionsToPlay.Count > 0)
         {
-            // 使用 ActionData 类型
-            StartCoroutine(PlayActionSequenceCoroutine(response.actions));
+            StartCoroutine(PlayActionSequenceCoroutine(actionsToPlay));
         }
     }
 
@@ -311,29 +326,6 @@ public class NPCDialogueManager : MonoBehaviour
         // 等待显示时间
         yield return new WaitForSeconds(duration);
 
-        // 如果是事件对话序列，检查是否有下一条
-        if (isPlayingEventOutcomeDialogue)
-        {
-            currentEventDialogueIndex++;
-
-            if (currentEventDialogueIndex < currentEventDialogues.Count)
-            {
-                // 继续显示下一条对话，使用 ActionData
-                DisplayDialogue(
-                    currentEventDialogues[currentEventDialogueIndex].dialogueText,
-                    currentEventDialogues[currentEventDialogueIndex].displayDuration,
-                    currentEventDialogues[currentEventDialogueIndex].voiceClip,
-                    true
-                );
-                yield break;
-            }
-            else
-            {
-                // 对话序列结束
-                isPlayingEventOutcomeDialogue = false;
-            }
-        }
-
         // 淡出
         if (canvasGroup != null)
         {
@@ -368,19 +360,24 @@ public class NPCDialogueManager : MonoBehaviour
             // 等待延迟
             if (action.delay > 0)
             {
+                Debug.Log($"[{gameObject.name}] 对话延迟: {action.delay}秒");
                 yield return new WaitForSeconds(action.delay);
             }
 
             // 显示对话并播放声音
-            DisplayDialogue(
-                action.dialogueText,
-                action.displayDuration,
-                action.voiceClip,
-                action.overridePrevious
-            );
+            if (!string.IsNullOrEmpty(action.dialogueText))
+            {
+                Debug.Log($"[{gameObject.name}] 显示对话: {action.dialogueText}");
+                DisplayDialogue(
+                    action.dialogueText,
+                    action.displayDuration,
+                    action.voiceClip,
+                    action.overridePrevious
+                );
 
-            // 等待此动作完成
-            yield return new WaitForSeconds(action.displayDuration);
+                // 等待此动作完成
+                yield return new WaitForSeconds(action.displayDuration);
+            }
         }
     }
 }

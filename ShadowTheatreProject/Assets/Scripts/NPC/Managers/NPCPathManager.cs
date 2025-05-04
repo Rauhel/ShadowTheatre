@@ -1,4 +1,3 @@
-// 文件: NPCPathManager.cs
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -25,6 +24,7 @@ public class NPCPathManager : MonoBehaviour
     public string CurrentPathID => currentPathCreator ? currentPathCreator.pathID : string.Empty;
     public PathConfig CurrentPathConfig { get; private set; }
     public bool IsMoving => agent != null && !agent.isStopped && agent.velocity.magnitude > 0.1f;
+    public int CurrentPathPointIndex => lastReachedPointIndex;
 
     // 添加路径点到达委托
     public delegate void PathPointReachedHandler(int pathPointIndex);
@@ -61,19 +61,20 @@ public class NPCPathManager : MonoBehaviour
                 if (distanceToPoint < reachDistance && lastReachedPointIndex != i)
                 {
                     lastReachedPointIndex = i;
+
+                    // 触发路径点到达事件，让其他管理器处理各自职责
                     OnPathPointReached?.Invoke(i);
 
-                    // 触发路径动作
-                    CheckForPathAction(i);
-
+                    // 只处理等待时间逻辑
+                    HandlePathPointWaitTime(i);
                     break;
                 }
             }
         }
     }
 
-    // 检查当前路径点是否有动作
-    private void CheckForPathAction(int pathPointIndex)
+    // 处理路径点等待时间
+    private void HandlePathPointWaitTime(int pathPointIndex)
     {
         // 获取当前路径配置
         NPCData npcData = controller.Data;
@@ -84,112 +85,43 @@ public class NPCPathManager : MonoBehaviour
         if (currentPath == null)
             return;
 
-        // 获取对话和动画管理器
-        NPCDialogueManager dialogueManager = GetComponent<NPCDialogueManager>();
-        NPCAnimationManager animationManager = GetComponent<NPCAnimationManager>();
-        if (dialogueManager == null)
-            return;
+        float waitTime = 0f;
 
-        // 获取事件管理器
-        NPCEventManager eventManager = GetComponent<NPCEventManager>();
-        if (eventManager == null)
-            return;
-
-        // 检查是否有与此路径点关联的已完成事件
-        PathEvent completedEvent = eventManager.FindCompletedEventForPathPoint(pathPointIndex);
-
-        // 查找是否有未完成的事件与此路径点关联
-        bool hasUncompletedEventForPathPoint = false;
-        foreach (var evt in eventManager.CurrentPathEvents)
+        // 检查是否有与此路径点关联的已完成事件的动作
+        if (eventManager != null)
         {
-            if (!eventManager.IsEventCompleted(evt.eventID) &&
-                eventManager.IsPathPointInEventRange(pathPointIndex, evt))
+            PathEvent completedEvent = eventManager.FindCompletedEventForPathPoint(pathPointIndex);
+            if (completedEvent != null)
             {
-                hasUncompletedEventForPathPoint = true;
-                break;
-            }
-        }
-
-        // 情况1: 有已完成的事件关联到此路径点
-        if (completedEvent != null)
-        {
-            Debug.Log($"[{gameObject.name}] 路径点 {pathPointIndex} 有已完成的事件: {completedEvent.eventID}");
-
-            // 寻找此事件响应中的路径点动作
-            foreach (var action in completedEvent.defaultResponse.actions)
-            {
-                if (action is ActionData pathAction && pathAction.pathPointIndex == pathPointIndex)
+                // 寻找路径点动作中的等待时间
+                foreach (var action in completedEvent.defaultResponse.actions)
                 {
-                    // 显示对话
-                    if (!string.IsNullOrEmpty(action.dialogueText))
+                    if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.waitTime > 0)
                     {
-                        dialogueManager.DisplayDialogue(
-                            action.dialogueText,
-                            action.displayDuration,
-                            action.voiceClip,
-                            action.overridePrevious
-                        );
+                        waitTime = action.waitTime;
+                        break;
                     }
-
-                    // 播放动画
-                    if (animationManager != null && !string.IsNullOrEmpty(action.animationName))
-                    {
-                        animationManager.PlayAnimation(action.animationName, false, action.displayDuration);
-                    }
-
-                    // 处理等待时间
-                    if (action.waitTime > 0)
-                    {
-                        StartCoroutine(WaitAtPathPoint(action.waitTime));
-                    }
-
-                    // 不需要继续检查其他动作
-                    return;
                 }
             }
         }
-        // 情况2: 有未完成的事件关联到此路径点 - 不执行任何动作
-        else if (hasUncompletedEventForPathPoint)
-        {
-            Debug.Log($"[{gameObject.name}] 路径点 {pathPointIndex} 有未完成的事件，跳过所有动作");
-            return;
-        }
-        // 情况3: 没有事件关联到此路径点，执行默认路径动作
-        else
-        {
-            Debug.Log($"[{gameObject.name}] 路径点 {pathPointIndex} 没有关联事件，执行默认路径动作");
 
-            // 查找默认路径动作
+        // 如果没有已完成的事件的等待时间，检查默认路径动作
+        if (waitTime <= 0)
+        {
             foreach (var action in currentPath.pathActions)
             {
-                if (action.pathPointIndex == pathPointIndex)
+                if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.waitTime > 0)
                 {
-                    // 显示对话
-                    if (!string.IsNullOrEmpty(action.dialogueText))
-                    {
-                        dialogueManager.DisplayDialogue(
-                            action.dialogueText,
-                            action.displayDuration,
-                            action.voiceClip,
-                            action.overridePrevious
-                        );
-                    }
-
-                    // 播放动画
-                    if (animationManager != null && !string.IsNullOrEmpty(action.animationName))
-                    {
-                        animationManager.PlayAnimation(action.animationName, false, action.displayDuration);
-                    }
-
-                    // 处理等待时间
-                    if (action.waitTime > 0)
-                    {
-                        StartCoroutine(WaitAtPathPoint(action.waitTime));
-                    }
-
-                    return;
+                    waitTime = action.waitTime;
+                    break;
                 }
             }
+        }
+
+        // 处理等待时间
+        if (waitTime > 0)
+        {
+            StartCoroutine(WaitAtPathPoint(waitTime));
         }
     }
 
@@ -481,5 +413,11 @@ public class NPCPathManager : MonoBehaviour
         {
             Debug.LogError($"[{gameObject.name}] 找不到ID为 {pathId} 的路径");
         }
+    }
+
+    // 获取当前点索引
+    public int GetCurrentPathPointIndex()
+    {
+        return lastReachedPointIndex;
     }
 }

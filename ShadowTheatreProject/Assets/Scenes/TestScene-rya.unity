@@ -1009,7 +1009,6 @@ GameObject:
   - component: {fileID: 1742255563}
   - component: {fileID: 1742255567}
   - component: {fileID: 1742255568}
-  - component: {fileID: 1742255569}
   - component: {fileID: 1742255570}
   m_Layer: 0
   m_Name: Deer
@@ -1259,25 +1258,6 @@ MonoBehaviour:
   playerTransform: {fileID: 6129684334828742803}
   requirePlayerInRange: 1
   enableDebugLogs: 1
---- !u!114 &1742255569
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1742255550}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f2e282c078fc4254da8fd6cfd489c9db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetRenderer: {fileID: 0}
-  animations: []
-  currentAnimationName: 
-  isPlaying: 0
-  isLooping: 0
-  currentFrame: 0
-  frameTimer: 0
 --- !u!114 &1742255570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1294,6 +1274,12 @@ MonoBehaviour:
   animations:
   - animationName: Idle
     spriteSheet: {fileID: 2800000, guid: 17c350171f7a3ca479f830547c66d187, type: 3}
+    frameCount: 4
+    frameRate: 30
+    autoCalculate: 0
+    horizontal: 0
+  - animationName: Run
+    spriteSheet: {fileID: 2800000, guid: c76d18757a194d618355f05f815cb0a1, type: 3}
     frameCount: 4
     frameRate: 30
     autoCalculate: 0
@@ -1471,7 +1457,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 0831b90b3eec8ee41958a5afa2094b83, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
