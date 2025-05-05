@@ -122,6 +122,34 @@ public class StaticTextureHandler : MonoBehaviour
             propertyBlock = new MaterialPropertyBlock();
         }
 
+        // 获取当前材质
+        Material material = targetRenderer.sharedMaterial;
+        if (material != null)
+        {
+            // 确保材质使用了正确的渲染模式
+            if (material.HasProperty("_SurfaceType") || material.HasProperty("_BlendMode"))
+            {
+                // 如果是URP/HDRP材质，尝试设置相关属性
+                if (material.HasProperty("_SurfaceType"))
+                    material.SetFloat("_SurfaceType", 1); // 1通常代表透明
+
+                if (material.HasProperty("_BlendMode"))
+                    material.SetFloat("_BlendMode", 0); // 0通常代表Alpha Blend
+            }
+            else
+            {
+                // 对于标准着色器，直接设置渲染模式
+                material.SetFloat("_Mode", 3); // 3 = Transparent
+                material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                material.SetInt("_ZWrite", 0);
+                material.DisableKeyword("_ALPHATEST_ON");
+                material.EnableKeyword("_ALPHABLEND_ON");
+                material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                material.renderQueue = 3000;
+            }
+        }
+
         targetRenderer.GetPropertyBlock(propertyBlock);
         propertyBlock.SetTexture(MainTexProperty, texture);
         propertyBlock.SetFloat(FrameCountProperty, 1);
