@@ -16,39 +16,27 @@ MonoBehaviour:
   npcName: Deer
   currentScore: 30
   paths:
-  - pathID: DeerPath1
-    pathName: DeerPath1
+  - pathID: 
+    pathName: 1
     minScore: 0
     maxScore: 100
     events:
-    - eventID: Event_DeerPath1_1
+    - eventID: 
       startPointIndex: 3
       endPointIndex: 5
       playerInteractionRadius: 3
       showInteractionRange: 1
       gestureHoldTime: 1
-      maxRecognitionDistance: 2.11
+      maxRecognitionDistance: 8
       enabledInAct1: 1
       enabledInAct2: 1
       enabledInAct3: 1
-      gestureResponses:
-      - gestureType: Deer
-        scoreEffect: 30
+      gestureResponses: []
+      defaultResponse:
+        gestureType: 
+        scoreEffect: 0
         actions:
-        - dialogueText: deer
-          displayDuration: 1.5
-          voiceClip: {fileID: 0}
-          animationName: Run
-          delay: 0
-          waitTime: 0
-          overridePrevious: 1
-          loopAnimation: 0
-          pathPointIndex: 8
-          isActionActive: 1
-      - gestureType: Wolf
-        scoreEffect: 10
-        actions:
-        - dialogueText: wolf
+        - dialogueText: aaa
           displayDuration: 2
           voiceClip: {fileID: 0}
           animationName: 
@@ -56,43 +44,24 @@ MonoBehaviour:
           waitTime: 0
           overridePrevious: 1
           loopAnimation: 0
-          pathPointIndex: 7
-          isActionActive: 1
-      defaultResponse:
-        gestureType: 
-        scoreEffect: 0
-        actions:
-        - dialogueText: noooo
-          displayDuration: 1.5
-          voiceClip: {fileID: 0}
-          animationName: Run
-          delay: 0
-          waitTime: 0
-          overridePrevious: 1
-          loopAnimation: 0
-          pathPointIndex: 6
+          pathPointIndex: 0
           isActionActive: 1
     nextPaths:
-    - nextPathID: DeerPath2
+    - nextPathID: 
       minScore: 0
-      maxScore: 29
+      maxScore: 20
       requiredScore: 0
-      description: 0
-    - nextPathID: DeerPath3
-      minScore: 30
-      maxScore: 100
-      requiredScore: 30
-      description: 30
+      description: "\u5206\u652F 1"
     pathActions:
-    - dialogueText: 
+    - dialogueText: 111
       displayDuration: 2
       voiceClip: {fileID: 0}
-      animationName: Run
+      animationName: 
       delay: 0
       waitTime: 0
       overridePrevious: 1
       loopAnimation: 0
-      pathPointIndex: 1
+      pathPointIndex: 0
       isActionActive: 1
   pathConnections:
   - pathID: 
@@ -109,3 +78,4 @@ MonoBehaviour:
     pathOptions:
     - path: {fileID: 0}
       scoreThreshold: 0
+  importExportPath: D:/College/Game/ShadowTheatre/ShadowTheatreProject/Assets/NPCData/Deer_data.csv

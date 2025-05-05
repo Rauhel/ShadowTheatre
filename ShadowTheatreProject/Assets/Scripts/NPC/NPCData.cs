@@ -19,6 +19,12 @@ public class NPCData : ScriptableObject
     [HideInInspector]
     public List<PathDecision> pathDecisions = new List<PathDecision>();
 
+    // 用于导入导出的路径
+#if UNITY_EDITOR
+    [HideInInspector]
+    public string importExportPath = "";
+#endif
+
     // 获取路径点相对位置信息
     public string GetPathPointRelativePosition(Transform pathPoint)
     {

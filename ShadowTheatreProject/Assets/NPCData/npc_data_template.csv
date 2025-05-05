@@ -1,0 +1,10 @@
+﻿路径ID,路径名称,分数下限,分数上限,事件ID,动作类型,路径点索引,对话内容,动画名称,循环动画,显示时间,延迟时间,停留时间,手势类型,分数影响,覆盖前一动作,是否活跃,事件起始点,事件结束点
+# NPC_ID,YOUR_NPC_ID
+# NPC_NAME,YOUR_NPC_NAME
+# CURRENT_SCORE,50
+# PATH,path_1,第一条路径
+# BRANCH,path_1,path_2,0,50,"分数低于50时选择此路径"
+# BRANCH,path_1,path_3,50,100,"分数大于等于50时选择此路径"
+path_1,第一条路径,0,100,PATH_ACTION,PATH_ACTION,0,"这是一句示例对话",Idle,FALSE,2.0,0.5,0.0,,,TRUE,TRUE,,
+path_1,第一条路径,0,100,event_1,DEFAULT,0,"默认响应的对话",Talk,FALSE,2.0,0.5,1.0,,10,TRUE,TRUE,5,7
+path_1,第一条路径,0,100,event_1,GESTURE,0,"对鸟手势的回应",Happy,TRUE,2.0,0.5,0.0,Bird,20,TRUE,TRUE,5,7
