@@ -179,7 +179,22 @@ public class NPCDataImportExport : Editor
 
         try
         {
-            string[] lines = File.ReadAllLines(filePath, System.Text.Encoding.UTF8);
+            string[] lines;
+            
+            // 使用FileShare.ReadWrite允许其他进程读取该文件
+            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (StreamReader reader = new StreamReader(fs, System.Text.Encoding.UTF8))
+            {
+                // 读取所有行
+                List<string> linesList = new List<string>();
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    linesList.Add(line);
+                }
+                lines = linesList.ToArray();
+            }
+            
             if (lines.Length <= 1) // 只有表头或空文件
             {
                 EditorUtility.DisplayDialog("导入错误", "文件为空或只包含表头", "确定");
@@ -272,6 +287,16 @@ public class NPCDataImportExport : Editor
 
                 // 第二遍：解析主数据
                 int totalLines = lines.Length;
+                
+                // 用于记录上下文信息的变量
+                string lastPathID = "";
+                string lastPathName = "";
+                float lastMinScore = 0f;
+                float lastMaxScore = 100f;
+                string lastEventID = "";
+                string lastActionType = "";
+                int nextPathPointIndex = 0;
+                
                 for (int i = 1; i < totalLines; i++) // 跳过表头
                 {
                     // 更新进度
@@ -283,14 +308,70 @@ public class NPCDataImportExport : Editor
                     if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
 
                     string[] fields = ParseCSVLine(line);
-                    if (fields.Length < HeaderRow.Length) continue;
+                    if (fields.Length == 0) continue; // 跳过空行
+                    
+                    // 补全字段数组到表头长度
+                    if (fields.Length < HeaderRow.Length)
+                    {
+                        string[] extendedFields = new string[HeaderRow.Length];
+                        for (int f = 0; f < HeaderRow.Length; f++)
+                        {
+                            if (f < fields.Length)
+                                extendedFields[f] = fields[f];
+                            else
+                                extendedFields[f] = ""; // 填充空值
+                        }
+                        fields = extendedFields;
+                    }
+
+                    // 智能补全字段
+                    // 1. 路径ID
+                    if (string.IsNullOrWhiteSpace(fields[0]))
+                        fields[0] = lastPathID;
+                    else
+                        lastPathID = fields[0];
+                    
+                    // 2. 路径名称
+                    if (string.IsNullOrWhiteSpace(fields[1]))
+                        fields[1] = lastPathName;
+                    else
+                        lastPathName = fields[1];
+                    
+                    // 3. 分数范围
+                    if (string.IsNullOrWhiteSpace(fields[2]) || !float.TryParse(fields[2], out _))
+                        fields[2] = lastMinScore.ToString();
+                    else
+                        float.TryParse(fields[2], out lastMinScore);
+                    
+                    if (string.IsNullOrWhiteSpace(fields[3]) || !float.TryParse(fields[3], out _))
+                        fields[3] = lastMaxScore.ToString();
+                    else
+                        float.TryParse(fields[3], out lastMaxScore);
+                    
+                    // 4. 事件ID
+                    if (string.IsNullOrWhiteSpace(fields[4]))
+                        fields[4] = lastEventID;
+                    else
+                        lastEventID = fields[4];
+                    
+                    // 5. 动作类型
+                    if (string.IsNullOrWhiteSpace(fields[5]))
+                        fields[5] = lastActionType;
+                    else
+                        lastActionType = fields[5];
+                    
+                    // 6. 路径点索引 - 自动递增
+                    if (string.IsNullOrWhiteSpace(fields[6]) || !int.TryParse(fields[6], out _))
+                        fields[6] = (nextPathPointIndex++).ToString();
+                    else
+                        nextPathPointIndex = int.Parse(fields[6]) + 1;
 
                     string pathID = fields[0];
                     string pathName = fields[1];
                     string eventID = fields[4];
                     string actionType = fields[5];
                     
-                    // 确保路径存在
+                    // 确保路径存在 (剩余逻辑与之前相同)
                     if (!pathConfigs.ContainsKey(pathID))
                     {
                         PathConfig newPath = new PathConfig
@@ -306,9 +387,13 @@ public class NPCDataImportExport : Editor
                         float minScore, maxScore;
                         if (float.TryParse(fields[2], out minScore))
                             newPath.minScore = minScore;
+                        else
+                            newPath.minScore = 0f; // 默认最小值
                         
                         if (float.TryParse(fields[3], out maxScore))
                             newPath.maxScore = maxScore;
+                        else
+                            newPath.maxScore = 100f; // 默认最大值
                         
                         // 添加分支
                         if (pathBranches.ContainsKey(pathID))
@@ -322,29 +407,57 @@ public class NPCDataImportExport : Editor
                     
                     // 创建动作数据
                     ActionData action = new ActionData();
-                    try
-                    {
-                        action.pathPointIndex = int.Parse(fields[6]);
-                    }
-                    catch { action.pathPointIndex = 0; }
                     
+                    // 路径点索引
+                    if (int.TryParse(fields[6], out int pointIndex))
+                        action.pathPointIndex = pointIndex;
+                    else
+                        action.pathPointIndex = 0;
+                    
+                    // 对话文本
                     action.dialogueText = fields[7];
+                    
+                    // 动画名称
                     action.animationName = fields[8];
                     
-                    bool boolValue;
-                    action.loopAnimation = bool.TryParse(fields[9], out boolValue) ? boolValue : false;
+                    // 循环动画 - 修正错误的布尔值
+                    string boolField = fields[9].ToUpper();
+                    if (boolField == "TRUE" || boolField == "T" || boolField == "1" || boolField == "YES" || boolField == "Y")
+                        action.loopAnimation = true;
+                    else
+                        action.loopAnimation = false; // 默认为false
                     
-                    float floatVal;
-                    action.displayDuration = float.TryParse(fields[10], out floatVal) ? floatVal : 2.0f;
-                    action.delay = float.TryParse(fields[11], out floatVal) ? floatVal : 0.5f;
-                    action.waitTime = float.TryParse(fields[12], out floatVal) ? floatVal : 0f;
+                    // 显示时间
+                    if (float.TryParse(fields[10], out float displayTime))
+                        action.displayDuration = displayTime;
+                    else
+                        action.displayDuration = 2.0f; // 默认值
                     
-                    // 额外属性
-                    if (fields.Length > 15)
-                        action.overridePrevious = bool.TryParse(fields[15], out boolValue) ? boolValue : true;
+                    // 延迟时间
+                    if (float.TryParse(fields[11], out float delayTime))
+                        action.delay = delayTime;
+                    else
+                        action.delay = 0.5f; // 默认值
                     
-                    if (fields.Length > 16)
-                        action.isActionActive = bool.TryParse(fields[16], out boolValue) ? boolValue : true;
+                    // 停留时间
+                    if (float.TryParse(fields[12], out float waitTime))
+                        action.waitTime = waitTime;
+                    else
+                        action.waitTime = 0f; // 默认值
+                    
+                    // 覆盖前一动作
+                    boolField = fields.Length > 15 ? fields[15].ToUpper() : "";
+                    if (boolField == "FALSE" || boolField == "F" || boolField == "0" || boolField == "NO" || boolField == "N")
+                        action.overridePrevious = false;
+                    else
+                        action.overridePrevious = true; // 默认为true
+                    
+                    // 是否活跃
+                    boolField = fields.Length > 16 ? fields[16].ToUpper() : "";
+                    if (boolField == "FALSE" || boolField == "F" || boolField == "0" || boolField == "NO" || boolField == "N")
+                        action.isActionActive = false;
+                    else
+                        action.isActionActive = true; // 默认为true
                     
                     // 处理不同类型的动作
                     if (actionType == "PATH_ACTION")
@@ -367,19 +480,15 @@ public class NPCDataImportExport : Editor
                             };
                             
                             // 设置事件起始点和结束点
-                            if (fields.Length > 17)
-                            {
-                                int pointIndex;
-                                if (int.TryParse(fields[17], out pointIndex))
-                                    newEvent.startPointIndex = pointIndex;
-                            }
+                            if (fields.Length > 17 && int.TryParse(fields[17], out int startPoint))
+                                newEvent.startPointIndex = startPoint;
+                            else
+                                newEvent.startPointIndex = action.pathPointIndex; // 默认使用当前路径点
                             
-                            if (fields.Length > 18)
-                            {
-                                int pointIndex;
-                                if (int.TryParse(fields[18], out pointIndex))
-                                    newEvent.endPointIndex = pointIndex;
-                            }
+                            if (fields.Length > 18 && int.TryParse(fields[18], out int endPoint))
+                                newEvent.endPointIndex = endPoint;
+                            else
+                                newEvent.endPointIndex = action.pathPointIndex + 2; // 默认结束点为当前点+2
                             
                             pathEvents[pathID][eventID] = newEvent;
                             pathConfigs[pathID].events.Add(newEvent);
@@ -391,21 +500,21 @@ public class NPCDataImportExport : Editor
                         if (actionType == "DEFAULT")
                         {
                             currentEvent.defaultResponse.actions.Add(action);
-                            float score;
-                            if (float.TryParse(fields[14], out score))
-                            {
-                                currentEvent.defaultResponse.scoreEffect = score;
-                            }
+                            
+                            // 分数影响
+                            if (fields.Length > 14 && float.TryParse(fields[14], out float scoreEffect))
+                                currentEvent.defaultResponse.scoreEffect = scoreEffect;
+                            // 默认分数影响为0，不需要设置
                         }
                         // 手势响应
                         else if (actionType == "GESTURE")
                         {
-                            string gestureType = fields[13];
+                            string gestureType = fields.Length > 13 ? fields[13] : "未指定";
                             
                             // 查找或创建手势响应
                             GestureResponse gestureResponse = currentEvent.gestureResponses
                                 .FirstOrDefault(r => r.gestureType == gestureType);
-                                
+                                    
                             if (gestureResponse == null)
                             {
                                 gestureResponse = new GestureResponse
@@ -417,11 +526,11 @@ public class NPCDataImportExport : Editor
                             }
                             
                             gestureResponse.actions.Add(action);
-                            float score;
-                            if (float.TryParse(fields[14], out score))
-                            {
-                                gestureResponse.scoreEffect = score;
-                            }
+                            
+                            // 分数影响
+                            if (fields.Length > 14 && float.TryParse(fields[14], out float scoreEffect))
+                                gestureResponse.scoreEffect = scoreEffect;
+                            // 默认分数影响为0，不需要设置
                         }
                     }
                 }
@@ -442,7 +551,12 @@ public class NPCDataImportExport : Editor
         }
         catch (System.Exception e)
         {
-            EditorUtility.DisplayDialog("导入错误", $"导入失败: {e.Message}", "确定");
+            // 更详细的错误信息
+            string errorDetails = e.GetType().Name + ": " + e.Message;
+            if (e.InnerException != null)
+                errorDetails += "\n引发自: " + e.InnerException.Message;
+                
+            EditorUtility.DisplayDialog("导入错误", $"导入失败: {errorDetails}", "确定");
             Debug.LogException(e);
         }
         finally

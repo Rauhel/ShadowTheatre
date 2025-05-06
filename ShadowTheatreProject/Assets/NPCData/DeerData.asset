@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcID: 1
   npcName: Deer
-  currentScore: 30
+  currentScore: 0
   paths:
   - pathID: 
     pathName: 1
     minScore: 0
     maxScore: 100
     events:
-    - eventID: 
+    - eventID: E
       startPointIndex: 3
       endPointIndex: 5
       playerInteractionRadius: 3
@@ -31,37 +31,133 @@ MonoBehaviour:
       enabledInAct1: 1
       enabledInAct2: 1
       enabledInAct3: 1
-      gestureResponses: []
+      gestureResponses:
+      - gestureType: Bird
+        scoreEffect: 0
+        actions:
+        - dialogueText: 555
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          delay: 0.5
+          waitTime: 0
+          overridePrevious: 1
+          loopAnimation: 0
+          pathPointIndex: 5
+          isActionActive: 1
       defaultResponse:
         gestureType: 
         scoreEffect: 0
         actions:
-        - dialogueText: aaa
+        - dialogueText: 333
           displayDuration: 2
           voiceClip: {fileID: 0}
           animationName: 
-          delay: 0
+          delay: 0.5
           waitTime: 0
           overridePrevious: 1
           loopAnimation: 0
-          pathPointIndex: 0
+          pathPointIndex: 3
           isActionActive: 1
-    nextPaths:
-    - nextPathID: 
-      minScore: 0
-      maxScore: 20
-      requiredScore: 0
-      description: "\u5206\u652F 1"
+        - dialogueText: 444
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          delay: 0.5
+          waitTime: 0
+          overridePrevious: 1
+          loopAnimation: 0
+          pathPointIndex: 4
+          isActionActive: 1
+    - eventID: F
+      startPointIndex: 6
+      endPointIndex: 8
+      playerInteractionRadius: 3
+      showInteractionRange: 1
+      gestureHoldTime: 1
+      maxRecognitionDistance: 8
+      enabledInAct1: 1
+      enabledInAct2: 1
+      enabledInAct3: 1
+      gestureResponses:
+      - gestureType: Bird
+        scoreEffect: 0
+        actions:
+        - dialogueText: 888
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          delay: 0.5
+          waitTime: 0
+          overridePrevious: 1
+          loopAnimation: 0
+          pathPointIndex: 8
+          isActionActive: 1
+      defaultResponse:
+        gestureType: 
+        scoreEffect: 0
+        actions:
+        - dialogueText: 666
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          delay: 0.5
+          waitTime: 0
+          overridePrevious: 1
+          loopAnimation: 0
+          pathPointIndex: 6
+          isActionActive: 1
+    nextPaths: []
     pathActions:
     - dialogueText: 111
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
-      delay: 0
+      delay: 0.5
       waitTime: 0
       overridePrevious: 1
       loopAnimation: 0
-      pathPointIndex: 0
+      pathPointIndex: 1
+      isActionActive: 1
+    - dialogueText: 222
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0.5
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 2
+      isActionActive: 1
+    - dialogueText: 111
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0.5
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 1
+      isActionActive: 1
+    - dialogueText: 222
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0.5
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 2
+      isActionActive: 1
+    - dialogueText: 333
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0.5
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 3
       isActionActive: 1
   pathConnections:
   - pathID: 
