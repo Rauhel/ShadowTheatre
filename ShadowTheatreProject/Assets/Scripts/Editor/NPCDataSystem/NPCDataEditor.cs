@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 [CustomEditor(typeof(NPCData))]
 public class NPCDataEditor : Editor
@@ -89,90 +90,78 @@ public class NPCDataEditor : Editor
     
     private void DrawImportExportSection()
     {
-        EditorGUILayout.Space(5);
-        
-        // 显示/隐藏导入导出选项的折叠面板
-        showImportExport = EditorGUILayout.Foldout(showImportExport, "导入/导出工具", true, EditorStyles.foldoutHeader);
-        
-        if(showImportExport)
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("数据导入导出", EditorStyles.boldLabel);
+
+        // 完整版导出
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("导出完整版CSV"))
         {
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-            
-            // 文件路径选择
-            EditorGUILayout.BeginHorizontal();
-            npcData.importExportPath = EditorGUILayout.TextField("文件路径", npcData.importExportPath);
-            if(GUILayout.Button("浏览...", GUILayout.Width(60)))
+            string path = EditorUtility.SaveFilePanel("导出CSV", 
+                !string.IsNullOrEmpty(npcData.importExportPath) ? Path.GetDirectoryName(npcData.importExportPath) : Application.dataPath,
+                SanitizeFileName(npcData.npcName) + "_data.csv", "csv");
+            if (!string.IsNullOrEmpty(path))
             {
-                string initialDir = string.IsNullOrEmpty(npcData.importExportPath) ? 
-                    Application.dataPath : Path.GetDirectoryName(npcData.importExportPath);
-                string path = EditorUtility.SaveFilePanel("选择CSV文件", initialDir, 
-                    $"{npcData.npcName}_data.csv", "csv");
-                    
-                if(!string.IsNullOrEmpty(path))
-                {
-                    npcData.importExportPath = path;
-                    EditorUtility.SetDirty(npcData);
-                }
+                NPCDataImportExport.ExportToCSV(npcData, path);
             }
-            EditorGUILayout.EndHorizontal();
-            
-            // 导入导出按钮
-            EditorGUILayout.BeginHorizontal();
-            
-            // 导出按钮
-            if(GUILayout.Button("导出为CSV", GUILayout.Height(30)))
-            {
-                string path = npcData.importExportPath;
-                if(string.IsNullOrEmpty(path))
-                {
-                    path = EditorUtility.SaveFilePanel("导出CSV", Application.dataPath, 
-                        $"{npcData.npcName}_data.csv", "csv");
-                }
-                
-                if(!string.IsNullOrEmpty(path))
-                {
-                    NPCDataImportExport.ExportToCSV(npcData, path);
-                }
-            }
-            
-            // 导入按钮
-            if(GUILayout.Button("从CSV导入", GUILayout.Height(30)))
-            {
-                string path = npcData.importExportPath;
-                if(string.IsNullOrEmpty(path) || !File.Exists(path))
-                {
-                    path = EditorUtility.OpenFilePanel("导入CSV", Application.dataPath, "csv");
-                }
-                
-                if(!string.IsNullOrEmpty(path) && File.Exists(path))
-                {
-                    NPCDataImportExport.ImportFromCSV(npcData, path);
-                }
-            }
-            
-            EditorGUILayout.EndHorizontal();
-            
-            // 生成模板按钮
-            if(GUILayout.Button("生成CSV模板"))
-            {
-                string path = EditorUtility.SaveFilePanel("保存CSV模板", Application.dataPath, 
-                    "npc_data_template.csv", "csv");
-                if(!string.IsNullOrEmpty(path))
-                {
-                    NPCDataImportExport.GenerateTemplate(path);
-                }
-            }
-            
-            // 导入导出说明
-            EditorGUILayout.HelpBox(
-                "CSV格式说明:\n" + 
-                "1. 第一行为表头，请勿修改\n" +
-                "2. # 开头的行为注释，用于基本信息\n" + 
-                "3. 动作类型: PATH_ACTION, DEFAULT, GESTURE", 
-                MessageType.Info);
-            
-            EditorGUILayout.EndVertical();
         }
+
+        // 简化版导出按钮
+        if (GUILayout.Button("导出简化版CSV"))
+        {
+            string path = EditorUtility.SaveFilePanel("导出简化版CSV", 
+                !string.IsNullOrEmpty(npcData.importExportPath) ? Path.GetDirectoryName(npcData.importExportPath) : Application.dataPath,
+                SanitizeFileName(npcData.npcName) + "_data_simple.csv", "csv");
+            if (!string.IsNullOrEmpty(path))
+            {
+                NPCDataSimpleImportExport.ExportToSimpleCSV(npcData, path);
+            }
+        }
+        GUILayout.EndHorizontal();
+
+        // 导入按钮
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("导入完整版CSV"))
+        {
+            string path = EditorUtility.OpenFilePanelWithFilters("导入CSV", 
+                !string.IsNullOrEmpty(npcData.importExportPath) ? Path.GetDirectoryName(npcData.importExportPath) : Application.dataPath,
+                NPCDataImportExport.ExcelFileTypes);
+            if (!string.IsNullOrEmpty(path))
+            {
+                NPCDataImportExport.ImportFromCSV(npcData, path);
+            }
+        }
+
+        // 简化版导入按钮
+        if (GUILayout.Button("导入简化版CSV"))
+        {
+            string path = EditorUtility.OpenFilePanelWithFilters("导入简化版CSV", 
+                !string.IsNullOrEmpty(npcData.importExportPath) ? Path.GetDirectoryName(npcData.importExportPath) : Application.dataPath,
+                NPCDataSimpleImportExport.ExcelFileTypes);  // 使用NPCDataSimpleImportExport中定义的ExcelFileTypes
+            if (!string.IsNullOrEmpty(path))
+            {
+                NPCDataSimpleImportExport.ImportFromSimpleCSV(npcData, path);
+            }
+        }
+        GUILayout.EndHorizontal();
+        
+        // 显示当前路径（如果已有这部分代码）
+        if (!string.IsNullOrEmpty(npcData.importExportPath))
+        {
+            EditorGUILayout.LabelField("当前导入/导出路径:", EditorStyles.boldLabel);
+            EditorGUILayout.SelectableLabel(npcData.importExportPath, EditorStyles.textField, 
+                GUILayout.Height(EditorGUIUtility.singleLineHeight));
+        }
+    }
+
+    private string SanitizeFileName(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return "unnamed";
+            
+        char[] invalidChars = Path.GetInvalidFileNameChars();
+        string sanitized = new string(name.Select(c => invalidChars.Contains(c) ? '_' : c).ToArray());
+        return sanitized;
     }
 
     // 访问器，供子编辑器使用

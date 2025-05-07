@@ -16,7 +16,7 @@ public class NPCDataImportExport : Editor
     };
 
     // Excel文件类型
-    private static readonly string[] ExcelFileTypes = new string[] { "csv", "CSV" };
+    public static readonly string[] ExcelFileTypes = new string[] { "csv", "CSV" };
 
     // 导出NPC数据到CSV
     public static void ExportToCSV(NPCData data, string filePath)

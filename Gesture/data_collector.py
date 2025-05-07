@@ -5,6 +5,7 @@ import os
 import time
 import json
 import datetime
+import sys
 
 class GestureDataCollector:
     def __init__(self, base_dir="gesture_data"):
@@ -12,34 +13,34 @@ class GestureDataCollector:
         self.mp_drawing = mp.solutions.drawing_utils
         self.base_dir = base_dir
         
-        # 创建基础数据目录
+        # Create base data directory
         os.makedirs(base_dir, exist_ok=True)
         
     def collect_gesture_data(self, gesture_name, is_two_hands=False, samples_count=100):
         """
-        收集指定手势的特征数据
+        Collect feature data for specified gesture
         
-        参数:
-            gesture_name: 手势名称
-            is_two_hands: 是否为双手手势
-            samples_count: 要收集的样本数量
+        Parameters:
+            gesture_name: name of the gesture
+            is_two_hands: whether it's a two-handed gesture
+            samples_count: number of samples to collect
         """
-        # 添加双手标记到手势名称
+        # Add two-hands mark to gesture name
         folder_name = gesture_name
         if is_two_hands:
             folder_name = f"{gesture_name}_TwoHands"
         
-        # 为每种手势创建专门的文件夹
+        # Create specific folder for each gesture
         gesture_dir = os.path.join(self.base_dir, folder_name)
         os.makedirs(gesture_dir, exist_ok=True)
         
-        # 生成此次收集的唯一时间戳
+        # Generate unique timestamp for this collection
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         session_file = os.path.join(gesture_dir, f"session_{timestamp}.json")
         
-        print(f"准备收集 {gesture_name} {'(双手)' if is_two_hands else '(单手)'} 手势数据，需要 {samples_count} 个样本")
-        print(f"数据将保存到: {session_file}")
-        print("请将手放在摄像头前，准备好后按空格键开始")
+        print(f"Ready to collect {gesture_name} {'(two hands)' if is_two_hands else '(one hand)'} gesture data, {samples_count} samples needed")
+        print(f"Data will be saved to: {session_file}")
+        print("Please place your hands in front of the camera, press SPACE to start or ESC to exit")
         
         cap = cv2.VideoCapture(0)
         
@@ -48,24 +49,24 @@ class GestureDataCollector:
             max_num_hands=2,
             min_detection_confidence=0.5) as hands:
             
-            # 等待用户准备好
+            # Wait for user to get ready
             while True:
                 success, image = cap.read()
-                cv2.putText(image, f"准备收集: {gesture_name} {'(双手)' if is_two_hands else '(单手)'}", (10, 30), 
+                cv2.putText(image, f"Ready to collect: {gesture_name} {'(two hands)' if is_two_hands else '(one hand)'}", (10, 30), 
                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                cv2.putText(image, "按空格键开始", (10, 70), 
+                cv2.putText(image, "Press SPACE to start, ESC to exit", (10, 70), 
                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                cv2.imshow("手势数据收集", image)
+                cv2.imshow("Gesture Data Collection", image)
                 
                 key = cv2.waitKey(1)
-                if key == 32:  # 空格键
+                if key == 32:  # SPACE key
                     break
-                elif key == 27:  # ESC键
+                elif key == 27:  # ESC key
                     cap.release()
                     cv2.destroyAllWindows()
-                    return
+                    return False  # Return False to indicate user wants to exit
             
-            # 开始收集数据
+            # Start data collection
             collected_samples = 0
             samples = []
             
@@ -74,34 +75,34 @@ class GestureDataCollector:
                 if not success:
                     continue
                 
-                # 处理图像
+                # Process image
                 image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 results = hands.process(image_rgb)
                 
-                # 显示实时进度
-                cv2.putText(image, f"收集中: {gesture_name} {'(双手)' if is_two_hands else '(单手)'}", (10, 30), 
+                # Display real-time progress
+                cv2.putText(image, f"Collecting: {gesture_name} {'(two hands)' if is_two_hands else '(one hand)'}", (10, 30), 
                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-                cv2.putText(image, f"样本: {collected_samples}/{samples_count}", (10, 70), 
+                cv2.putText(image, f"Samples: {collected_samples}/{samples_count}", (10, 70), 
                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                 
-                # 检测到的手数量
+                # Number of detected hands
                 hand_count = 0 if results.multi_hand_landmarks is None else len(results.multi_hand_landmarks)
                 
-                # 如果是双手手势，需要检测到2只手才收集
-                # 如果是单手手势，只需要检测到1只手即可
+                # For two-handed gestures, need to detect 2 hands
+                # For one-handed gestures, need to detect at least 1 hand
                 valid_sample = False
                 
                 if is_two_hands and hand_count == 2:
                     valid_sample = True
-                    # 收集双手的关键点
+                    # Collect keypoints for both hands
                     hand_data = []
                     
                     for hand_landmarks in results.multi_hand_landmarks:
-                        # 绘制手部关键点
+                        # Draw hand landmarks
                         self.mp_drawing.draw_landmarks(
                             image, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
                         
-                        # 提取此手的特征
+                        # Extract features for this hand
                         landmarks_list = []
                         for landmark in hand_landmarks.landmark:
                             landmarks_list.append({
@@ -111,7 +112,7 @@ class GestureDataCollector:
                             })
                         hand_data.append(landmarks_list)
                         
-                    # 添加到样本集
+                    # Add to sample set
                     samples.append({
                         "hand1": hand_data[0], 
                         "hand2": hand_data[1],
@@ -121,14 +122,14 @@ class GestureDataCollector:
                     
                 elif not is_two_hands and hand_count >= 1:
                     valid_sample = True
-                    # 只收集第一只手的关键点
+                    # Only collect keypoints for the first hand
                     hand_landmarks = results.multi_hand_landmarks[0]
                     
-                    # 绘制手部关键点
+                    # Draw hand landmarks
                     self.mp_drawing.draw_landmarks(
                         image, hand_landmarks, self.mp_hands.HAND_CONNECTIONS)
                     
-                    # 提取特征
+                    # Extract features
                     landmarks_list = []
                     for landmark in hand_landmarks.landmark:
                         landmarks_list.append({
@@ -137,7 +138,7 @@ class GestureDataCollector:
                             "z": landmark.z
                         })
                     
-                    # 添加到样本集
+                    # Add to sample set
                     samples.append({
                         "hand1": landmarks_list,
                         "hand2": None,
@@ -146,14 +147,16 @@ class GestureDataCollector:
                     collected_samples += 1
                 
                 if valid_sample:
-                    # 每收集一个样本暂停一下，防止连续的帧太相似
+                    # Pause slightly after collecting a sample to prevent consecutive frames being too similar
                     time.sleep(0.1)
                 
-                cv2.imshow("手势数据收集", image)
-                if cv2.waitKey(5) & 0xFF == 27:  # ESC键退出
-                    break
+                cv2.imshow("Gesture Data Collection", image)
+                if cv2.waitKey(5) & 0xFF == 27:  # ESC key to exit
+                    cap.release()
+                    cv2.destroyAllWindows()
+                    return False  # Return False to indicate user wants to exit
             
-            # 保存数据
+            # Save data
             if samples:
                 with open(session_file, 'w') as f:
                     json.dump({
@@ -162,17 +165,18 @@ class GestureDataCollector:
                         "samples": samples
                     }, f)
                 
-                print(f"成功收集并保存了 {len(samples)} 个 {gesture_name} {'(双手)' if is_two_hands else '(单手)'} 手势样本")
+                print(f"Successfully collected and saved {len(samples)} samples for {gesture_name} {'(two hands)' if is_two_hands else '(one hand)'} gesture")
                 
-                # 更新此手势的样本总数
+                # Update total sample count for this gesture
                 total_samples = self.count_gesture_samples(gesture_dir)
-                print(f"{folder_name} 手势当前共有 {total_samples} 个样本")
+                print(f"{folder_name} gesture now has {total_samples} samples in total")
             
         cap.release()
         cv2.destroyAllWindows()
+        return True  # Return True to indicate successful completion
     
     def count_gesture_samples(self, gesture_dir):
-        """计算某个手势目录下的总样本数"""
+        """Count total samples in a gesture directory"""
         total_samples = 0
         for filename in os.listdir(gesture_dir):
             if filename.endswith('.json'):
@@ -181,21 +185,36 @@ class GestureDataCollector:
                         data = json.load(f)
                         total_samples += len(data['samples'])
                 except Exception as e:
-                    print(f"读取文件 {filename} 时出错: {e}")
+                    print(f"Error reading file {filename}: {e}")
         return total_samples
 
 if __name__ == "__main__":
     collector = GestureDataCollector()
     
-    # 定义要收集的手势 - (手势名称, 是否双手)
+    # Define gestures to collect - (gesture name, is two hands)
     gestures = [
-        ("Bird", True),  # 双手手势
-        ("Deer", False),  # 单手手势
-        #("Wolf", False),  # 单手手势
+        #("Bird", True),  # Two hands gesture
+        ("Deer", True),  
+        ("Wolf", False),   # One hand gesture
+        ("Rabbit", False), 
+        ("Goose", True),
+        ("Touch", True),
+        ("Fist", False),
+        ("Refuse", False),
+        ("Receive", True),
+        ("Pause", True)
     ]
     
     for gesture_name, is_two_hands in gestures:
-        collector.collect_gesture_data(gesture_name, is_two_hands, samples_count=100)
-        print(f"{gesture_name} {'(双手)' if is_two_hands else '(单手)'} 手势数据收集完成!")
-        print("按任意键继续下一个手势...")
-        cv2.waitKey(0)
+        print(f"\n-------- Next gesture: {gesture_name} {'(two hands)' if is_two_hands else '(one hand)'} --------")
+        continue_program = collector.collect_gesture_data(gesture_name, is_two_hands, samples_count=100)
+        if not continue_program:
+            print("Program terminated by user")
+            break
+            
+        print(f"{gesture_name} {'(two hands)' if is_two_hands else '(one hand)'} gesture data collection completed!")
+        print("Press any key to continue to next gesture, or press ESC to exit...")
+        
+        if cv2.waitKey(0) == 27:  # Check if ESC was pressed
+            print("Program terminated by user")
+            break
