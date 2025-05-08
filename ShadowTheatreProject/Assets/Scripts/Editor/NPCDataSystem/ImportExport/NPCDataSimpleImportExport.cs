@@ -279,7 +279,7 @@ public class NPCDataSimpleImportExport : Editor
                     // 设置默认值
                     action.loopAnimation = false;
                     action.displayDuration = 2.0f;
-                    action.delay = 0.5f;
+                    action.delay = 0f;
                     action.waitTime = 0f;
                     action.overridePrevious = true;
                     action.isActionActive = true;
