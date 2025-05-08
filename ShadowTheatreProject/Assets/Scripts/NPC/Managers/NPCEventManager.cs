@@ -351,26 +351,30 @@ public class NPCEventManager : MonoBehaviour
         Debug.Log($"[事件触发] NPC: {gameObject.name} | 事件: {pathEvent.eventID}");
     }
 
-    // 获取事件结束点
-    private Transform GetEventEndPoint()
+    // 修改获取事件结束点的方法
+    private Vector3 GetEventEndPointPosition()
     {
         if (currentEvent == null || currentPathPointsParent == null)
-            return null;
-
-        if (currentEvent.endPointIndex < 0 || currentEvent.endPointIndex >= currentPathPointsParent.childCount)
-            return null;
-
-        return currentPathPointsParent.GetChild(currentEvent.endPointIndex);
+            return Vector3.zero;
+        
+        MultiPointPathCreator currentPathCreator = PathRegistry.GetPathCreatorByID(currentPathID);
+        if (currentPathCreator == null) 
+            return Vector3.zero;
+        
+        if (currentEvent.endPointIndex < 0 || currentEvent.endPointIndex >= currentPathCreator.GetPathPointCount())
+            return Vector3.zero;
+        
+        return currentPathCreator.GetPathPointPosition(currentEvent.endPointIndex);
     }
 
-    // 检查是否到达事件结束点
+    // 修改 HasReachedEndPoint 方法
     private bool HasReachedEndPoint()
     {
-        Transform endPoint = GetEventEndPoint();
-        if (endPoint == null)
+        Vector3 endPointPosition = GetEventEndPointPosition();
+        if (endPointPosition == Vector3.zero)
             return false;
-
-        float distanceToEnd = Vector3.Distance(transform.position, endPoint.position);
+        
+        float distanceToEnd = Vector3.Distance(transform.position, endPointPosition);
         return distanceToEnd <= 0.5f; // 使用合适的阈值
     }
 

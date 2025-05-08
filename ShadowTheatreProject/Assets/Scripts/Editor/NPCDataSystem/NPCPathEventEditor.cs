@@ -108,9 +108,10 @@ public class NPCPathEventEditor
     private void DrawEventPathSegment(PathEvent pathEvent, PathConfig config)
     {
         MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(config.pathID);
-        if (pathCreator != null && pathCreator.pathPointsParent != null)
+        if (pathCreator != null)
         {
-            int pointCount = pathCreator.pathPointsParent.childCount;
+            // 修改这里：使用 GetPathPointCount 而不是 pathPointsParent.childCount
+            int pointCount = pathCreator.GetPathPointCount();
             string[] pointOptions = new string[pointCount];
             
             for (int i = 0; i < pointCount; i++)
@@ -135,11 +136,23 @@ public class NPCPathEventEditor
                 EditorUtility.SetDirty(mainEditor.Data);
             }
             
+            // 修改起始点定位按钮
             if (GUILayout.Button("定位", GUILayout.Width(50)))
             {
-                Transform point = pathCreator.pathPointsParent.GetChild(pathEvent.startPointIndex);
-                Selection.activeGameObject = point.gameObject;
+                // 获取位置
+                Vector3 position = pathCreator.GetPathPointPosition(pathEvent.startPointIndex);
+                
+                // 在场景中创建临时定位标记
+                GameObject tempMarker = new GameObject("TempPathPointMarker");
+                tempMarker.transform.position = position;
+                Selection.activeGameObject = tempMarker;
                 SceneView.FrameLastActiveSceneView();
+                
+                // 延迟销毁临时标记
+                EditorApplication.delayCall += () => {
+                    if(tempMarker != null)
+                        GameObject.DestroyImmediate(tempMarker);
+                };
             }
             EditorGUILayout.EndHorizontal();
             
@@ -153,11 +166,23 @@ public class NPCPathEventEditor
                 EditorUtility.SetDirty(mainEditor.Data);
             }
             
+            // 修改结束点定位按钮
             if (GUILayout.Button("定位", GUILayout.Width(50)))
             {
-                Transform point = pathCreator.pathPointsParent.GetChild(pathEvent.endPointIndex);
-                Selection.activeGameObject = point.gameObject;
+                // 获取位置
+                Vector3 position = pathCreator.GetPathPointPosition(pathEvent.endPointIndex);
+                
+                // 在场景中创建临时定位标记
+                GameObject tempMarker = new GameObject("TempPathPointMarker");
+                tempMarker.transform.position = position;
+                Selection.activeGameObject = tempMarker;
                 SceneView.FrameLastActiveSceneView();
+                
+                // 延迟销毁临时标记
+                EditorApplication.delayCall += () => {
+                    if(tempMarker != null)
+                        GameObject.DestroyImmediate(tempMarker);
+                };
             }
             EditorGUILayout.EndHorizontal();
             

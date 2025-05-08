@@ -225,44 +225,50 @@ public class MultiPointPathCreatorEditor : Editor
         }
         
         // 绘制和选择路径点
-        if (pathCreator.pathPointsParent != null && pathCreator.pathPointsParent.childCount > 0)
+        if (pathCreator.pathPointsParent != null)
         {
-            Transform pathRoot = pathCreator.transform;
-            
-            for (int i = 0; i < pathCreator.pathPointsParent.childCount; i++)
+            for (int i = 0; i < pathCreator.GetPathPointCount(); i++)
             {
-                Transform point = pathCreator.pathPointsParent.GetChild(i);
-                float size = HandleUtility.GetHandleSize(point.position) * 0.15f; // 增大尺寸使更容易选择
+                Vector3 pointPosition = pathCreator.GetPathPointPosition(i);
+                float size = HandleUtility.GetHandleSize(pointPosition) * 0.15f;
                 
                 // 检查是否被用作事件触发点
-                bool isUsedAsEventTrigger = IsPointUsedAsEventTrigger(point);
+                bool isUsedAsEventTrigger = IsPointUsedAsEventTrigger(i);
                 
                 // 设置颜色
                 Handles.color = isUsedAsEventTrigger ? Color.yellow : Color.cyan;
                 
                 // 绘制一个可以点击的小球
-                if (Handles.Button(point.position, Quaternion.identity, size, size, Handles.SphereHandleCap))
+                if (Handles.Button(pointPosition, Quaternion.identity, size, size, Handles.SphereHandleCap))
                 {
-                    // 选中该路径点
-                    Selection.activeGameObject = point.gameObject;
+                    // 创建临时对象进行选择
+                    GameObject tempObject = new GameObject($"PathPoint_{i}");
+                    tempObject.transform.position = pointPosition;
+                    Selection.activeGameObject = tempObject;
                     
                     // 显示右键菜单以便设置为触发点
                     if (Event.current.button == 1)
                     {
-                        ShowPathPointContextMenu(point, pathRoot);
+                        ShowPathPointContextMenu(i, pathCreator.transform);
                     }
+                    
+                    // 延迟销毁临时对象
+                    EditorApplication.delayCall += () => {
+                        if(tempObject != null)
+                            GameObject.DestroyImmediate(tempObject);
+                    };
                 }
                 
                 // 显示点的相对位置信息和事件ID
-                float relativePos = (float)i / (pathCreator.pathPointsParent.childCount - 1);
-                Handles.Label(point.position + Vector3.up * 0.3f, $"{relativePos:P0}");
+                float relativePos = (float)i / (pathCreator.GetPathPointCount() - 1);
+                Handles.Label(pointPosition + Vector3.up * 0.3f, $"{relativePos:P0}");
                 
                 if (isUsedAsEventTrigger)
                 {
-                    string eventID = GetEventIDForPoint(point);
+                    string eventID = GetEventIDForPoint(i);
                     if (!string.IsNullOrEmpty(eventID))
                     {
-                        Handles.Label(point.position + Vector3.up * 0.6f, $"事件: {eventID}", EditorStyles.boldLabel);
+                        Handles.Label(pointPosition + Vector3.up * 0.6f, $"事件: {eventID}", EditorStyles.boldLabel);
                     }
                 }
             }
@@ -270,7 +276,7 @@ public class MultiPointPathCreatorEditor : Editor
     }
     
     // 修改 IsPointUsedAsEventTrigger 方法
-    private bool IsPointUsedAsEventTrigger(Transform point)
+    private bool IsPointUsedAsEventTrigger(int pointIndex)
     {
         // 查找所有 NPCData 资源
         string[] guids = AssetDatabase.FindAssets("t:NPCData");
@@ -287,10 +293,7 @@ public class MultiPointPathCreatorEditor : Editor
                     {
                         foreach (var npcEvent in pathData.events)
                         {
-                            // 不再使用 triggerLocation，而是检查点的索引是否匹配
-                            // 获取点在路径中的索引
-                            int pointIndex = GetPointIndex(point);
-                            if (pointIndex >= 0 && (npcEvent.startPointIndex == pointIndex || npcEvent.endPointIndex == pointIndex))
+                            if (npcEvent.startPointIndex == pointIndex || npcEvent.endPointIndex == pointIndex)
                                 return true;
                         }
                     }
@@ -300,33 +303,9 @@ public class MultiPointPathCreatorEditor : Editor
         return false;
     }
     
-    // 添加获取点索引的辅助方法
-    private int GetPointIndex(Transform point)
-    {
-        if (point == null || point.parent == null || pathCreator.pathPointsParent == null)
-            return -1;
-            
-        // 如果是同一个父物体下的点
-        if (point.parent == pathCreator.pathPointsParent)
-        {
-            for (int i = 0; i < pathCreator.pathPointsParent.childCount; i++)
-            {
-                if (pathCreator.pathPointsParent.GetChild(i) == point)
-                    return i;
-            }
-        }
-        
-        return -1;
-    }
-    
     // 修改 GetEventIDForPoint 方法
-    private string GetEventIDForPoint(Transform point)
+    private string GetEventIDForPoint(int pointIndex)
     {
-        // 获取点在路径中的索引
-        int pointIndex = GetPointIndex(point);
-        if (pointIndex < 0)
-            return string.Empty;
-            
         // 查找所有 NPCData 资源
         string[] guids = AssetDatabase.FindAssets("t:NPCData");
         foreach (string guid in guids)
@@ -355,14 +334,13 @@ public class MultiPointPathCreatorEditor : Editor
     }
     
     // 修改 ShowPathPointContextMenu 方法
-    private void ShowPathPointContextMenu(Transform point, Transform pathRoot)
+    private void ShowPathPointContextMenu(int pointIndex, Transform pathRoot)
     {
         GenericMenu menu = new GenericMenu();
-        int pointIndex = GetPointIndex(point);
         
         menu.AddItem(new GUIContent("复制路径点引用"), false, () => {
-            EditorGUIUtility.systemCopyBuffer = $"{pathRoot.name}/{point.parent.name}/{point.name}";
-            Debug.Log($"已复制路径点引用: {pathRoot.name}/{point.parent.name}/{point.name}");
+            EditorGUIUtility.systemCopyBuffer = $"{pathRoot.name}/PathPoint_{pointIndex}";
+            Debug.Log($"已复制路径点引用: {pathRoot.name}/PathPoint_{pointIndex}");
         });
         
         if (pointIndex < 0)
@@ -407,7 +385,7 @@ public class MultiPointPathCreatorEditor : Editor
                         {
                             eventID = $"Event_{pathData.pathName}_{pathData.events.Count + 1}",
                             startPointIndex = pointIndex,
-                            endPointIndex = Mathf.Min(pointIndex + 1, pathCreator.pathPointsParent.childCount - 1),
+                            endPointIndex = Mathf.Min(pointIndex + 1, pathCreator.GetPathPointCount() - 1),
                             gestureHoldTime = 2.0f,
                             maxRecognitionDistance = 8.0f,
                             playerInteractionRadius = 3.0f,

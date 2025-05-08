@@ -139,9 +139,10 @@ public class NPCActionEditor
             
             // 路径点选择器
             MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(config.pathID);
-            if(pathCreator != null && pathCreator.pathPointsParent != null)
+            if(pathCreator != null)
             {
-                int pointCount = pathCreator.pathPointsParent.childCount;
+                // 修改这里：使用 GetPathPointCount
+                int pointCount = pathCreator.GetPathPointCount();
                 string[] options = new string[pointCount];
                 for(int j = 0; j < pointCount; j++)
                 {
@@ -315,9 +316,9 @@ public class NPCActionEditor
             if(currentPath != null)
             {
                 MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(currentPath.pathID);
-                if(pathCreator != null && pathCreator.pathPointsParent != null)
+                if(pathCreator != null)
                 {
-                    int pointCount = pathCreator.pathPointsParent.childCount;
+                    int pointCount = pathCreator.GetPathPointCount();
                     string[] options = new string[pointCount];
                     for(int j = 0; j < pointCount; j++)
                     {

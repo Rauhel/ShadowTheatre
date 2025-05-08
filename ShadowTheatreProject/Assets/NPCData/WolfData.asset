@@ -16,8 +16,8 @@ MonoBehaviour:
   npcName: wolf
   currentScore: 0
   paths:
-  - pathID: path_1
-    pathName: 
+  - pathID: w1
+    pathName: WolfPath1
     minScore: 0
     maxScore: 100
     events: []

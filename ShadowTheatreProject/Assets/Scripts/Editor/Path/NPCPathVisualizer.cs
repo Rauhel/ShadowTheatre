@@ -144,18 +144,27 @@ public class NPCPathVisualizer : EditorWindow
                             EditorGUILayout.LabelField("没有设置手势响应");
                         }
 
-                        // 定位按钮
+                        // 修改定位按钮
                         MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(path.pathID);
-                        if (pathCreator != null && pathCreator.pathPointsParent != null)
+                        if (pathCreator != null && 
+                            pathEvent.startPointIndex >= 0 && 
+                            pathEvent.startPointIndex < pathCreator.GetPathPointCount() &&
+                            GUILayout.Button("在场景中定位"))
                         {
-                            if (pathEvent.startPointIndex >= 0 && pathEvent.startPointIndex < pathCreator.pathPointsParent.childCount &&
-                                GUILayout.Button("在场景中定位"))
-                            {
-                                Transform point = pathCreator.pathPointsParent.GetChild(pathEvent.startPointIndex);
-                                Selection.activeGameObject = point.gameObject;
-                                SceneView.FrameLastActiveSceneView();
-                                EditorGUIUtility.PingObject(point);
-                            }
+                            Vector3 position = pathCreator.GetPathPointPosition(pathEvent.startPointIndex);
+                            
+                            // 创建临时标记
+                            GameObject tempMarker = new GameObject("PathPointMarker");
+                            tempMarker.transform.position = position;
+                            Selection.activeGameObject = tempMarker;
+                            SceneView.FrameLastActiveSceneView();
+                            EditorGUIUtility.PingObject(tempMarker);
+                            
+                            // 延迟销毁
+                            EditorApplication.delayCall += () => {
+                                if(tempMarker != null)
+                                    GameObject.DestroyImmediate(tempMarker);
+                            };
                         }
 
                         EditorGUILayout.EndVertical();

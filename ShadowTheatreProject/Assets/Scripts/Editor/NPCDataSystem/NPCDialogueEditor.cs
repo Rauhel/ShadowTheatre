@@ -38,9 +38,10 @@ public class NPCDialogueEditor
         
         // 查找路径创建器获取点数量
         MultiPointPathCreator dialogPathCreator = PathRegistry.GetPathCreatorByID(config.pathID);
-        if (dialogPathCreator != null && dialogPathCreator.pathPointsParent != null)
+        if (dialogPathCreator != null)
         {
-            int pointCount = dialogPathCreator.pathPointsParent.childCount;
+            // 修改这里：使用 GetPathPointCount
+            int pointCount = dialogPathCreator.GetPathPointCount();
             string[] pointOptions = new string[pointCount];
             
             for (int i = 0; i < pointCount; i++)
@@ -63,9 +64,20 @@ public class NPCDialogueEditor
             // 定位按钮
             if (GUILayout.Button("定位", GUILayout.Width(50)))
             {
-                Transform point = dialogPathCreator.pathPointsParent.GetChild(action.pathPointIndex);
-                Selection.activeGameObject = point.gameObject;
+                // 获取位置
+                Vector3 position = dialogPathCreator.GetPathPointPosition(action.pathPointIndex);
+                
+                // 创建临时定位标记
+                GameObject tempMarker = new GameObject("TempPathPointMarker");
+                tempMarker.transform.position = position;
+                Selection.activeGameObject = tempMarker;
                 SceneView.FrameLastActiveSceneView();
+                
+                // 延迟销毁临时标记
+                EditorApplication.delayCall += () => {
+                    if(tempMarker != null)
+                        GameObject.DestroyImmediate(tempMarker);
+                };
             }
         }
         else

@@ -75,8 +75,8 @@ public class GestureEventHandler : MonoBehaviour
             // 检查两个条件:
 
             // 1. NPC 到达事件的结束点时应该结束事件
-            Transform endPoint = GetEventEndPoint();
-            float distanceToEnd = endPoint ? Vector3.Distance(transform.position, endPoint.position) : float.MaxValue;
+            Vector3 endPosition = GetEventEndPointPosition();
+            float distanceToEnd = Vector3.Distance(transform.position, endPosition);
 
             if (distanceToEnd <= 0.5f)  // 如果接近结束点
             {
@@ -91,7 +91,7 @@ public class GestureEventHandler : MonoBehaviour
                 return;
             }
 
-            // 2. 检查玩家是否在手势识别范围内 - 使用 maxRecognitionDistance 作为交互半径
+            // 检查玩家是否在手势识别范围内 - 使用 maxRecognitionDistance 作为交互半径
             bool playerInRange = IsPlayerInInteractionRange(currentEvent.maxRecognitionDistance);
 
             // 检测范围状态变化
@@ -333,23 +333,63 @@ public class GestureEventHandler : MonoBehaviour
         return gestures;
     }
 
-    // 获取事件结束点的辅助方法
+    // 此方法保留用于向后兼容，但内部实现已更新
     private Transform GetEventEndPoint()
     {
-        if (currentEvent == null || transform.parent == null)
-            return null;
+        // 创建临时游戏对象并返回其Transform
+        Vector3 position = GetEventEndPointPosition();
+        GameObject tempObj = new GameObject("TempEndPoint");
+        tempObj.transform.position = position;
+        
+        // 添加自动销毁组件，确保它在一帧后被销毁
+        var destroyer = tempObj.AddComponent<DestroyAfterAccess>();
+        destroyer.SetDestroyDelay(0.1f);
+        
+        return tempObj.transform;
+    }
 
+    // 添加辅助组件类，用于延迟销毁临时对象
+    private class DestroyAfterAccess : MonoBehaviour
+    {
+        private float delay = 0.1f;
+        
+        public void SetDestroyDelay(float delay)
+        {
+            this.delay = delay;
+        }
+        
+        void Start()
+        {
+            Destroy(gameObject, delay);
+        }
+    }
+
+    // 获取事件结束点位置
+    // 修改 GetEventEndPointPosition 方法
+    private Vector3 GetEventEndPointPosition()
+    {
+        if (currentEvent == null)
+            return transform.position; // 如果没有事件，返回自己的位置
+        
         // 尝试找到事件对应的NPC管理器
         NPCEventManager eventManager = GetComponent<NPCEventManager>();
-        if (eventManager != null && eventManager.CurrentPathPointsParent != null)
+        NPCPathManager pathManager = GetComponent<NPCPathManager>();
+        
+        if (eventManager != null && pathManager != null)
         {
-            Transform pathPoints = eventManager.CurrentPathPointsParent;
-            if (currentEvent.endPointIndex >= 0 && currentEvent.endPointIndex < pathPoints.childCount)
+            // 使用 pathManager 获取当前路径 ID (应该是 CurrentPathID 而不是 CurrentPath)
+            string currentPathID = pathManager.CurrentPathID;
+            
+            // 获取当前路径创建器
+            MultiPointPathCreator currentPathCreator = PathRegistry.GetPathCreatorByID(currentPathID);
+            if (currentPathCreator != null && 
+                currentEvent.endPointIndex >= 0 && 
+                currentEvent.endPointIndex < currentPathCreator.GetPathPointCount())
             {
-                return pathPoints.GetChild(currentEvent.endPointIndex);
+                return currentPathCreator.GetPathPointPosition(currentEvent.endPointIndex);
             }
         }
-
-        return null;
+        
+        return transform.position; // 如果无法获取位置，返回自己的位置
     }
 }

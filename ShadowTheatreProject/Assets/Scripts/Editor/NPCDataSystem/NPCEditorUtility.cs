@@ -48,10 +48,11 @@ public static class NPCEditorUtility
     // 获取点数据
     public static string[] GetPathPointOptions(MultiPointPathCreator pathCreator)
     {
-        if (pathCreator == null || pathCreator.pathPointsParent == null)
+        if (pathCreator == null)
             return new string[0];
             
-        int pointCount = pathCreator.pathPointsParent.childCount;
+        // 修改这里：使用 GetPathPointCount
+        int pointCount = pathCreator.GetPathPointCount();
         string[] options = new string[pointCount];
         
         for (int i = 0; i < pointCount; i++)

@@ -334,11 +334,10 @@ public class PathDataInspector
         }
     }
 
-    // 显示路径点信息
+    // 修改显示路径点信息的方法
     private void ShowPathPointInfo(MultiPointPathCreator creator)
     {
-        if (creator == null || creator.pathPointsParent == null || 
-            creator.pathPointsParent.childCount < 2)
+        if (creator == null || creator.GetPathPointCount() < 2)
         {
             EditorGUILayout.HelpBox("此路径没有生成路径点。请先生成路径点。", MessageType.Warning);
             return;
@@ -348,30 +347,40 @@ public class PathDataInspector
         EditorGUILayout.HelpBox("提示：可将这些路径点拖入NPC事件的触发位置，以设置事件触发点。", MessageType.Info);
         EditorGUILayout.BeginVertical(GUI.skin.box);
         
-        int pathPointCount = creator.pathPointsParent.childCount;
+        int pathPointCount = creator.GetPathPointCount();
         scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.Height(200));
         
         for (int i = 0; i < pathPointCount; i++)
         {
-            Transform point = creator.pathPointsParent.GetChild(i);
             // 计算相对位置（0-1之间的值）
             float relativePos = (float)i / (pathPointCount - 1);
             // 百分比显示
             string posLabel = $"{relativePos:P0}";
             
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.ObjectField(point, typeof(Transform), true);
+            
+            // 创建临时文本字段显示路径点名称
+            EditorGUILayout.TextField($"PathPoint_{i}", GUILayout.Width(120));
             EditorGUILayout.LabelField(posLabel, GUILayout.Width(50));
             
             // 添加一个定位按钮
             if (GUILayout.Button("定位", GUILayout.Width(50)))
             {
-                Selection.activeGameObject = point.gameObject;
+                // 创建临时对象进行选择
+                GameObject tempObject = new GameObject($"PathPoint_{i}");
+                tempObject.transform.position = creator.GetPathPointPosition(i);
+                Selection.activeGameObject = tempObject;
                 SceneView.FrameLastActiveSceneView();
+                
+                // 延迟销毁临时对象
+                EditorApplication.delayCall += () => {
+                    if(tempObject != null)
+                        GameObject.DestroyImmediate(tempObject);
+                };
             }
             
             // 检查该点是否被用作事件触发点
-            string eventID = GetEventIDForPoint(point);
+            string eventID = GetEventIDForPoint(i);
             if (!string.IsNullOrEmpty(eventID))
             {
                 EditorGUILayout.LabelField($"事件: {eventID}", EditorStyles.miniLabel, GUILayout.Width(80));
@@ -384,43 +393,31 @@ public class PathDataInspector
         EditorGUILayout.EndVertical();
     }
 
-    // 修改 GetEventIDForPoint 方法，不再使用 triggerLocation 属性
-    private string GetEventIDForPoint(Transform pathPoint)
+    // 修改 GetEventIDForPoint 方法，使其接收 int 而非 Transform
+    private string GetEventIDForPoint(int pointIndex)
     {
-        if (npcData == null || pathPoint == null)
-            return string.Empty;
-            
-        // 获取点在路径中的索引
-        int pointIndex = GetPointIndex(pathPoint);
-        if (pointIndex < 0)
-            return string.Empty;
-            
-        // 获取该点所属的路径创建器
-        MultiPointPathCreator pathCreator = null;
-        if (pathPoint.parent != null && pathPoint.parent.parent != null)
+        // 查找所有 NPCData 资源
+        string[] guids = AssetDatabase.FindAssets("t:NPCData");
+        foreach (string guid in guids)
         {
-            pathCreator = pathPoint.parent.parent.GetComponent<MultiPointPathCreator>();
-        }
-        
-        if (pathCreator == null || string.IsNullOrEmpty(pathCreator.pathID))
-            return string.Empty;
-        
-        // 在所有路径配置中查找该点是否被用作事件的起始点或结束点
-        if (npcData.paths != null)
-        {
-            foreach (var path in npcData.paths)
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            NPCData data = AssetDatabase.LoadAssetAtPath<NPCData>(path);
+            
+            if (data != null && data.paths != null)
             {
-                if (path.pathID == pathCreator.pathID && path.events != null)
+                foreach (var pathData in data.paths)
                 {
-                    foreach (var evt in path.events)
+                    if (pathData.events != null)
                     {
-                        if (evt.startPointIndex == pointIndex || evt.endPointIndex == pointIndex)
-                            return evt.eventID;
+                        foreach (var npcEvent in pathData.events)
+                        {
+                            if (npcEvent.startPointIndex == pointIndex || npcEvent.endPointIndex == pointIndex)
+                                return npcEvent.eventID;
+                        }
                     }
                 }
             }
         }
-        
         return string.Empty;
     }
 

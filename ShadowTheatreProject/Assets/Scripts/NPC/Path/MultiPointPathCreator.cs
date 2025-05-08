@@ -39,6 +39,12 @@ public class MultiPointPathCreator : MonoBehaviour
     // 临时路径存储
     private NavMeshPath tempPath;
 
+    // 添加用于存储路径点数据的列表
+    [HideInInspector]
+    public List<Vector3> pathPointPositions = new List<Vector3>();
+    [HideInInspector]
+    public List<string> pathPointNames = new List<string>();
+
     private void Awake()
     {
         tempPath = new NavMeshPath();
@@ -48,6 +54,12 @@ public class MultiPointPathCreator : MonoBehaviour
         if (string.IsNullOrEmpty(pathID))
         {
             pathID = System.Guid.NewGuid().ToString().Substring(0, 8);
+        }
+
+        // 确保路径点已生成
+        if (pathPointPositions.Count == 0 && controlPoints.Count >= 2)
+        {
+            GeneratePathPoints();
         }
 
         // 注册到路径注册表
@@ -150,7 +162,11 @@ public class MultiPointPathCreator : MonoBehaviour
             return;
         }
 
-        // 清除现有的路径点
+        // 清空路径点数据
+        pathPointPositions.Clear();
+        pathPointNames.Clear();
+
+        // 保留父物体用于组织结构，但不实际创建子物体
         if (pathPointsParent == null)
         {
             GameObject pathPointsObj = new GameObject("PathPoints");
@@ -159,7 +175,7 @@ public class MultiPointPathCreator : MonoBehaviour
         }
         else
         {
-            // 清除现有的路径点
+            // 清除现有的路径点物体
             while (pathPointsParent.childCount > 0)
             {
                 DestroyImmediate(pathPointsParent.GetChild(0).gameObject);
@@ -185,7 +201,7 @@ public class MultiPointPathCreator : MonoBehaviour
         UpdateStartAndEndPoints();
     }
 
-    // 根据间距生成路径点（原有逻辑）
+    // 根据间距生成路径点（修改后不再实例化对象）
     private void GeneratePathPointsBySpacing()
     {
         // 逐段处理控制点
@@ -206,10 +222,10 @@ public class MultiPointPathCreator : MonoBehaviour
                         // 第一个点是起点，如果不是第一段，则跳过起点
                         if (j == 0 && i > 0) continue;
 
-                        // 创建路径点
-                        GameObject pointObj = new GameObject($"PathPoint_{pathPointsParent.childCount}");
-                        pointObj.transform.SetParent(pathPointsParent);
-                        pointObj.transform.position = tempPath.corners[j];
+                        // 只存储点位置和名称，不创建GameObject
+                        string pointName = $"PathPoint_{pathPointPositions.Count}";
+                        pathPointNames.Add(pointName);
+                        pathPointPositions.Add(tempPath.corners[j]);
                     }
                 }
                 else
@@ -229,9 +245,10 @@ public class MultiPointPathCreator : MonoBehaviour
                         float t = j / (float)(pointCount - 1);
                         Vector3 position = Vector3.Lerp(controlPoints[i].position, controlPoints[i + 1].position, t);
 
-                        GameObject pointObj = new GameObject($"PathPoint_{pathPointsParent.childCount}");
-                        pointObj.transform.SetParent(pathPointsParent);
-                        pointObj.transform.position = position;
+                        // 只存储点位置和名称
+                        string pointName = $"PathPoint_{pathPointPositions.Count}";
+                        pathPointNames.Add(pointName);
+                        pathPointPositions.Add(position);
                     }
                 }
             }
@@ -251,9 +268,9 @@ public class MultiPointPathCreator : MonoBehaviour
                     {
                         for (int j = 1; j < tempPath.corners.Length; j++) // 跳过第一个点
                         {
-                            GameObject pointObj = new GameObject($"PathPoint_{pathPointsParent.childCount}");
-                            pointObj.transform.SetParent(pathPointsParent);
-                            pointObj.transform.position = tempPath.corners[j];
+                            string pointName = $"PathPoint_{pathPointPositions.Count}";
+                            pathPointNames.Add(pointName);
+                            pathPointPositions.Add(tempPath.corners[j]);
                         }
                     }
                 }
@@ -261,7 +278,7 @@ public class MultiPointPathCreator : MonoBehaviour
         }
     }
 
-    // 根据总数均匀分布路径点
+    // 根据总数均匀分布路径点（修改后不再实例化对象）
     private void GeneratePathPointsEvenly()
     {
         // 生成所有路径点的位置
@@ -366,11 +383,53 @@ public class MultiPointPathCreator : MonoBehaviour
             else
                 position = allPathPositions[allPathPositions.Count - 1];  // 最后一个点
 
-            // 创建路径点
-            GameObject pointObj = new GameObject($"PathPoint_{i}");
-            pointObj.transform.SetParent(pathPointsParent);
-            pointObj.transform.position = position;
+            // 只存储点位置和名称，不创建GameObject
+            string pointName = $"PathPoint_{i}";
+            pathPointNames.Add(pointName);
+            pathPointPositions.Add(position);
         }
+    }
+
+    // 添加获取路径点位置的方法
+    public Vector3 GetPathPointPosition(int index)
+    {
+        if (index >= 0 && index < pathPointPositions.Count)
+            return pathPointPositions[index];
+        
+        Debug.LogWarning($"路径点索引 {index} 超出范围");
+        return Vector3.zero;
+    }
+
+    // 添加获取下一个路径点位置的方法
+    public Vector3 GetNextPathPointPosition(int currentIndex)
+    {
+        int nextIndex = currentIndex + 1;
+        
+        // 如果是闭合路径且已到末尾，则返回第一个点
+        if (closedPath && nextIndex >= pathPointPositions.Count)
+            nextIndex = 0;
+            
+        if (nextIndex >= 0 && nextIndex < pathPointPositions.Count)
+            return pathPointPositions[nextIndex];
+            
+        // 如果没有下一个点，返回当前点位置
+        if (currentIndex >= 0 && currentIndex < pathPointPositions.Count)
+            return pathPointPositions[currentIndex];
+            
+        Debug.LogWarning($"路径点索引 {currentIndex} 超出范围");
+        return Vector3.zero;
+    }
+
+    // 获取路径点总数
+    public int GetPathPointCount()
+    {
+        return pathPointPositions.Count;
+    }
+
+    // 根据名称获取路径点索引
+    public int GetPathPointIndex(string pointName)
+    {
+        return pathPointNames.IndexOf(pointName);
     }
 
     private void OnDrawGizmos()
@@ -496,6 +555,16 @@ public class MultiPointPathCreator : MonoBehaviour
             {
                 Gizmos.color = Color.magenta;
                 Gizmos.DrawLine(prevPathCreator.endPoint.position, startPoint.position);
+            }
+        }
+
+        // 添加绘制存储的路径点位置
+        if (pathPointPositions.Count > 0)
+        {
+            Gizmos.color = new Color(0f, 0.8f, 0.2f, 0.8f);
+            foreach (Vector3 pos in pathPointPositions)
+            {
+                Gizmos.DrawSphere(pos, 0.15f);
             }
         }
     }
