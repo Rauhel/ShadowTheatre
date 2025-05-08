@@ -15,6 +15,1204 @@ MonoBehaviour:
   npcID: 2
   npcName: goose
   currentScore: 0
-  paths: []
+  paths:
+  - pathID: g1
+    pathName: GoosePath1
+    minScore: 0
+    maxScore: 100
+    events: []
+    nextPaths: []
+    pathActions:
+    - dialogueText: "\u4F1F\u5927\u7684\u5B88\u62A4\u8005\uFF01\u60A8\u662F\u4E00\u5207\u7684\u9020\u7269\u4E3B\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 1
+      isActionActive: 1
+    - dialogueText: "\u662F\u9ED1\u6697\u4E2D\u7684\u5149\uFF0C\u662F\u6211\u4EEC\u552F\u4E00\u7684\u5E0C\u671B\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 2
+      isActionActive: 1
+    - dialogueText: "\u662F\u7684\uFF0C\u6211\u8D5E\u540C\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 3
+      isActionActive: 1
+    - dialogueText: "\u53EA\u6709\u90A3\u4F4D\u5927\u4EBA\u624D\u53EF\u4EE5\u62EF\u6551\u516C\u4E3B\u548C\u6211\u4EEC\u7684\u738B\u56FD\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 4
+      isActionActive: 1
+    - dialogueText: "\u8FD9\u4E00\u70B9\u6211\u5F88\u80AF\u5B9A\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 5
+      isActionActive: 1
+    - dialogueText: "\u5E0C\u671B\u4F60\u6240\u8A00\u975E\u865A\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 6
+      isActionActive: 1
+    - dialogueText: "\u516C\u4E3B\u6BBF\u4E0B\uFF0C\u6708\u5149\u518D\u6B21\u6D12\u843D\u5728\u57CE\u5821\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 7
+      isActionActive: 1
+    - dialogueText: "\u65E0\u6CD5\u629A\u6478\u60A8\u7684\u7FBD\u6BDB\u662F\u5B83\u7684\u9057\u61BE\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 8
+      isActionActive: 1
+    - dialogueText: "\u6211\u4E0D\u6562\u60F3\u8C61\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 9
+      isActionActive: 1
+    - dialogueText: "\u5B88\u62A4\u8005\u2014\u2014\u5982\u679C\u6709\u7684\u8BDD\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 10
+      isActionActive: 1
+    - dialogueText: "\u66FE\u5982\u4F55\u7CBE\u5FC3\u96D5\u7422\u60A8\u7684\u5BB9\u989C\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 11
+      isActionActive: 1
+    - dialogueText: "\u60A8\u5C45\u4F4F\u5728\u5F71\u5B50\u738B\u56FD\u7684\u6B63\u4E2D\u5FC3\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 12
+      isActionActive: 1
+    - dialogueText: "\u4E16\u95F4\u4E07\u7269\u90FD\u56F4\u7ED5\u60A8\u65CB\u8F6C\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 13
+      isActionActive: 1
+    - dialogueText: "\u4E00\u5207\u73CD\u5B9D\u90FD\u4F9B\u5949\u7ED9\u60A8\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 14
+      isActionActive: 1
+    - dialogueText: "\u53EA\u4E3A\u4E86\u60A8\u7684\u534A\u664C\u7B11\u989C\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 15
+      isActionActive: 1
+    - dialogueText: "\u60A8\u7684\u4F1F\u5927\u6211\u4EEC\u6709\u76EE\u5171\u7779\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 16
+      isActionActive: 1
+    - dialogueText: "\u662F\u60A8\u7684\u7FBD\u7FFC\u652F\u6491\u8D77\u4E86\u8FD9\u7247\u5929\u7A7A\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 17
+      isActionActive: 1
+    - dialogueText: "\u5F53\u60A8\u5760\u843D\uFF0C\u6211\u4EEC\u7684\u738B\u56FD\u4E5F\u9762\u4E34\u5012\u584C\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 18
+      isActionActive: 1
+    - dialogueText: "\u662F\u60A8\u7684\u6B4C\u5589\u5438\u5F15\u7740\u7FA4\u661F\u548C\u82B1\u4E1B,"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 19
+      isActionActive: 1
+    - dialogueText: "\u5F53\u60A8\u6C89\u7761\uFF0C\u5B83\u4EEC\u4E5F\u63A5\u8FDE\u79BB\u53BB\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 20
+      isActionActive: 1
+    - dialogueText: "\u65F6\u95F4\u5DF2\u7ECF\u4E0D\u591A\u4E86\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 21
+      isActionActive: 1
+    - dialogueText: "\u5F53\u949F\u58F0\u7B2C\u4E03\u6B21\u6572\u54CD\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 22
+      isActionActive: 1
+    - dialogueText: "\u5F53\u6076\u9F99\u7B2C\u4E03\u6B21\u88AD\u6765\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 23
+      isActionActive: 1
+    - dialogueText: "\u5F53\u516C\u4E3B\u7B2C\u4E03\u6B21\u5760\u843D\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 24
+      isActionActive: 1
+    - dialogueText: "\u5F53\u738B\u56FD\u7B2C\u4E03\u6B21\u5D29\u584C\u2014\u2014"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 25
+      isActionActive: 1
+    - dialogueText: "\u4E00\u5207\u90FD\u5C06\u7ED3\u675F\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 26
+      isActionActive: 1
+    - dialogueText: "\u672B\u65E5\u5373\u5C06\u5230\u6765\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 27
+      isActionActive: 1
+    - dialogueText: "\u4E00\u5207\u90FD\u5C06\u65E0\u53EF\u633D\u56DE\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 28
+      isActionActive: 1
+    - dialogueText: "\u6DF1\u6E0A\u5373\u5C06\u541E\u566C\u4E16\u754C\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 29
+      isActionActive: 1
+    - dialogueText: "\u81EA\u7136\u662F\u548F\u53F9\u5F71\u4E4B\u738B\u56FD\u7684\u547D\u8FD0\uFF0C\u72FC\u5B88\u536B\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 30
+      isActionActive: 1
+    - dialogueText: "\u2014\u2014\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 31
+      isActionActive: 1
+    - dialogueText: "\u2026\u2026"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 32
+      isActionActive: 1
+    - dialogueText: "\u8BA9\u4EBA\u4EEC\u610F\u8BC6\u5230\u672B\u65E5\u5C06\u81F3\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 33
+      isActionActive: 1
+    - dialogueText: "\u8FD9\u624D\u662F\u81F3\u5173\u7D27\u8981\u7684\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 34
+      isActionActive: 1
+    - dialogueText: "\u51ED\u6211\u4E00\u4EBA\u53C8\u80FD\u505A\u5230\u4EC0\u4E48\u5462\uFF1F"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 35
+      isActionActive: 1
+    - dialogueText: "\u96BE\u9053\u6211\u53EF\u4EE5\u4E00\u624B\u906E\u5929\u6CD5\u529B\u65E0\u8FB9\uFF1F"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 36
+      isActionActive: 1
+    - dialogueText: "\u6211\u53C8\u4E0D\u662F\u738B\u56FD\u7684\u5B88\u62A4\u8005\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 37
+      isActionActive: 1
+    - dialogueText: "\u60A8\u72AF\u4E86\u60A8\u6700\u4E0D\u8BE5\u72AF\u7684\u9519\u8BEF\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 38
+      isActionActive: 1
+    - dialogueText: "\u90A3\u5C31\u662F\u8BCB\u6BC1\u4E00\u4F4D\u8BD7\u4EBA\u7684\u540D\u8A89\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 39
+      isActionActive: 1
+    - dialogueText: "\u6211\u60F3\u6211\u81EA\u7136\u4E0D\u7528\u4E0E\u60A8\u591A\u8BF4\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 40
+      isActionActive: 1
+    - dialogueText: "\u56E0\u4E3A\u591A\u8BF4\u65E0\u76CA\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 41
+      isActionActive: 1
+    - dialogueText: "\u800C\u60A8\u7684\u5B58\u5728\u53EA\u4F1A\u9677\u516C\u4E3B\u4E8E\u66F4\u5371\u9669\u7684\u5883\u5730\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 42
+      isActionActive: 1
+    - dialogueText: "\u4E3A\u4F55\u4EBA\u4EEC\u610F\u8BC6\u4E0D\u5230\u591C\u665A\u5DF2\u7136\u6C38\u4E45\u9A7B\u624E\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 43
+      isActionActive: 1
+    - dialogueText: "\u4E3A\u4F55\u4EBA\u4EEC\u603B\u662F\u8499\u7740\u53CC\u773C\u8D70\u8DEF\uFF1F"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 44
+      isActionActive: 1
+    - dialogueText: "\u4E16\u4EBA\u603B\u662F\u5982\u6B64\u80C6\u5C0F\u8499\u6627\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 45
+      isActionActive: 1
+    - dialogueText: "\u6545\u4E8B\u7684\u8D70\u5411\u662F\u65E2\u5B9A\u7684\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 46
+      isActionActive: 1
+    - dialogueText: "\u7136\u800C\u9006\u6D41\u800C\u4E0A\u662F\u4E00\u79CD\u80C6\u9B44\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 47
+      isActionActive: 1
+    - dialogueText: "\u5C31\u50CF\u54C1\u5FB7\u9AD8\u5C1A\u662F\u6211\u4EEC\u7684\u8FFD\u6C42\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 48
+      isActionActive: 1
+    - dialogueText: "\u53EA\u6709\u6562\u5C06\u6240\u601D\u6240\u60F3\u4E00\u5E76\u8BF4\u51FA\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 49
+      isActionActive: 1
+    - dialogueText: "\u624D\u80FD\u957F\u4E45\u5730\u7559\u5B58\u4E8E\u6B64\u5F71\u4E4B\u56FD\u5EA6\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 50
+      isActionActive: 1
+    - dialogueText: "\u5426\u5219\u662F\u5BF9\u5FC3\u7684\u4EB5\u6E0E\u548C\u80CC\u53DB\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 51
+      isActionActive: 1
+    - dialogueText: "\u4F60\u662F\u4EC0\u4E48\u610F\u601D\uFF0C\u9E7F\u796D\u53F8\uFF1F"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 52
+      isActionActive: 1
+    - dialogueText: "\u6211\u503E\u542C\u60A8\u7684\u7BB4\u8A00\u8BB8\u4E45\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 53
+      isActionActive: 1
+    - dialogueText: "\u5374\u6CA1\u6709\u660E\u767D\u60A8\u8BDD\u8BED\u4E2D\u7684\u6DF1\u610F\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 54
+      isActionActive: 1
+    - dialogueText: "\u8FD9\u4E00\u70B9\u6211\u4E0D\u6562\u82DF\u540C\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 55
+      isActionActive: 1
+    - dialogueText: "\u6211\u4EEC\u751F\u5B58\u4E8E\u8FD9\u4E2A\u738B\u56FD\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 56
+      isActionActive: 1
+    - dialogueText: "\u81EA\u7136\u4E5F\u662F\u5B88\u62A4\u8005\u7684\u610F\u5FD7\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 57
+      isActionActive: 1
+    - dialogueText: "\u60A8\u8A00\u4E4B\u51FF\u51FF\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 58
+      isActionActive: 1
+    - dialogueText: "\u5374\u65E9\u5DF2\u5C06\u7406\u667A\u629B\u4E4B\u8111\u540E\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 59
+      isActionActive: 1
+    - dialogueText: "\u6211\u8BA4\u4E3A\u660E\u667A\u4E4B\u58EB\u5FC5\u5F53\u4E09\u601D\u800C\u540E\u884C\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 60
+      isActionActive: 1
+    - dialogueText: "\u8FD9\u4E00\u70B9\u60A8\u60F3\u5FC5\u4E5F\u5FC3\u6709\u8D5E\u540C\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 61
+      isActionActive: 1
+    - dialogueText: "\u60A8\u662F\u5728\u201C\u884C\u52A8\u201D\uFF0C\u7136\u540E\u5462\uFF1F"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 62
+      isActionActive: 1
+    - dialogueText: "\u60A8\u7684\u884C\u4E3A\u6839\u672C\u662F\u81EA\u6211\u53D6\u60A6\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 63
+      isActionActive: 1
+    - dialogueText: "\u4F60\u770B\u4F3C\u4E3A\u4F1F\u5927\u7684\u5B88\u62A4\u8005\u670D\u52A1\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 64
+      isActionActive: 1
+    - dialogueText: "\u5B9E\u5219\u884C\u4E8B\u6BEB\u65E0\u903B\u8F91\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 65
+      isActionActive: 1
+    - dialogueText: "\u548C\u90A3\u4E9B\u4F60\u6697\u81EA\u9119\u5F03\u7684\u611A\u6C11\u6BEB\u65E0\u533A\u522B\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 66
+      isActionActive: 1
+    - dialogueText: "\u5FC5\u987B\u5524\u9192\u6BCF\u4E2A\u4EBA\u5FC3\u4E2D\u5BF9\u5149\u7684\u5411\u5F80\u2014\u2014"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 67
+      isActionActive: 1
+    - dialogueText: "\u4E0D\u77E5\u4E3A\u4F55\u738B\u56FD\u91CC\u552F\u6211\u4E00\u4EBA\u505A\u6B64\u611F\u60F3\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 68
+      isActionActive: 1
+    - dialogueText: "\u8BF4\u51FA\u8BDD\u6765\u65E0\u4EBA\u7406\u4F1A\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 69
+      isActionActive: 1
+    - dialogueText: "\u906D\u4EBA\u51B7\u773C\u5E76\u4E0D\u4F1A\u4EE4\u6211\u6C14\u9981\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 70
+      isActionActive: 1
+    - dialogueText: "\u6211\u76F8\u4FE1\u4ED6\u4EEC\u672C\u5FC3\u81FB\u7F8E\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 71
+      isActionActive: 1
+    - dialogueText: "\u53EA\u4E0D\u8FC7\u6682\u65F6\u88AB\u9634\u5F71\u8499\u853D\u4E86\u53CC\u773C\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 72
+      isActionActive: 1
+    - dialogueText: "\u6211\u4F1A\u5C3D\u6211\u6240\u80FD\u541F\u548F\u8BD7\u7BC7\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 73
+      isActionActive: 1
+    - dialogueText: "\u5524\u8D77\u4ED6\u4EEC\u5FC3\u4E2D\u6700\u672C\u771F\u7684\u5584\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 74
+      isActionActive: 1
+    - dialogueText: "\u5BF9\u4E8E\u8FD9\u4E00\u70B9\u6211\u575A\u4FE1\u4E0D\u7591\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 75
+      isActionActive: 1
+    - dialogueText: "\u4F1F\u5927\u7684\u5B88\u62A4\u8005\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 76
+      isActionActive: 1
+    - dialogueText: "\u60A8\u66FE\u8BB8\u8BFA\u6211\u4EEC\u4E00\u7247\u51C0\u571F\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 77
+      isActionActive: 1
+    - dialogueText: "\u5230\u5934\u6765\u4E3A\u4F55\u53D8\u6210\u8FD9\u526F\u6A21\u6837\uFF1F"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 78
+      isActionActive: 1
+    - dialogueText: "\u5728\u5893\u5730\u57CB\u846C\u7740\u4E00\u5207\u7F8E\u597D\u7684\u54C1\u8D28\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 79
+      isActionActive: 1
+    - dialogueText: "\u5B83\u7684\u5EFA\u7ACB\u540D\u4E3A\u4E86\u7EAA\u5FF5\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 80
+      isActionActive: 1
+    - dialogueText: "\u5B9E\u5219\u6211\u4EEC\u5BF9\u6B64\u5FCC\u8BB3\u83AB\u6DF1\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 81
+      isActionActive: 1
+    - dialogueText: "\u4E0D\u77E5\u4E3A\u4F55\u6211\u603B\u4F1A\u8E0F\u4E0A\u8FD9\u7247\u571F\u5730\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 82
+      isActionActive: 1
+    - dialogueText: "\u5373\u4F7F\u5BF9\u5B83\u6211\u5FC3\u6000\u6050\u60E7\u4E0E\u656C\u754F\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 83
+      isActionActive: 1
+    - dialogueText: "\u7ECF\u5E74\u7D2F\u6708\u5760\u843D\u7684\u661F\u8FB0"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 84
+      isActionActive: 1
+    - dialogueText: "\u4E0E\u5B83\u4EEC\u8840\u8089\u6A21\u7CCA\u7684\u8EAF\u4F53\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 85
+      isActionActive: 1
+    - dialogueText: "\u5168\u90FD\u88AB\u57CB\u85CF\u5728\u8FD9\u91CC\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 86
+      isActionActive: 1
+    - dialogueText: "\u5B83\u4EEC\u5728\u5730\u4E0B\u6D8C\u52A8\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 87
+      isActionActive: 1
+    - dialogueText: "\u65F6\u523B\u627E\u5BFB\u673A\u4F1A\u7834\u571F\u800C\u51FA"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 88
+      isActionActive: 1
+    - dialogueText: "\u518D\u6B21\u964D\u4E34\u5728\u5F71\u4E4B\u738B\u56FD\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 89
+      isActionActive: 1
+    - dialogueText: "\u4E0D\u8981\u5411\u6211\u4F38\u624B\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 90
+      isActionActive: 1
+    - dialogueText: "\u6211\u4E0D\u4F1A\u6210\u4E3A\u4F60\u4EEC\u4E2D\u7684\u4E00\u5458\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 91
+      isActionActive: 1
+    - dialogueText: "\u8FDC\u79BB\u6211\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 92
+      isActionActive: 1
+    - dialogueText: "\u6211\u662F\u8BD7\u4EBA\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 93
+      isActionActive: 1
+    - dialogueText: "\u6211\u4E3A\u4E00\u5207\u7F8E\u4E3D\u7684\u4E8B\u7269\u6B4C\u5531\u2014\u2014"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 94
+      isActionActive: 1
+    - dialogueText: "\u516C\u4E3B\u4E0E\u671D\u9732\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 95
+      isActionActive: 1
+    - dialogueText: "\u82B1\u6735\u4E0E\u6708\u5149\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 96
+      isActionActive: 1
+    - dialogueText: "\u4F60\u4EEC\u8FD9\u4E9B\u80AE\u810F\u7684\u53EF\u6016\u7684\u9634\u5F71\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 97
+      isActionActive: 1
+    - dialogueText: "\u6211\u4E0D\u4F1A\u88AB\u4F60\u4EEC\u541E\u566C\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 98
+      isActionActive: 1
+    - dialogueText: "\u6B7B\u540E\u6211\u4F1A\u5316\u4F5C\u661F\u8FB0\u95EA\u70C1\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 99
+      isActionActive: 1
+    - dialogueText: "\u800C\u975E\u548C\u4F60\u4EEC\u4E00\u6837\u675F\u7F1A\u4E8E\u6B64\u52A8\u5F39\u4E0D\u5F97\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 100
+      isActionActive: 1
+    - dialogueText: "\u7136\u800C\u65E2\u7136\u5316\u8EAB\u9634\u5F71\u53C8\u5982\u4F55\u80FD\u91CD\u5F52\u5149\u660E\uFF1F"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 101
+      isActionActive: 1
+    - dialogueText: "\u8BE5\u6B7B\u7684\u5BB6\u4F19\uFF01\u9634\u5F71\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 102
+      isActionActive: 1
+    - dialogueText: "\u653E\u5F00\u6211\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 103
+      isActionActive: 1
+    - dialogueText: "\u2026\u2026"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 104
+      isActionActive: 1
+    - dialogueText: "\uFF08\u6655\u5012\uFF09"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 105
+      isActionActive: 1
+    - dialogueText: "\u2026\u2026\u90A3\u662F\u2026\u2026\u6076\u9F99\uFF1F\uFF1F\uFF1F\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 106
+      isActionActive: 1
+    - dialogueText: "\u2026\u2026\u2026\u2026"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 107
+      isActionActive: 1
+    - dialogueText: "\u2026\u2026"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 108
+      isActionActive: 1
+    - dialogueText: "\u6B63\u5982\u4F20\u8BF4\u4E2D\u7684\u90A3\u6837\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 109
+      isActionActive: 1
+    - dialogueText: "\u6076\u9F99\u6CA1\u6709\u77B3\u5B54\u4E0E\u53E3\u9F3B\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 110
+      isActionActive: 1
+    - dialogueText: "\u5B83\u5C31\u90A3\u6837\u76F4\u63A5\u964D\u4E34\u5728\u4E86\u738B\u56FD\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 111
+      isActionActive: 1
+    - dialogueText: "\u5B88\u62A4\u8005\u554A\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 112
+      isActionActive: 1
+    - dialogueText: "\u4F60\u8FD8\u662F\u90A3\u4E48\u8A00\u4E0D\u7531\u8877\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 113
+      isActionActive: 1
+    - dialogueText: "\u8FD9\u4E00\u70B9\u6211\u65E9\u5DF2\u6599\u5230\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 114
+      isActionActive: 1
+    - dialogueText: "\u53EA\u662F\u88AB\u5E94\u9A8C\u65F6\u8FD8\u662F\u60B2\u4ECE\u5FC3\u8D77\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 115
+      isActionActive: 1
+    - dialogueText: "\u949F\u58F0\u518D\u6B21\u6572\u54CD\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 116
+      isActionActive: 1
+    - dialogueText: "\u65F6\u95F4\u518D\u6B21\u5230\u8FBE\u7EC8\u70B9\uFF1B"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 117
+      isActionActive: 1
+    - dialogueText: "\u8FD9\u4E00\u6B21\u6211\u4EEC\u53C8\u5C06\u4F55\u53BB\u4F55\u4ECE\uFF1F"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 118
+      isActionActive: 1
+    - dialogueText: "\u65B0\u7684\u8BD7\u7BC7\u4E9F\u5F85\u541F\u8BF5\u3002"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 119
+      isActionActive: 1
   pathConnections: []
   pathDecisions: []
+  importExportPath: D:/College/Game/ShadowTheatre/ShadowTheatreProject/Assets/NPCData/Goose_data.csv

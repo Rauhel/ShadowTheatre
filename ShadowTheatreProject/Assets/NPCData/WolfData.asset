@@ -20,7 +20,58 @@ MonoBehaviour:
     pathName: WolfPath1
     minScore: 0
     maxScore: 100
-    events: []
+    events:
+    - eventID: Event_WolfPath1_1
+      startPointIndex: 10
+      endPointIndex: 20
+      playerInteractionRadius: 3
+      showInteractionRange: 1
+      gestureHoldTime: 1
+      maxRecognitionDistance: 8
+      enabledInAct1: 1
+      enabledInAct2: 1
+      enabledInAct3: 1
+      gestureResponses:
+      - gestureType: Bird
+        scoreEffect: 10
+        actions:
+        - dialogueText: "\u624B\u52BF\u53CD\u5E94\u6587\u672C"
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          delay: 0
+          waitTime: 0
+          overridePrevious: 1
+          loopAnimation: 0
+          pathPointIndex: 0
+          isActionActive: 1
+      - gestureType: Deer
+        scoreEffect: 10
+        actions:
+        - dialogueText: "\u624B\u52BF\u53CD\u5E94\u6587\u672C"
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          delay: 0
+          waitTime: 0
+          overridePrevious: 1
+          loopAnimation: 0
+          pathPointIndex: 0
+          isActionActive: 1
+      defaultResponse:
+        gestureType: 
+        scoreEffect: 0
+        actions:
+        - dialogueText: "\u9ED8\u8BA4\u53CD\u5E94\u6587\u672C"
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          delay: 0
+          waitTime: 0
+          overridePrevious: 1
+          loopAnimation: 0
+          pathPointIndex: 0
+          isActionActive: 1
     nextPaths: []
     pathActions:
     - dialogueText: "\u516C\u4E3B\u8981\u88AB\u6076\u9F99\u593A\u8D70\u4E86\uFF01"
