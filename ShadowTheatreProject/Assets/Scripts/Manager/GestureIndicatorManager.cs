@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// 管理手势提示指示器的显示
@@ -40,6 +41,7 @@ public class GestureIndicatorManager : MonoBehaviour
 
     // 当前活跃的指示器
     private List<GameObject> activeIndicators = new List<GameObject>();
+    private Dictionary<GameObject, Transform> indicatorNPCMap = new Dictionary<GameObject, Transform>();
     private Transform currentNPC;
     private Transform playerTransform;
     private Camera mainCamera;
@@ -100,34 +102,30 @@ public class GestureIndicatorManager : MonoBehaviour
         if (npc == null || gestureTypes == null || gestureTypes.Count == 0)
             return;
 
-        // 清除现有指示器
-        ClearIndicators();
+        // 先隐藏该NPC的所有现有指示器
+        HideGestureIndicatorsForNPC(npc);
 
-        currentNPC = npc;
+        // 创建新的指示器
+        float totalWidth = (gestureTypes.Count * indicatorSize) + ((gestureTypes.Count - 1) * indicatorSpacing);
+        float startX = -totalWidth / 2 + indicatorSize / 2;
 
-        // 计算指示器位置
-        Vector3 basePosition = CalculateIndicatorBasePosition(npc);
-        Vector3 screenPos = mainCamera.WorldToScreenPoint(basePosition);
-
-        // 计算指示器总宽度
-        float totalWidth = gestureTypes.Count * indicatorSize + (gestureTypes.Count - 1) * indicatorSpacing;
-        float startX = screenPos.x - totalWidth / 2;
-
-        // 创建每个手势的指示器
         for (int i = 0; i < gestureTypes.Count; i++)
         {
-            string gestureType = gestureTypes[i];
-            Sprite iconSprite = GetGestureIcon(gestureType);
-
-            // 创建指示器
+            // 实例化指示器
             GameObject indicator = Instantiate(gestureIndicatorPrefab, indicatorContainer);
             activeIndicators.Add(indicator);
+            
+            // 关联指示器与NPC
+            indicatorNPCMap[indicator] = npc;
+
+            // 配置指示器
+            Sprite iconSprite = GetGestureIcon(gestureTypes[i]);
 
             // 设置位置
             RectTransform rt = indicator.GetComponent<RectTransform>();
             rt.anchoredPosition = new Vector2(
-                startX + i * (indicatorSize + indicatorSpacing) + indicatorSize / 2,
-                screenPos.y);
+                startX + i * (indicatorSize + indicatorSpacing),
+                0);
 
             // 设置大小
             rt.sizeDelta = new Vector2(indicatorSize, indicatorSize);
@@ -140,11 +138,20 @@ public class GestureIndicatorManager : MonoBehaviour
                 iconImage.preserveAspect = true;
             }
 
-            // 设置标签（如果需要）
-            Text labelText = indicator.GetComponentInChildren<Text>();
-            if (labelText != null)
+            // 设置标签（尝试 TextMeshPro，如果没有则尝试普通 Text）
+            TextMeshProUGUI tmpText = indicator.GetComponentInChildren<TextMeshProUGUI>();
+            if (tmpText != null)
             {
-                labelText.text = gestureType;
+                tmpText.text = gestureTypes[i];
+            }
+            else
+            {
+                // 兼容旧版本
+                Text labelText = indicator.GetComponentInChildren<Text>();
+                if (labelText != null)
+                {
+                    labelText.text = gestureTypes[i];
+                }
             }
 
             // 淡入动画
@@ -158,23 +165,38 @@ public class GestureIndicatorManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 隐藏特定NPC的指示器
+    /// </summary>
+    public void HideGestureIndicatorsForNPC(Transform npc)
+    {
+        List<GameObject> indicatorsToRemove = new List<GameObject>();
+        
+        foreach (var kvp in indicatorNPCMap)
+        {
+            if (kvp.Value == npc)
+            {
+                indicatorsToRemove.Add(kvp.Key);
+            }
+        }
+
+        foreach (var indicator in indicatorsToRemove)
+        {
+            if (activeIndicators.Contains(indicator))
+            {
+                activeIndicators.Remove(indicator);
+                indicatorNPCMap.Remove(indicator);
+                Destroy(indicator);
+            }
+        }
+    }
+
+    /// <summary>
     /// 隐藏所有手势提示
     /// </summary>
     public void HideGestureIndicators()
     {
-        foreach (var indicator in activeIndicators)
-        {
-            CanvasGroup canvasGroup = indicator.GetComponent<CanvasGroup>();
-            if (canvasGroup != null)
-            {
-                StartCoroutine(FadeCanvasGroup(canvasGroup, 1, 0, fadeOutTime, () => Destroy(indicator)));
-            }
-            else
-            {
-                Destroy(indicator);
-            }
-        }
-        activeIndicators.Clear();
+        ClearIndicators();
+        indicatorNPCMap.Clear();
         currentNPC = null;
     }
 
@@ -183,23 +205,63 @@ public class GestureIndicatorManager : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        if (currentNPC != null && activeIndicators.Count > 0)
+        // 为每个NPC分组管理指示器
+        Dictionary<Transform, List<GameObject>> npcIndicators = new Dictionary<Transform, List<GameObject>>();
+        
+        // 对指示器按NPC分组
+        foreach (var kvp in indicatorNPCMap)
         {
-            // 计算新位置
-            Vector3 basePosition = CalculateIndicatorBasePosition(currentNPC);
+            if (!npcIndicators.ContainsKey(kvp.Value))
+                npcIndicators[kvp.Value] = new List<GameObject>();
+            npcIndicators[kvp.Value].Add(kvp.Key);
+        }
+        
+        // 为每个NPC更新其所有指示器
+        foreach (var npcGroup in npcIndicators)
+        {
+            Transform npc = npcGroup.Key;
+            List<GameObject> indicators = npcGroup.Value;
+            
+            if (npc == null || indicators.Count == 0) continue;
+            
+            // 计算基础位置
+            Vector3 basePosition = CalculateIndicatorBasePosition(npc);
             Vector3 screenPos = mainCamera.WorldToScreenPoint(basePosition);
-
-            // 计算指示器总宽度
-            float totalWidth = activeIndicators.Count * indicatorSize + (activeIndicators.Count - 1) * indicatorSpacing;
-            float startX = screenPos.x - totalWidth / 2;
-
-            // 更新每个指示器的位置
-            for (int i = 0; i < activeIndicators.Count; i++)
+            
+            if (screenPos.z > 0)
             {
-                RectTransform rt = activeIndicators[i].GetComponent<RectTransform>();
-                rt.anchoredPosition = new Vector2(
-                    startX + i * (indicatorSize + indicatorSpacing) + indicatorSize / 2,
-                    screenPos.y);
+                // 转换为UI坐标
+                Vector2 localPos;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    indicatorContainer, screenPos, null, out localPos);
+                
+                // 计算总宽度
+                float totalWidth = (indicators.Count * indicatorSize) + 
+                                  ((indicators.Count - 1) * indicatorSpacing);
+                float startX = -totalWidth / 2 + indicatorSize / 2;
+                
+                // 更新每个指示器的位置
+                for (int i = 0; i < indicators.Count; i++)
+                {
+                    GameObject indicator = indicators[i];
+                    if (indicator)
+                    {
+                        RectTransform rt = indicator.GetComponent<RectTransform>();
+                        rt.anchoredPosition = new Vector2(
+                            localPos.x + startX + i * (indicatorSize + indicatorSpacing),
+                            localPos.y
+                        );
+                        indicator.SetActive(true);
+                    }
+                }
+            }
+            else
+            {
+                // NPC在相机背面，隐藏其所有指示器
+                foreach (var indicator in indicators)
+                {
+                    if (indicator) indicator.SetActive(false);
+                }
             }
         }
     }
@@ -286,14 +348,22 @@ public class GestureIndicatorManager : MonoBehaviour
         // 添加Canvas Group用于淡入淡出
         CanvasGroup canvasGroup = gestureIndicatorPrefab.AddComponent<CanvasGroup>();
 
-        // 添加文本标签（可选）
+        // 添加TextMeshPro文本标签
         GameObject labelObj = new GameObject("Label");
         labelObj.transform.SetParent(gestureIndicatorPrefab.transform, false);
-        Text label = labelObj.AddComponent<Text>();
-        label.alignment = TextAnchor.LowerCenter;
+        
+        // 使用 TextMeshProUGUI 而不是 Text
+        TextMeshProUGUI label = labelObj.AddComponent<TextMeshProUGUI>();
+        label.alignment = TextAlignmentOptions.Center;
         label.fontSize = 14;
         label.color = Color.white;
         label.text = "手势";
+        
+        // 设置字体资源（如果有默认字体）
+        TMP_FontAsset defaultFont = Resources.FindObjectsOfTypeAll<TMP_FontAsset>().Length > 0 ? 
+                                   Resources.FindObjectsOfTypeAll<TMP_FontAsset>()[0] : null;
+        if (defaultFont != null)
+            label.font = defaultFont;
 
         RectTransform labelRT = label.GetComponent<RectTransform>();
         labelRT.anchorMin = new Vector2(0, 0);
