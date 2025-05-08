@@ -11,12 +11,17 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float smoothTime = 0.1f;
     [Tooltip("是否让角色立即面向指针方向")]
     [SerializeField] private bool facePointerDirection = true;
+    [Tooltip("是否锁定Y轴旋转，使角色始终朝向正前方（适用于纸片人）")]
+    [SerializeField] private bool lockYRotation = true;
+    [Tooltip("锁定旋转时的固定朝向角度")]
+    [SerializeField] private float fixedYRotation = 0f;
     [Tooltip("选择移动方式：0=即时移动到指针位置，1=平滑移动到指针位置，2=朝指针方向移动")]
     [SerializeField] private int movementType = 2;
-
     [Header("Pointer Settings")]
     [SerializeField] private float pointerGroundHeight = 0f;
     [SerializeField] private bool showDebugPointer = true;
+    [Tooltip("射线位置Z轴偏移量（负值=向后偏移）")]
+    [SerializeField] private float raycastZOffset = -5f; // 添加这行，默认向后偏移5单位
 
     [Header("Hover Detection")]
     [SerializeField] private bool enableHoverStop = true;
@@ -180,10 +185,35 @@ public class PlayerMovement : MonoBehaviour
         // 创建从屏幕点到世界的射线
         Ray ray = mainCamera.ScreenPointToRay(new Vector3(screenPosition.x, screenPosition.y, 0));
 
-        // 尝试与地面平面相交
+        // 确保射线命中点距离玩家不会太近
         if (groundPlane.Raycast(ray, out float distance))
         {
             Vector3 hitPoint = ray.GetPoint(distance);
+            
+            // 应用Z轴偏移量，让射线命中点向后偏移
+            hitPoint.z += raycastZOffset;
+            
+            // 计算与玩家的距离，确保玩家可以向任何方向移动
+            Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
+            float minDistance = 0.5f; // 可以调整的最小距离
+            
+            if ((hitPoint - transform.position).magnitude < minDistance)
+            {
+                // 向屏幕边缘方向延长点位
+                Vector2 directionOnScreen = screenPosition - new Vector2(playerScreenPos.x, playerScreenPos.y);
+                if (directionOnScreen.magnitude > 0.01f)
+                {
+                    directionOnScreen.Normalize();
+                    screenPosition += directionOnScreen * 10; // 向该方向延长
+                    ray = mainCamera.ScreenPointToRay(screenPosition);
+                    if (groundPlane.Raycast(ray, out distance))
+                    {
+                        hitPoint = ray.GetPoint(distance);
+                        hitPoint.z += raycastZOffset; // 也应用到延长点位
+                    }
+                }
+            }
+            
             currentPointerPosition = hitPoint;
 
             // 更新调试指针位置
@@ -202,6 +232,7 @@ public class PlayerMovement : MonoBehaviour
             if (t > 0)
             {
                 Vector3 hitPoint = ray.origin + ray.direction * t;
+                hitPoint.z += raycastZOffset; // 也应用到备用方案
                 currentPointerPosition = hitPoint;
 
                 // 更新调试指针位置
@@ -233,7 +264,12 @@ public class PlayerMovement : MonoBehaviour
         HandleMovement(currentPointerPosition);
 
         // 处理朝向
-        if (facePointerDirection)
+        if (lockYRotation)
+        {
+            // 直接设置固定朝向
+            transform.rotation = Quaternion.Euler(0, fixedYRotation, 0);
+        }
+        else if (facePointerDirection)
         {
             HandleRotation(currentPointerPosition);
         }
@@ -307,12 +343,21 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     private void HandleRotation(Vector3 targetWorldPosition)
     {
-        Vector3 lookDirection = targetWorldPosition - transform.position;
-        lookDirection.y = 0; // 防止在Y轴上旋转
-
-        if (lookDirection != Vector3.zero)
+        if (lockYRotation)
         {
-            transform.rotation = Quaternion.LookRotation(lookDirection);
+            // 锁定Y轴旋转，使用固定朝向
+            transform.rotation = Quaternion.Euler(0, fixedYRotation, 0);
+        }
+        else
+        {
+            // 原有的面向指针逻辑
+            Vector3 lookDirection = targetWorldPosition - transform.position;
+            lookDirection.y = 0; // 防止在Y轴上旋转
+
+            if (lookDirection != Vector3.zero)
+            {
+                transform.rotation = Quaternion.LookRotation(lookDirection);
+            }
         }
     }
 
