@@ -125,12 +125,110 @@ class FeatureExtractor:
         
         features["flat_coordinates"] = flat_coords
         
-        # 6. 构建最终特征向量（扁平化所有特征）
+        # 新增特征 - 针对"狼"和"拳头"的区分
+        
+        # 6. 食指和中指V型特征 - "狼"手势的典型特征
+        # 计算食指-中指间的角度
+        index_middle_angle = self._calculate_angle(
+            normalized_landmarks[self.INDEX_TIP], 
+            normalized_landmarks[self.INDEX_MCP], 
+            normalized_landmarks[self.MIDDLE_TIP]
+        )
+        
+        # 7. 拳头闭合度 - 指尖到手掌中心的平均距离
+        # 计算手掌中心点 (使用所有MCP的平均位置)
+        palm_center = {
+            "x": sum(normalized_landmarks[mcp]["x"] for mcp in self.FINGER_MCPS) / len(self.FINGER_MCPS),
+            "y": sum(normalized_landmarks[mcp]["y"] for mcp in self.FINGER_MCPS) / len(self.FINGER_MCPS),
+            "z": sum(normalized_landmarks[mcp]["z"] for mcp in self.FINGER_MCPS) / len(self.FINGER_MCPS)
+        }
+        
+        # 计算所有指尖到手掌中心的距离
+        fingertips_to_palm = []
+        for tip in self.FINGERTIPS:
+            dist = self._calculate_distance(normalized_landmarks[tip], palm_center)
+            fingertips_to_palm.append(dist)
+        
+        # 计算闭合度 (平均距离)
+        fist_closeness = sum(fingertips_to_palm) / len(fingertips_to_palm)
+        
+        # 8. 食指和中指特征 - "狼"手势中食指和中指通常是伸出的
+        # 计算食指和中指指尖到其MCP的相对长度
+        index_extension = self._calculate_distance(
+            normalized_landmarks[self.INDEX_TIP], 
+            normalized_landmarks[self.INDEX_MCP]
+        )
+        middle_extension = self._calculate_distance(
+            normalized_landmarks[self.MIDDLE_TIP], 
+            normalized_landmarks[self.MIDDLE_MCP]
+        )
+        
+        # 计算其他三个手指的平均伸展度
+        other_fingers_extension = (
+            self._calculate_distance(normalized_landmarks[self.THUMB_TIP], normalized_landmarks[self.THUMB_CMC]) +
+            self._calculate_distance(normalized_landmarks[self.RING_TIP], normalized_landmarks[self.RING_MCP]) +
+            self._calculate_distance(normalized_landmarks[self.PINKY_TIP], normalized_landmarks[self.PINKY_MCP])
+        ) / 3
+        
+        # 计算食指和中指伸展度与其他手指伸展度的比率
+        index_middle_vs_others = (index_extension + middle_extension) / (other_fingers_extension * 2 + 1e-6)
+        
+        # 9. 食指-中指高度差异 - "狼"手势中食指和中指可能高度相似
+        index_middle_height_diff = abs(normalized_landmarks[self.INDEX_TIP]["y"] - normalized_landmarks[self.MIDDLE_TIP]["y"])
+        
+        # 10. 拇指特征 - 拇指与食指的夹角和距离
+        thumb_index_angle = self._calculate_angle(
+            normalized_landmarks[self.THUMB_TIP],
+            normalized_landmarks[self.WRIST],
+            normalized_landmarks[self.INDEX_TIP]
+        )
+        
+        thumb_index_dist = self._calculate_distance(
+            normalized_landmarks[self.THUMB_TIP],
+            normalized_landmarks[self.INDEX_TIP]
+        )
+        
+        # 存储新增的区分特征
+        wolf_fist_features = [
+            index_middle_angle,           # 食指-中指V型角度
+            fist_closeness,               # 拳头闭合度
+            index_extension,              # 食指伸展度
+            middle_extension,             # 中指伸展度
+            index_middle_vs_others,       # 食指中指与其他手指伸展对比
+            index_middle_height_diff,     # 食指中指高度差异
+            thumb_index_angle,            # 拇指-食指夹角
+            thumb_index_dist              # 拇指-食指距离
+        ]
+        
+        features["wolf_fist_features"] = wolf_fist_features
+        
+        # 11. 指尖闭合度分布 - 用于进一步区分手势形状
+        # 计算各指尖间距离
+        fingertip_distances = []
+        for i in range(len(self.FINGERTIPS)):
+            for j in range(i+1, len(self.FINGERTIPS)):
+                dist = self._calculate_distance(
+                    normalized_landmarks[self.FINGERTIPS[i]],
+                    normalized_landmarks[self.FINGERTIPS[j]]
+                )
+                fingertip_distances.append(dist)
+        
+        # 计算指尖距离的标准差 - 低表示拳头(距离相近)，高表示张开(距离各异)
+        if len(fingertip_distances) > 0:
+            fingertip_distance_std = np.std(fingertip_distances)
+        else:
+            fingertip_distance_std = 0
+        
+        features["fingertip_distance_std"] = fingertip_distance_std
+        
+        # 构建最终特征向量（扁平化所有特征）
         final_feature_vector = []
-        final_feature_vector.extend(distance_features)
-        final_feature_vector.extend(angle_features)
-        final_feature_vector.extend(height_pattern)
-        final_feature_vector.extend(flat_coords)
+        final_feature_vector.extend(distance_features)       # 骨架长度特征
+        final_feature_vector.extend(angle_features)          # 角度特征
+        final_feature_vector.extend(height_pattern)          # 指尖高度排序
+        final_feature_vector.extend(wolf_fist_features)      # 狼vs拳头区分特征
+        final_feature_vector.append(fingertip_distance_std)  # 指尖闭合度分布
+        final_feature_vector.extend(flat_coords)             # 归一化坐标
         
         features["feature_vector"] = final_feature_vector
         
