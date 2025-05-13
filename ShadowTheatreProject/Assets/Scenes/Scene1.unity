@@ -2356,7 +2356,7 @@ Transform:
   m_GameObject: {fileID: 1217259979}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.5474735e-13, y: 9.771776, z: 42.60052}
+  m_LocalPosition: {x: -4.5474735e-13, y: 9.771776, z: 42.600536}
   m_LocalScale: {x: 78.17421, y: 19.543552, z: 78.17421}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -5642,7 +5642,7 @@ Transform:
   m_GameObject: {fileID: 2116763512}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.5999987, y: 9.771776, z: 41.70052}
+  m_LocalPosition: {x: 1.5999987, y: 9.771776, z: 41.700535}
   m_LocalScale: {x: 78.17421, y: 19.543552, z: 78.17421}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -5789,7 +5789,7 @@ MonoBehaviour:
   movementType: 2
   pointerGroundHeight: 0
   showDebugPointer: 1
-  raycastZOffset: -5
+  raycastZOffset: -8
   enableHoverStop: 1
   hoverMinThreshold: {x: 0.4, y: 0.4}
   hoverMaxThreshold: {x: 0.6, y: 0.6}
