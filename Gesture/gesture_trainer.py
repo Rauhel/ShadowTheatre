@@ -7,12 +7,16 @@ import pickle
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
+# 导入特征提取器
+from feature_extractor import FeatureExtractor
+
 class GestureTrainer:
     def __init__(self, data_dir="gesture_data", model_file="gesture_model.pkl"):
         self.data_dir = data_dir
         self.model_file = model_file
         self.model = None
         self.hand_type_dict = {}  # 存储每个手势是单手还是双手
+        self.feature_extractor = FeatureExtractor()
         
     def load_data(self):
         """从每个手势的文件夹加载所有样本"""
@@ -27,7 +31,7 @@ class GestureTrainer:
         
         if not gesture_folders:
             print(f"错误：在 {self.data_dir} 中没有找到手势文件夹!")
-            return np.array([]), np.array([])
+            return False
         
         print(f"发现以下手势类型: {gesture_folders}")
         
@@ -60,28 +64,37 @@ class GestureTrainer:
                     session_samples = data['samples']
                     gesture_samples_count += len(session_samples)
                     
+                    # 检查数据版本，确定是否有增强特征
+                    has_enhanced_features = 'version' in data and data['version'] == '2.0'
+                    
                     # 将会话数据添加到训练集
                     for sample in session_samples:
                         if is_two_hands:
                             # 双手特征
                             if sample["hand2"] is None:
                                 continue  # 跳过不完整的数据
-                                
-                            features = []
-                            # 第一只手特征
-                            for landmark in sample["hand1"]:
-                                features.extend([landmark['x'], landmark['y'], landmark['z']])
-                            # 第二只手特征
-                            for landmark in sample["hand2"]:
-                                features.extend([landmark['x'], landmark['y'], landmark['z']])
+                            
+                            if has_enhanced_features and "enhanced_features" in sample:
+                                # 使用预先计算的增强特征
+                                features = sample["enhanced_features"]["feature_vector"]
+                            else:
+                                # 现场计算增强特征
+                                enhanced_features = self.feature_extractor.extract_two_hands_features(
+                                    sample["hand1"], sample["hand2"])
+                                features = enhanced_features["feature_vector"]
                             
                             X_double.append(features)
                             y_double.append(gesture_name)
                         else:
                             # 单手特征
-                            features = []
-                            for landmark in sample["hand1"]:
-                                features.extend([landmark['x'], landmark['y'], landmark['z']])
+                            if has_enhanced_features and "enhanced_features" in sample:
+                                # 使用预先计算的增强特征
+                                features = sample["enhanced_features"]["feature_vector"]
+                            else:
+                                # 现场计算增强特征
+                                enhanced_features = self.feature_extractor.extract_single_hand_features(
+                                    sample["hand1"])
+                                features = enhanced_features["feature_vector"]
                             
                             X_single.append(features)
                             y_single.append(gesture_name)
@@ -110,9 +123,15 @@ class GestureTrainer:
             
         print(f"训练单手手势模型：{len(X)} 个样本，{len(set(y))} 种不同的手势")
         
+        # 将列表转换为numpy数组
+        X = np.array(X)
+        
         # 划分训练集和测试集
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=42)
+        
+        # 输出特征维度信息
+        print(f"单手模型特征维度: {X.shape[1]}")
         
         # 训练模型
         print("训练单手手势模型中...")
@@ -147,6 +166,12 @@ class GestureTrainer:
             return False
             
         print(f"训练双手手势模型：{len(X)} 个样本，{len(set(y))} 种不同的手势")
+        
+        # 将列表转换为numpy数组
+        X = np.array(X)
+        
+        # 输出特征维度信息
+        print(f"双手模型特征维度: {X.shape[1]}")
         
         # 划分训练集和测试集
         X_train, X_test, y_train, y_test = train_test_split(

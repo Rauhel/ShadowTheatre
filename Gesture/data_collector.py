@@ -7,11 +7,15 @@ import json
 import datetime
 import sys
 
+# 导入特征提取器
+from feature_extractor import FeatureExtractor
+
 class GestureDataCollector:
     def __init__(self, base_dir="gesture_data"):
         self.mp_hands = mp.solutions.hands
         self.mp_drawing = mp.solutions.drawing_utils
         self.base_dir = base_dir
+        self.feature_extractor = FeatureExtractor()
         
         # Create base data directory
         os.makedirs(base_dir, exist_ok=True)
@@ -111,12 +115,23 @@ class GestureDataCollector:
                                 "z": landmark.z
                             })
                         hand_data.append(landmarks_list)
-                        
-                    # Add to sample set
+                    
+                    # Extract optimized features for two hands
+                    enhanced_features = self.feature_extractor.extract_two_hands_features(hand_data[0], hand_data[1])
+                    
+                    # Add to sample set with both original landmarks and enhanced features
                     samples.append({
                         "hand1": hand_data[0], 
                         "hand2": hand_data[1],
-                        "is_two_hands": True
+                        "is_two_hands": True,
+                        "enhanced_features": {
+                            "distances": enhanced_features["hand1"]["distances"] + enhanced_features["hand2"]["distances"],
+                            "angles": enhanced_features["hand1"]["angles"] + enhanced_features["hand2"]["angles"],
+                            "height_pattern": enhanced_features["hand1"]["height_pattern"] + enhanced_features["hand2"]["height_pattern"],
+                            "mirror_diff": enhanced_features["mirror_diff"],
+                            "height_diff": enhanced_features["height_diff"],
+                            "feature_vector": enhanced_features["feature_vector"]
+                        }
                     })
                     collected_samples += 1
                     
@@ -138,11 +153,20 @@ class GestureDataCollector:
                             "z": landmark.z
                         })
                     
-                    # Add to sample set
+                    # Extract optimized features
+                    enhanced_features = self.feature_extractor.extract_single_hand_features(landmarks_list)
+                    
+                    # Add to sample set with both original landmarks and enhanced features
                     samples.append({
                         "hand1": landmarks_list,
                         "hand2": None,
-                        "is_two_hands": False
+                        "is_two_hands": False,
+                        "enhanced_features": {
+                            "distances": enhanced_features["distances"],
+                            "angles": enhanced_features["angles"],
+                            "height_pattern": enhanced_features["height_pattern"],
+                            "feature_vector": enhanced_features["feature_vector"]
+                        }
                     })
                     collected_samples += 1
                 
@@ -162,7 +186,8 @@ class GestureDataCollector:
                     json.dump({
                         "gesture": gesture_name,
                         "is_two_hands": is_two_hands,
-                        "samples": samples
+                        "samples": samples,
+                        "version": "2.0"  # 添加版本标记，表示使用了增强特征
                     }, f)
                 
                 print(f"Successfully collected and saved {len(samples)} samples for {gesture_name} {'(two hands)' if is_two_hands else '(one hand)'} gesture")
@@ -193,16 +218,12 @@ if __name__ == "__main__":
     
     # Define gestures to collect - (gesture name, is two hands)
     gestures = [
-        #("Bird", True),  # Two hands gesture
-        ("Deer", True),  
+        ("Bird", True),  # Two hands gesture
+        ("Owl", True),  
         ("Wolf", False),   # One hand gesture
-        ("Rabbit", False), 
+        ("Frog", True), 
         ("Goose", True),
-        ("Touch", True),
         ("Fist", False),
-        ("Refuse", False),
-        ("Receive", True),
-        ("Pause", True)
     ]
     
     for gesture_name, is_two_hands in gestures:

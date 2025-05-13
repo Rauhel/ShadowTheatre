@@ -3,7 +3,7 @@ import time
 import cv2
 from utils.network import NetworkManager
 from gesture_recognition import GestureRecognition
-from HandPosition import HandPositionTracker
+from hand_position import HandPositionTracker
 
 class ShadowTheatreApp:
     def __init__(self, gesture_host='127.0.0.1', gesture_port=8000, 

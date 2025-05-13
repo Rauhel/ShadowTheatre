@@ -43,28 +43,54 @@ class GestureRecognition:
             return True
         return False
     
-    def recognize_single_hand(self, landmarks):
+    def recognize_single_hand(self, hand_landmarks):
         """识别单手手势
         
         参数:
-            landmarks: 手部关键点坐标列表
+            hand_landmarks: 手部关键点坐标列表
             
         返回:
             稳定的手势识别结果
         """
+        # 转换MediaPipe格式到我们的格式
+        landmarks = []
+        for landmark in hand_landmarks:
+            landmarks.append({
+                "x": landmark[0],
+                "y": landmark[1],
+                "z": 0.0  # Z坐标在2D图像处理中通常不可用
+            })
+            
         raw_gesture = self.single_hand_recognizer.recognize(landmarks)
         return self.gesture_stabilizer.add_gesture(raw_gesture)
     
-    def recognize_two_hands(self, landmarks1, landmarks2):
+    def recognize_two_hands(self, hand_landmarks1, hand_landmarks2):
         """识别双手手势
         
         参数:
-            landmarks1: 第一只手的关键点坐标列表
-            landmarks2: 第二只手的关键点坐标列表
+            hand_landmarks1: 第一只手的关键点坐标列表
+            hand_landmarks2: 第二只手的关键点坐标列表
             
         返回:
             稳定的手势识别结果
         """
+        # 转换MediaPipe格式到我们的格式
+        landmarks1 = []
+        for landmark in hand_landmarks1:
+            landmarks1.append({
+                "x": landmark[0],
+                "y": landmark[1],
+                "z": 0.0
+            })
+            
+        landmarks2 = []
+        for landmark in hand_landmarks2:
+            landmarks2.append({
+                "x": landmark[0],
+                "y": landmark[1],
+                "z": 0.0
+            })
+            
         raw_gesture = self.two_hands_recognizer.recognize(landmarks1, landmarks2)
         return self.gesture_stabilizer.add_gesture(raw_gesture)
     
@@ -125,18 +151,25 @@ class GestureRecognition:
                         # 提取两手关键点
                         landmarks1 = []
                         for landmark in results.multi_hand_landmarks[0].landmark:
-                            x = int(landmark.x * image.shape[1])
-                            y = int(landmark.y * image.shape[0])
-                            landmarks1.append((x, y))
+                            x = landmark.x
+                            y = landmark.y
+                            z = landmark.z
+                            landmarks1.append({
+                                "x": x, "y": y, "z": z
+                            })
                         
                         landmarks2 = []
                         for landmark in results.multi_hand_landmarks[1].landmark:
-                            x = int(landmark.x * image.shape[1])
-                            y = int(landmark.y * image.shape[0])
-                            landmarks2.append((x, y))
+                            x = landmark.x
+                            y = landmark.y
+                            z = landmark.z
+                            landmarks2.append({
+                                "x": x, "y": y, "z": z
+                            })
                         
                         # 识别双手手势
-                        current_gesture = self.recognize_two_hands(landmarks1, landmarks2)
+                        current_gesture = self.two_hands_recognizer.recognize(landmarks1, landmarks2)
+                        current_gesture = self.gesture_stabilizer.add_gesture(current_gesture)
                         
                         # 显示在画面上
                         status_text = f"双手: {current_gesture}"
@@ -148,12 +181,16 @@ class GestureRecognition:
                         # 提取手部关键点坐标
                         landmarks = []
                         for landmark in results.multi_hand_landmarks[0].landmark:
-                            x = int(landmark.x * image.shape[1])
-                            y = int(landmark.y * image.shape[0])
-                            landmarks.append((x, y))
+                            x = landmark.x
+                            y = landmark.y
+                            z = landmark.z
+                            landmarks.append({
+                                "x": x, "y": y, "z": z
+                            })
                         
                         # 识别单手手势
-                        current_gesture = self.recognize_single_hand(landmarks)
+                        current_gesture = self.single_hand_recognizer.recognize(landmarks)
+                        current_gesture = self.gesture_stabilizer.add_gesture(current_gesture)
                         
                         # 显示在画面上
                         status_text = f"单手: {current_gesture}"
