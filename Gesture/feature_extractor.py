@@ -264,14 +264,97 @@ class FeatureExtractor:
             diff = self._calculate_distance(landmarks1[i], mirror_point)
             mirror_diff.append(diff)
         
+        # 计算镜像对称性得分 - 越低越对称，鸟手势通常更对称
+        symmetry_score = sum(mirror_diff) / len(mirror_diff)
+        
         # 计算两手指尖高度差异
         height_diff = []
         for tip in self.FINGERTIPS:
             diff = abs(features1["normalized_landmarks"][tip]["y"] - features2["normalized_landmarks"][tip]["y"])
             height_diff.append(diff)
         
+        # 新增特征1：手腕间距离 - 区分"蛙"(大)和"猫头鹰"/"鸟"(小)
+        wrist_dist = self._calculate_distance(landmarks1[self.WRIST], landmarks2[self.WRIST])
+        
+        # 新增特征2：掌心中心点距离 - 区分"鸟"和"猫头鹰"
+        # 计算两个手的掌心中心点
+        palm_center1 = {
+            "x": (landmarks1[self.INDEX_MCP]["x"] + landmarks1[self.PINKY_MCP]["x"]) / 2,
+            "y": (landmarks1[self.INDEX_MCP]["y"] + landmarks1[self.PINKY_MCP]["y"]) / 2,
+            "z": (landmarks1[self.INDEX_MCP]["z"] + landmarks1[self.PINKY_MCP]["z"]) / 2
+        }
+        
+        palm_center2 = {
+            "x": (landmarks2[self.INDEX_MCP]["x"] + landmarks2[self.PINKY_MCP]["x"]) / 2,
+            "y": (landmarks2[self.INDEX_MCP]["y"] + landmarks2[self.PINKY_MCP]["y"]) / 2,
+            "z": (landmarks2[self.INDEX_MCP]["z"] + landmarks2[self.PINKY_MCP]["z"]) / 2
+        }
+        
+        palm_dist = self._calculate_distance(palm_center1, palm_center2)
+        
+        # 新增特征3：指尖间最短距离 - 检测手指是否交错(猫头鹰)或分开(其他)
+        min_tip_dist = float('inf')
+        for tip1 in self.FINGERTIPS:
+            for tip2 in self.FINGERTIPS:
+                dist = self._calculate_distance(landmarks1[tip1], landmarks2[tip2])
+                min_tip_dist = min(min_tip_dist, dist)
+        
+        # 新增特征4：手指交错模式 - 计算所有指尖对的距离矩阵
+        tip_dist_matrix = []
+        for tip1 in self.FINGERTIPS:
+            for tip2 in self.FINGERTIPS:
+                tip_dist_matrix.append(self._calculate_distance(landmarks1[tip1], landmarks2[tip2]))
+        
+        # 新增特征5：双手左右位置差异 - 特别对"蛙"手势敏感
+        x_position_diff = abs(landmarks1[self.WRIST]["x"] - landmarks2[self.WRIST]["x"])
+        y_position_diff = abs(landmarks1[self.WRIST]["y"] - landmarks2[self.WRIST]["y"])
+        
+        # 新增特征6：手掌方向特征 - 两个手掌面朝向的差异
+        def get_palm_normal(hand_landmarks):
+            # 使用INDEX_MCP, MIDDLE_MCP, RING_MCP三点定义手掌平面
+            v1 = [
+                hand_landmarks[self.MIDDLE_MCP]["x"] - hand_landmarks[self.INDEX_MCP]["x"],
+                hand_landmarks[self.MIDDLE_MCP]["y"] - hand_landmarks[self.INDEX_MCP]["y"],
+                hand_landmarks[self.MIDDLE_MCP]["z"] - hand_landmarks[self.INDEX_MCP]["z"]
+            ]
+            
+            v2 = [
+                hand_landmarks[self.RING_MCP]["x"] - hand_landmarks[self.INDEX_MCP]["x"],
+                hand_landmarks[self.RING_MCP]["y"] - hand_landmarks[self.INDEX_MCP]["y"],
+                hand_landmarks[self.RING_MCP]["z"] - hand_landmarks[self.INDEX_MCP]["z"]
+            ]
+            
+            # 计算法向量（叉积）
+            normal = [
+                v1[1]*v2[2] - v1[2]*v2[1],
+                v1[2]*v2[0] - v1[0]*v2[2],
+                v1[0]*v2[1] - v1[1]*v2[0]
+            ]
+            
+            # 归一化
+            length = math.sqrt(sum([x*x for x in normal]))
+            if length > 0:
+                return [x/length for x in normal]
+            return normal
+        
+        normal1 = get_palm_normal(landmarks1)
+        normal2 = get_palm_normal(landmarks2)
+        
+        # 计算两个法向量的点积，判断手掌朝向相似度
+        dot_product = sum([normal1[i] * normal2[i] for i in range(3)])
+        palm_orientation_similarity = abs(dot_product)  # 接近1表示方向相似或相反
+        
+        # 存储所有双手特征
         combined_features["mirror_diff"] = mirror_diff
         combined_features["height_diff"] = height_diff
+        combined_features["symmetry_score"] = symmetry_score
+        combined_features["wrist_dist"] = wrist_dist
+        combined_features["palm_dist"] = palm_dist
+        combined_features["min_tip_dist"] = min_tip_dist
+        combined_features["tip_dist_matrix"] = tip_dist_matrix
+        combined_features["x_position_diff"] = x_position_diff
+        combined_features["y_position_diff"] = y_position_diff
+        combined_features["palm_orientation_similarity"] = palm_orientation_similarity
         
         # 合并单手特征
         combined_features["hand1"] = features1
@@ -279,10 +362,21 @@ class FeatureExtractor:
         
         # 构建最终特征向量
         final_feature_vector = []
+        # 单手特征
         final_feature_vector.extend(features1["feature_vector"])  # 第一只手特征
         final_feature_vector.extend(features2["feature_vector"])  # 第二只手特征
+        
+        # 双手空间关系特征
         final_feature_vector.extend(mirror_diff)                  # 镜像差异
         final_feature_vector.extend(height_diff)                  # 高度差异
+        final_feature_vector.append(symmetry_score)               # 整体对称得分
+        final_feature_vector.append(wrist_dist)                   # 手腕距离
+        final_feature_vector.append(palm_dist)                    # 掌心距离
+        final_feature_vector.append(min_tip_dist)                 # 最小指尖距离
+        final_feature_vector.extend(tip_dist_matrix)              # 指尖距离矩阵
+        final_feature_vector.append(x_position_diff)              # 水平位置差异
+        final_feature_vector.append(y_position_diff)              # 垂直位置差异
+        final_feature_vector.append(palm_orientation_similarity)  # 掌心朝向相似度
         
         combined_features["feature_vector"] = final_feature_vector
         
