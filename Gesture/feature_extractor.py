@@ -221,15 +221,15 @@ class FeatureExtractor:
         
         features["fingertip_distance_std"] = fingertip_distance_std
         
-        # 构建最终特征向量（扁平化所有特征）
+        # 构建最终特征向量（重新排列特征顺序）
         final_feature_vector = []
-        final_feature_vector.extend(distance_features)       # 骨架长度特征
-        final_feature_vector.extend(angle_features)          # 角度特征
-        final_feature_vector.extend(height_pattern)          # 指尖高度排序
-        final_feature_vector.extend(wolf_fist_features)      # 狼vs拳头区分特征
-        final_feature_vector.append(fingertip_distance_std)  # 指尖闭合度分布
-        final_feature_vector.extend(flat_coords)             # 归一化坐标
-        
+        final_feature_vector.extend(wolf_fist_features)      # 狼vs拳头区分特征（重要）
+        final_feature_vector.append(fingertip_distance_std)  # 指尖闭合度分布（重要）
+        final_feature_vector.extend(angle_features)          # 角度特征（重要）
+        final_feature_vector.extend(distance_features)       # 骨架长度特征（次重要）
+        final_feature_vector.extend(height_pattern)          # 指尖高度排序（次重要）
+        final_feature_vector.extend(flat_coords)             # 归一化坐标（基础特征）
+
         features["feature_vector"] = final_feature_vector
         
         return features
@@ -360,24 +360,24 @@ class FeatureExtractor:
         combined_features["hand1"] = features1
         combined_features["hand2"] = features2
         
-        # 构建最终特征向量
+        # 构建最终特征向量（双手特征重新排列）
         final_feature_vector = []
         # 单手特征
         final_feature_vector.extend(features1["feature_vector"])  # 第一只手特征
         final_feature_vector.extend(features2["feature_vector"])  # 第二只手特征
-        
-        # 双手空间关系特征
-        final_feature_vector.extend(mirror_diff)                  # 镜像差异
-        final_feature_vector.extend(height_diff)                  # 高度差异
-        final_feature_vector.append(symmetry_score)               # 整体对称得分
-        final_feature_vector.append(wrist_dist)                   # 手腕距离
-        final_feature_vector.append(palm_dist)                    # 掌心距离
-        final_feature_vector.append(min_tip_dist)                 # 最小指尖距离
-        final_feature_vector.extend(tip_dist_matrix)              # 指尖距离矩阵
-        final_feature_vector.append(x_position_diff)              # 水平位置差异
-        final_feature_vector.append(y_position_diff)              # 垂直位置差异
-        final_feature_vector.append(palm_orientation_similarity)  # 掌心朝向相似度
-        
+
+        # 双手空间关系特征（重新排列）
+        final_feature_vector.append(symmetry_score)               # 整体对称得分（重要）
+        final_feature_vector.append(wrist_dist)                   # 手腕距离（重要）
+        final_feature_vector.append(palm_dist)                    # 掌心距离（重要）
+        final_feature_vector.append(min_tip_dist)                 # 最小指尖距离（重要）
+        final_feature_vector.append(palm_orientation_similarity)  # 掌心朝向相似度（重要）
+        final_feature_vector.extend(mirror_diff)                  # 镜像差异（次重要）
+        final_feature_vector.extend(height_diff)                  # 高度差异（次重要）
+        final_feature_vector.extend(tip_dist_matrix)              # 指尖距离矩阵（次重要）
+        final_feature_vector.append(x_position_diff)              # 水平位置差异（次重要）
+        final_feature_vector.append(y_position_diff)              # 垂直位置差异（次重要）
+
         combined_features["feature_vector"] = final_feature_vector
         
         return combined_features
