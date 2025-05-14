@@ -356,20 +356,20 @@ class FeatureExtractor:
         combined_features["y_position_diff"] = y_position_diff
         combined_features["palm_orientation_similarity"] = palm_orientation_similarity
         
-        # 合并单手特征
-        combined_features["hand1"] = features1
-        combined_features["hand2"] = features2
-        
-        # 构建最终特征向量（双手特征重新排列）
+        # 构建最终特征向量（双手特征重新排列并强化）
         final_feature_vector = []
         # 单手特征
         final_feature_vector.extend(features1["feature_vector"])  # 第一只手特征
         final_feature_vector.extend(features2["feature_vector"])  # 第二只手特征
 
-        # 双手空间关系特征（重新排列）
+        # 双手空间关系特征（重新排列并强化）
         final_feature_vector.append(symmetry_score)               # 整体对称得分（重要）
         final_feature_vector.append(wrist_dist)                   # 手腕距离（重要）
+        final_feature_vector.append(wrist_dist ** 2)              # 手腕距离平方（强化）
+        final_feature_vector.append(math.log(wrist_dist + 1e-6))  # 手腕距离对数（强化）
         final_feature_vector.append(palm_dist)                    # 掌心距离（重要）
+        final_feature_vector.append(palm_dist ** 2)               # 掌心距离平方（强化）
+        final_feature_vector.append(math.log(palm_dist + 1e-6))   # 掌心距离对数（强化）
         final_feature_vector.append(min_tip_dist)                 # 最小指尖距离（重要）
         final_feature_vector.append(palm_orientation_similarity)  # 掌心朝向相似度（重要）
         final_feature_vector.extend(mirror_diff)                  # 镜像差异（次重要）
