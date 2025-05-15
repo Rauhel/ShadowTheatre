@@ -69,5 +69,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='gesture_app'
+    name='D:/College/Game/ShadowTheatre/ShadowTheatreProject/Assets/StreamingAssets/gesture_app'
 )
