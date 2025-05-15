@@ -120,6 +120,7 @@ public class NPCPathManager : MonoBehaviour
     }
 
     // 获取指定路径点的waitTime（优先事件动作，其次pathActions）
+    // 只取第一个匹配的 ActionData 的 waitTime，其它同路径点的 waitTime 会被忽略
     private float GetWaitTimeForPathPoint(int pathPointIndex)
     {
         float waitTime = 0f;
