@@ -17,6 +17,7 @@ public class NPCPathManager : MonoBehaviour
     private int lastReachedPointIndex = -1;
     private float reachDistance = 1f; // 到达点的距离阈值
     private NavMeshAgent agent;
+    private bool isWaitingAtPoint = false; // 新增：标记是否正在等待
 
     // 公共属性
     public Transform CurrentPath => currentPathPoints;
@@ -43,7 +44,6 @@ public class NPCPathManager : MonoBehaviour
         InitializeStartingPath();
     }
 
-    // 修改 NPCPathManager.cs 的 Update 方法
     void Update()
     {
         if (pathProcessingPaused || controller.Data == null)
@@ -51,157 +51,12 @@ public class NPCPathManager : MonoBehaviour
 
         // 路径移动
         FollowCurrentPath();
-
-        // 路径点检测
-        if (currentPathCreator != null)
-        {
-            // 每隔几帧输出一次调试信息，避免日志过多
-            if (Time.frameCount % 30 == 0)
-                Debug.Log($"[{gameObject.name}] 正在检查路径点，当前位置: {transform.position}, lastReachedPointIndex={lastReachedPointIndex}");
-
-            for (int i = 0; i < currentPathCreator.GetPathPointCount(); i++)
-            {
-                Vector3 pointPosition = currentPathCreator.GetPathPointPosition(i);
-                float distanceToPoint = Vector3.Distance(transform.position, pointPosition);
-
-                // 对每个接近的点输出详细信息
-                if (distanceToPoint < reachDistance * 2)
-                {
-                    Debug.Log($"[{gameObject.name}] 接近路径点 {i}, 距离={distanceToPoint:F2}, 阈值={reachDistance}, 是否为最后到达点={i == lastReachedPointIndex}");
-                }
-
-                if (distanceToPoint < reachDistance && lastReachedPointIndex != i)
-                {
-                    lastReachedPointIndex = i;
-                    Debug.Log($"[{gameObject.name}] 到达路径点 {i}，触发事件");
-
-                    // 触发路径点到达事件
-                    OnPathPointReached?.Invoke(i);
-
-                    // 处理等待时间
-                    HandlePathPointWaitTime(i);
-                    break;
-                }
-            }
-        }
-    }
-
-    // 处理路径点等待时间
-    private void HandlePathPointWaitTime(int pathPointIndex)
-    {
-        // 获取当前路径配置
-        NPCData npcData = controller.Data;
-        if (npcData == null)
-            return;
-
-        PathConfig currentPath = GetCurrentPathConfig();
-        if (currentPath == null)
-            return;
-
-        float waitTime = 0f;
-
-        // 检查是否有与此路径点关联的已完成事件的动作
-        if (eventManager != null)
-        {
-            PathEvent completedEvent = eventManager.FindCompletedEventForPathPoint(pathPointIndex);
-            if (completedEvent != null)
-            {
-                // 寻找路径点动作中的等待时间
-                foreach (var action in completedEvent.defaultResponse.actions)
-                {
-                    if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.waitTime > 0)
-                    {
-                        waitTime = action.waitTime;
-                        break;
-                    }
-                }
-            }
-        }
-
-        // 如果没有已完成的事件的等待时间，检查默认路径动作
-        if (waitTime <= 0)
-        {
-            foreach (var action in currentPath.pathActions)
-            {
-                if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.waitTime > 0)
-                {
-                    waitTime = action.waitTime;
-                    break;
-                }
-            }
-        }
-
-        // 处理等待时间
-        if (waitTime > 0)
-        {
-            StartCoroutine(WaitAtPathPoint(waitTime));
-        }
-    }
-
-    // 添加一个新的协程来处理等待
-    private IEnumerator WaitAtPathPoint(float waitTime)
-    {
-        Debug.Log($"[{gameObject.name}] 在路径点停留 {waitTime} 秒");
-
-        // 停止NPC移动
-        controller.StopMovement(true);
-
-        // 等待指定时间
-        yield return new WaitForSeconds(waitTime);
-
-        // 继续移动
-        controller.StopMovement(false);
-        Debug.Log($"[{gameObject.name}] 停留结束，继续移动");
-    }
-
-    // 路径初始化
-    private void InitializeStartingPath()
-    {
-        if (controller == null || controller.Data == null)
-            return;
-
-        string initialPath = "";
-        if (controller.Data.paths != null && controller.Data.paths.Count > 0)
-        {
-            initialPath = controller.Data.paths[0].pathID;
-            Debug.Log($"[{gameObject.name}] 使用第一个可用路径作为初始路径: {initialPath}");
-        }
-
-        if (string.IsNullOrEmpty(initialPath))
-        {
-            Debug.LogWarning($"[{gameObject.name}] 未设置初始路径");
-            return;
-        }
-
-        // 尝试获取路径
-        MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(initialPath);
-        if (pathCreator != null)
-        {
-            Debug.Log($"[{gameObject.name}] 使用路径初始化: {pathCreator.name}");
-
-            // 确保路径点数据已生成
-            if (pathCreator.pathPointPositions.Count == 0 && pathCreator.controlPoints.Count >= 2)
-            {
-                Debug.Log($"[{gameObject.name}] 正在为路径生成路径点: {pathCreator.name}");
-                pathCreator.GeneratePathPoints();
-            }
-
-            // 确保验证
-            Debug.Log($"[{gameObject.name}] 路径 {pathCreator.name} 包含 {pathCreator.GetPathPointCount()} 个路径点");
-
-            // 切换到该路径
-            SwitchToPath(pathCreator);
-        }
-        else
-        {
-            Debug.LogError($"[{gameObject.name}] 找不到初始路径: {initialPath}");
-        }
     }
 
     // 路径跟随逻辑
     private void FollowCurrentPath()
     {
-        if (currentPathCreator == null || agent == null)
+        if (currentPathCreator == null || agent == null || isWaitingAtPoint)
             return;
 
         if (currentPathPointIndex >= currentPathCreator.GetPathPointCount())
@@ -248,25 +103,136 @@ public class NPCPathManager : MonoBehaviour
             // 记录已达到的点
             int reachedPointIndex = currentPathPointIndex;
 
-            // 更新到下一个点
-            currentPathPointIndex++;
-
-            // 处理路径循环
-            if (currentPathPointIndex >= currentPathCreator.GetPathPointCount() && currentPathCreator.closedPath)
-            {
-                Debug.Log($"[{gameObject.name}] 路径循环，重置到第一个点");
-                currentPathPointIndex = 0;
-            }
-
             // 触发事件
             OnPathPointReached?.Invoke(reachedPointIndex);
 
-            // 如果是最后一个点，停止移动
-            if (currentPathPointIndex >= currentPathCreator.GetPathPointCount() && !currentPathCreator.closedPath)
+            // 处理等待时间
+            float waitTime = GetWaitTimeForPathPoint(reachedPointIndex);
+            if (waitTime > 0)
             {
-                Debug.Log($"[{gameObject.name}] 到达路径终点");
-                agent.isStopped = true;
+                StartCoroutine(WaitAndProceedToNextPoint(waitTime));
+                return;
             }
+
+            // 更新到下一个点
+            AdvanceToNextPathPoint();
+        }
+    }
+
+    // 获取指定路径点的waitTime（优先事件动作，其次pathActions）
+    private float GetWaitTimeForPathPoint(int pathPointIndex)
+    {
+        float waitTime = 0f;
+        // 优先事件动作
+        if (eventManager != null)
+        {
+            PathEvent completedEvent = eventManager.FindCompletedEventForPathPoint(pathPointIndex);
+            if (completedEvent != null)
+            {
+                foreach (var action in completedEvent.defaultResponse.actions)
+                {
+                    if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.waitTime > 0)
+                    {
+                        waitTime = action.waitTime;
+                        break;
+                    }
+                }
+            }
+        }
+        // 其次pathActions
+        if (waitTime <= 0)
+        {
+            PathConfig currentPath = GetCurrentPathConfig();
+            if (currentPath != null)
+            {
+                foreach (var action in currentPath.pathActions)
+                {
+                    if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.waitTime > 0)
+                    {
+                        waitTime = action.waitTime;
+                        break;
+                    }
+                }
+            }
+        }
+        return waitTime;
+    }
+
+    // 等待并前进到下一个点
+    private IEnumerator WaitAndProceedToNextPoint(float waitTime)
+    {
+        isWaitingAtPoint = true;
+        Debug.Log($"[{gameObject.name}] 在路径点停留 {waitTime} 秒");
+        controller.StopMovement(true);
+        yield return new WaitForSeconds(waitTime);
+        controller.StopMovement(false);
+        Debug.Log($"[{gameObject.name}] 停留结束，继续移动");
+        isWaitingAtPoint = false;
+        AdvanceToNextPathPoint();
+    }
+
+    // 前进到下一个路径点
+    private void AdvanceToNextPathPoint()
+    {
+        int reachedPointIndex = currentPathPointIndex;
+        currentPathPointIndex++;
+
+        // 处理路径循环
+        if (currentPathCreator != null && currentPathPointIndex >= currentPathCreator.GetPathPointCount() && currentPathCreator.closedPath)
+        {
+            Debug.Log($"[{gameObject.name}] 路径循环，重置到第一个点");
+            currentPathPointIndex = 0;
+        }
+
+        // 如果是最后一个点，停止移动
+        if (currentPathCreator != null && currentPathPointIndex >= currentPathCreator.GetPathPointCount() && !currentPathCreator.closedPath)
+        {
+            Debug.Log($"[{gameObject.name}] 到达路径终点");
+            agent.isStopped = true;
+        }
+    }
+
+    // 路径初始化
+    private void InitializeStartingPath()
+    {
+        if (controller == null || controller.Data == null)
+            return;
+
+        string initialPath = "";
+        if (controller.Data.paths != null && controller.Data.paths.Count > 0)
+        {
+            initialPath = controller.Data.paths[0].pathID;
+            Debug.Log($"[{gameObject.name}] 使用第一个可用路径作为初始路径: {initialPath}");
+        }
+
+        if (string.IsNullOrEmpty(initialPath))
+        {
+            Debug.LogWarning($"[{gameObject.name}] 未设置初始路径");
+            return;
+        }
+
+        // 尝试获取路径
+        MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(initialPath);
+        if (pathCreator != null)
+        {
+            Debug.Log($"[{gameObject.name}] 使用路径初始化: {pathCreator.name}");
+
+            // 确保路径点数据已生成
+            if (pathCreator.pathPointPositions.Count == 0 && pathCreator.controlPoints.Count >= 2)
+            {
+                Debug.Log($"[{gameObject.name}] 正在为路径生成路径点: {pathCreator.name}");
+                pathCreator.GeneratePathPoints();
+            }
+
+            // 确保验证
+            Debug.Log($"[{gameObject.name}] 路径 {pathCreator.name} 包含 {pathCreator.GetPathPointCount()} 个路径点");
+
+            // 切换到该路径
+            SwitchToPath(pathCreator);
+        }
+        else
+        {
+            Debug.LogError($"[{gameObject.name}] 找不到初始路径: {initialPath}");
         }
     }
 

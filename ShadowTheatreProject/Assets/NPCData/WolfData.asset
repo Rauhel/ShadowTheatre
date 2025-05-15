@@ -15,6 +15,7 @@ MonoBehaviour:
   npcID: 4
   npcName: wolf
   currentScore: 0
+  moveSpeed: 1
   paths:
   - pathID: w1
     pathName: WolfPath1
@@ -79,7 +80,7 @@ MonoBehaviour:
       voiceClip: {fileID: 0}
       animationName: 
       delay: 0.5
-      waitTime: 0
+      waitTime: 10
       overridePrevious: 1
       loopAnimation: 0
       pathPointIndex: 1
@@ -89,7 +90,7 @@ MonoBehaviour:
       voiceClip: {fileID: 0}
       animationName: 
       delay: 0.5
-      waitTime: 0
+      waitTime: 10
       overridePrevious: 1
       loopAnimation: 0
       pathPointIndex: 2
