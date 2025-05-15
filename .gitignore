@@ -220,10 +220,6 @@ pip-log.txt
 # =============== #
 [Tt]emp/
 [Ll]ibrary
-Assets/StreamingAssets*
-
-# Unity StreamingAssets
-Assets/StreamingAssets/
 
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
@@ -266,3 +262,4 @@ Crawl up/Assets/TextMesh Pro/Fonts/Silver SDF.asset
 # =============== #
 UserSettings/
 ShadowTheatreProject/Assets/TextMesh Pro/Fonts/simfang SDF.asset
+ShadowTheatreProject/Assets/StreamingAssets/
