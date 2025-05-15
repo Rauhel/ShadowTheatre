@@ -15,6 +15,7 @@ MonoBehaviour:
   npcID: 0
   npcName: Bird
   currentScore: 0
+  moveSpeed: 0
   paths:
   - pathID: 
     pathName: "\u65B0\u8DEF\u5F84"

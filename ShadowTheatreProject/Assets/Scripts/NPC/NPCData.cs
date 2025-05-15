@@ -9,6 +9,7 @@ public class NPCData : ScriptableObject
     public string npcID;
     public string npcName;
     public float currentScore = 0f;  // NPC当前分数
+    public float moveSpeed = 1.0f;   // NPC移动速度
 
     [Header("路径配置")]
     public List<PathConfig> paths = new List<PathConfig>();

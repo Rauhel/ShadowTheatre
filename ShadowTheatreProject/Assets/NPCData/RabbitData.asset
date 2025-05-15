@@ -15,6 +15,7 @@ MonoBehaviour:
   npcID: 3
   npcName: rabbit
   currentScore: 0
+  moveSpeed: 1
   paths:
   - pathID: r1
     pathName: RabbitPath1

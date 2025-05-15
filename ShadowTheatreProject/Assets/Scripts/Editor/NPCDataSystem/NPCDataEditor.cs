@@ -85,6 +85,7 @@ public class NPCDataEditor : Editor
         npcData.npcID = EditorGUILayout.TextField("NPC ID", npcData.npcID);
         npcData.npcName = EditorGUILayout.TextField("NPC 名称", npcData.npcName);
         npcData.currentScore = EditorGUILayout.FloatField("当前分数", npcData.currentScore);
+        npcData.moveSpeed = EditorGUILayout.FloatField("移动速度", npcData.moveSpeed);
         EditorGUI.indentLevel--;
     }
     

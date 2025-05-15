@@ -32,11 +32,15 @@ public class NPCController : MonoBehaviour
             Debug.LogError($"[{gameObject.name}] 没有设置NPCData!");
         }
 
-        // 确保速度设置合理
-        if (agent.speed <= 0.1f)
+        // 优先使用npcData中的速度
+        if (npcData != null && npcData.moveSpeed > 0.01f)
+        {
+            agent.speed = npcData.moveSpeed;
+        }
+        else if (agent.speed <= 0.1f)
         {
             Debug.LogWarning($"[{gameObject.name}] NavMeshAgent速度过低: {agent.speed}，已自动设置为默认值");
-            agent.speed = 3.5f; // 设置一个默认速度
+            agent.speed = 1.0f; // 设置一个默认速度
         }
     }
 
