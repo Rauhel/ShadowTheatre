@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 /// <summary>
 /// 手势接收器：负责从网络接收手势数据并传递给InputManager
@@ -38,8 +39,14 @@ public class GestureReceiver : MonoBehaviour
     private ConcurrentQueue<string> positionMessageQueue = new ConcurrentQueue<string>();
     private ConcurrentQueue<string> gestureMessageQueue = new ConcurrentQueue<string>();
 
+    // 新增：手势识别进程
+    private Process gestureAppProcess;
+
     private void Start()
     {
+        // 新增：自动启动gesture_app.exe
+        StartGestureApp();
+
         // 获取InputManager引用
         inputManager = InputManager.Instance;
         if (inputManager == null)
@@ -47,7 +54,7 @@ public class GestureReceiver : MonoBehaviour
             inputManager = FindObjectOfType<InputManager>();
             if (inputManager == null)
             {
-                Debug.LogError("找不到InputManager!");
+                UnityEngine.Debug.LogError("找不到InputManager!");
                 return;
             }
         }
@@ -55,6 +62,31 @@ public class GestureReceiver : MonoBehaviour
         if (autoConnect)
         {
             ConnectAll();
+        }
+    }
+
+    // 新增：启动StreamingAssets下的gesture_app.exe
+    private void StartGestureApp()
+    {
+        string exePath = System.IO.Path.Combine(Application.streamingAssetsPath, "gesture_app.exe");
+        if (System.IO.File.Exists(exePath))
+        {
+            try
+            {
+                gestureAppProcess = new Process();
+                gestureAppProcess.StartInfo.FileName = exePath;
+                gestureAppProcess.StartInfo.UseShellExecute = false;
+                gestureAppProcess.StartInfo.CreateNoWindow = true;
+                gestureAppProcess.Start();
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogError($"启动手势识别应用失败: {e.Message}");
+            }
+        }
+        else
+        {
+            UnityEngine.Debug.LogError($"未找到手势识别应用: {exePath}");
         }
     }
 
@@ -102,7 +134,7 @@ public class GestureReceiver : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError($"位置数据连接错误: {e.Message}");
+            UnityEngine.Debug.LogError($"位置数据连接错误: {e.Message}");
             isPositionConnected = false;
         }
     }
@@ -129,7 +161,7 @@ public class GestureReceiver : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError($"手势数据连接错误: {e.Message}");
+            UnityEngine.Debug.LogError($"手势数据连接错误: {e.Message}");
             isGestureConnected = false;
         }
     }
@@ -260,6 +292,14 @@ public class GestureReceiver : MonoBehaviour
     // 清理资源
     private void OnDestroy()
     {
+        // 新增：关闭手势识别进程
+        if (gestureAppProcess != null && !gestureAppProcess.HasExited)
+        {
+            try { gestureAppProcess.Kill(); }
+            catch { /* 忽略异常 */ }
+            gestureAppProcess = null;
+        }
+
         DisconnectAll();
     }
 

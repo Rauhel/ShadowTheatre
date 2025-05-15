@@ -93,17 +93,17 @@ MonoBehaviour:
       waitTime: 10
       overridePrevious: 1
       loopAnimation: 0
-      pathPointIndex: 2
+      pathPointIndex: 1
       isActionActive: 1
     - dialogueText: "\u8FD9\u662F\u4EC0\u4E48\u8BDD\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       delay: 0.5
-      waitTime: 0
+      waitTime: 10
       overridePrevious: 1
       loopAnimation: 0
-      pathPointIndex: 3
+      pathPointIndex: 1
       isActionActive: 1
     - dialogueText: "\u5979\u5C31\u662F\u4E0D\u542C\u8BDD\uFF01"
       displayDuration: 2
