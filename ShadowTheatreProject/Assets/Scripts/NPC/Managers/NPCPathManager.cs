@@ -15,7 +15,7 @@ public class NPCPathManager : MonoBehaviour
     private bool pathProcessingPaused = false;
     private float stuckTime = 0;
     private int lastReachedPointIndex = -1;
-    private float reachDistance = 1f; // 到达点的距离阈值
+    private float reachDistance = 1.1f; // 到达点的距离阈值
     private NavMeshAgent agent;
     private bool isWaitingAtPoint = false; // 新增：标记是否正在等待
 

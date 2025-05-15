@@ -201,192 +201,109 @@ public class MultiPointPathCreator : MonoBehaviour
         UpdateStartAndEndPoints();
     }
 
-    // 根据间距生成路径点（修改后不再实例化对象）
+    // 根据间距生成路径点（严格插值于控制点之间，不再用NavMesh寻路）
     private void GeneratePathPointsBySpacing()
     {
-        // 逐段处理控制点
         for (int i = 0; i < controlPoints.Count - 1; i++)
         {
             if (controlPoints[i] == null || controlPoints[i + 1] == null)
                 continue;
 
-            // 计算NavMesh路径
-            if (NavMesh.CalculatePath(controlPoints[i].position, controlPoints[i + 1].position, NavMesh.AllAreas, tempPath))
+            Vector3 start = controlPoints[i].position;
+            Vector3 end = controlPoints[i + 1].position;
+            float distance = Vector3.Distance(start, end);
+            int pointCount = Mathf.Max(2, Mathf.CeilToInt(distance / pointSpacing));
+
+            for (int j = 0; j < pointCount; j++)
             {
-                // 如果找到了路径
-                if (tempPath.status == NavMeshPathStatus.PathComplete)
-                {
-                    // 使用NavMesh计算出的路径点
-                    for (int j = 0; j < tempPath.corners.Length; j++)
-                    {
-                        // 第一个点是起点，如果不是第一段，则跳过起点
-                        if (j == 0 && i > 0) continue;
+                // 如果不是第一段的第一个点，则跳过
+                if (j == 0 && i > 0) continue;
 
-                        // 只存储点位置和名称，不创建GameObject
-                        string pointName = $"PathPoint_{pathPointPositions.Count}";
-                        pathPointNames.Add(pointName);
-                        pathPointPositions.Add(tempPath.corners[j]);
-                    }
-                }
-                else
-                {
-                    // 如果NavMesh路径不完整，使用直线路径
-                    Debug.LogWarning($"控制点 {i} 和 {i + 1} 之间无法找到完整的NavMesh路径，使用直线");
+                float t = j / (float)(pointCount - 1);
+                Vector3 position = Vector3.Lerp(start, end, t);
 
-                    // 计算直线上的点
-                    float distance = Vector3.Distance(controlPoints[i].position, controlPoints[i + 1].position);
-                    int pointCount = Mathf.Max(2, Mathf.CeilToInt(distance / pointSpacing));
-
-                    for (int j = 0; j < pointCount; j++)
-                    {
-                        // 如果不是第一段的第一个点，则跳过
-                        if (j == 0 && i > 0) continue;
-
-                        float t = j / (float)(pointCount - 1);
-                        Vector3 position = Vector3.Lerp(controlPoints[i].position, controlPoints[i + 1].position, t);
-
-                        // 只存储点位置和名称
-                        string pointName = $"PathPoint_{pathPointPositions.Count}";
-                        pathPointNames.Add(pointName);
-                        pathPointPositions.Add(position);
-                    }
-                }
+                string pointName = $"PathPoint_{pathPointPositions.Count}";
+                pathPointNames.Add(pointName);
+                pathPointPositions.Add(position);
             }
         }
 
         // 如果是闭合路径，添加从最后一个点到第一个点的连接
         if (closedPath && controlPoints.Count > 2)
         {
-            Transform lastPoint = controlPoints[controlPoints.Count - 1];
-            Transform firstPoint = controlPoints[0];
-
-            if (lastPoint != null && firstPoint != null)
+            Vector3 start = controlPoints[controlPoints.Count - 1].position;
+            Vector3 end = controlPoints[0].position;
+            float distance = Vector3.Distance(start, end);
+            int pointCount = Mathf.Max(2, Mathf.CeilToInt(distance / pointSpacing));
+            for (int j = 1; j < pointCount; j++) // 跳过第一个点
             {
-                if (NavMesh.CalculatePath(lastPoint.position, firstPoint.position, NavMesh.AllAreas, tempPath))
-                {
-                    if (tempPath.status == NavMeshPathStatus.PathComplete)
-                    {
-                        for (int j = 1; j < tempPath.corners.Length; j++) // 跳过第一个点
-                        {
-                            string pointName = $"PathPoint_{pathPointPositions.Count}";
-                            pathPointNames.Add(pointName);
-                            pathPointPositions.Add(tempPath.corners[j]);
-                        }
-                    }
-                }
+                float t = j / (float)(pointCount - 1);
+                Vector3 position = Vector3.Lerp(start, end, t);
+
+                string pointName = $"PathPoint_{pathPointPositions.Count}";
+                pathPointNames.Add(pointName);
+                pathPointPositions.Add(position);
             }
         }
     }
 
-    // 根据总数均匀分布路径点（修改后不再实例化对象）
+    // 根据总数均匀分布路径点（严格插值于所有控制点路径段）
     private void GeneratePathPointsEvenly()
     {
-        // 生成所有路径点的位置
-        List<Vector3> allPathPositions = new List<Vector3>();
+        // 先收集所有段的长度
+        List<Vector3> allPoints = new List<Vector3>();
+        List<float> segmentLengths = new List<float>();
+        float totalLength = 0f;
 
-        // 处理相邻控制点之间的路径
         for (int i = 0; i < controlPoints.Count - 1; i++)
         {
-            if (controlPoints[i] == null || controlPoints[i + 1] == null)
-                continue;
-
-            // 计算NavMesh路径
-            if (NavMesh.CalculatePath(controlPoints[i].position, controlPoints[i + 1].position, NavMesh.AllAreas, tempPath))
-            {
-                // 如果找到了路径
-                if (tempPath.status == NavMeshPathStatus.PathComplete)
-                {
-                    for (int j = 0; j < tempPath.corners.Length; j++)
-                    {
-                        // 第一个点是起点，如果不是第一段，则跳过起点以避免重复
-                        if (j == 0 && i > 0) continue;
-                        allPathPositions.Add(tempPath.corners[j]);
-                    }
-                }
-                else
-                {
-                    // 如果NavMesh路径不完整，使用直线
-                    if (i == 0 || allPathPositions.Count == 0)
-                    {
-                        allPathPositions.Add(controlPoints[i].position);
-                    }
-                    allPathPositions.Add(controlPoints[i + 1].position);
-                }
-            }
+            Vector3 a = controlPoints[i].position;
+            Vector3 b = controlPoints[i + 1].position;
+            float len = Vector3.Distance(a, b);
+            allPoints.Add(a);
+            segmentLengths.Add(len);
+            totalLength += len;
         }
-
-        // 如果是闭合路径，添加从最后一个点到第一个点的连接
-        if (closedPath && controlPoints.Count > 2 && allPathPositions.Count > 0)
+        // 闭合路径
+        if (closedPath && controlPoints.Count > 2)
         {
-            Vector3 lastPos = allPathPositions[allPathPositions.Count - 1];
-            Vector3 firstPos = allPathPositions[0];
-
-            if (NavMesh.CalculatePath(lastPos, firstPos, NavMesh.AllAreas, tempPath))
-            {
-                if (tempPath.status == NavMeshPathStatus.PathComplete)
-                {
-                    for (int j = 1; j < tempPath.corners.Length; j++) // 跳过第一个点
-                    {
-                        allPathPositions.Add(tempPath.corners[j]);
-                    }
-                }
-                else
-                {
-                    // 直接添加第一个点完成闭合
-                    allPathPositions.Add(allPathPositions[0]);
-                }
-            }
+            Vector3 a = controlPoints[controlPoints.Count - 1].position;
+            Vector3 b = controlPoints[0].position;
+            float len = Vector3.Distance(a, b);
+            allPoints.Add(a);
+            segmentLengths.Add(len);
+            totalLength += len;
         }
+        // 添加最后一个点
+        if (!closedPath && controlPoints.Count > 1)
+            allPoints.Add(controlPoints[controlPoints.Count - 1].position);
 
-        if (allPathPositions.Count < 2)
-        {
-            Debug.LogWarning("无法生成足够的路径点");
+        if (allPoints.Count < 2 || segmentLengths.Count == 0)
             return;
-        }
 
-        // 计算整个路径的长度
-        float[] pathLengths = new float[allPathPositions.Count];
-        pathLengths[0] = 0;
-        float totalLength = 0;
-
-        for (int i = 1; i < allPathPositions.Count; i++)
-        {
-            float segmentLength = Vector3.Distance(allPathPositions[i - 1], allPathPositions[i]);
-            totalLength += segmentLength;
-            pathLengths[i] = totalLength;
-        }
-
-        // 生成均匀分布的点
+        // 均匀分布totalPathPoints个点
         for (int i = 0; i < totalPathPoints; i++)
         {
-            // 计算目标距离点（在总长度上的百分比位置）
-            float targetDistance = i == 0 ? 0 : totalLength * i / (totalPathPoints - 1);
+            float t = i / (float)(totalPathPoints - 1);
+            float targetDist = t * totalLength;
 
-            // 找到对应的路径段
-            int segment = 0;
-            while (segment < pathLengths.Length - 1 && pathLengths[segment + 1] < targetDistance)
+            // 找到在哪一段
+            float accum = 0f;
+            int seg = 0;
+            while (seg < segmentLengths.Count && accum + segmentLengths[seg] < targetDist)
             {
-                segment++;
+                accum += segmentLengths[seg];
+                seg++;
             }
+            // 计算在该段内的插值
+            float segT = segmentLengths[seg] > 0 ? (targetDist - accum) / segmentLengths[seg] : 0f;
+            Vector3 p0 = allPoints[seg];
+            Vector3 p1 = (seg + 1 < allPoints.Count) ? allPoints[seg + 1] : allPoints[0];
+            Vector3 pos = Vector3.Lerp(p0, p1, segT);
 
-            // 计算在路径段内的插值位置
-            float segmentLength = 0;
-            if (segment < pathLengths.Length - 1)
-                segmentLength = pathLengths[segment + 1] - pathLengths[segment];
-
-            float t = segmentLength > 0 ? (targetDistance - pathLengths[segment]) / segmentLength : 0;
-
-            // 计算实际位置
-            Vector3 position;
-            if (segment < allPathPositions.Count - 1)
-                position = Vector3.Lerp(allPathPositions[segment], allPathPositions[segment + 1], t);
-            else
-                position = allPathPositions[allPathPositions.Count - 1];  // 最后一个点
-
-            // 只存储点位置和名称，不创建GameObject
             string pointName = $"PathPoint_{i}";
             pathPointNames.Add(pointName);
-            pathPointPositions.Add(position);
+            pathPointPositions.Add(pos);
         }
     }
 
@@ -395,7 +312,7 @@ public class MultiPointPathCreator : MonoBehaviour
     {
         if (index >= 0 && index < pathPointPositions.Count)
             return pathPointPositions[index];
-        
+
         Debug.LogWarning($"路径点索引 {index} 超出范围");
         return Vector3.zero;
     }
@@ -404,18 +321,18 @@ public class MultiPointPathCreator : MonoBehaviour
     public Vector3 GetNextPathPointPosition(int currentIndex)
     {
         int nextIndex = currentIndex + 1;
-        
+
         // 如果是闭合路径且已到末尾，则返回第一个点
         if (closedPath && nextIndex >= pathPointPositions.Count)
             nextIndex = 0;
-            
+
         if (nextIndex >= 0 && nextIndex < pathPointPositions.Count)
             return pathPointPositions[nextIndex];
-            
+
         // 如果没有下一个点，返回当前点位置
         if (currentIndex >= 0 && currentIndex < pathPointPositions.Count)
             return pathPointPositions[currentIndex];
-            
+
         Debug.LogWarning($"路径点索引 {currentIndex} 超出范围");
         return Vector3.zero;
     }
