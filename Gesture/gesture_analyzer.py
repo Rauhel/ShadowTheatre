@@ -158,13 +158,13 @@ class GestureAnalyzer:
                     # Store feature dictionary for later analysis
                     if not feature_dict:
                         # Extract single hand features
-                        for key, value in features["hand1"].items():
-                            if key != "normalized_landmarks" and key != "feature_vector":
-                                feature_dict[f"hand1_{key}"] = value
-                        
-                        for key, value in features["hand2"].items():
-                            if key != "normalized_landmarks" and key != "feature_vector":
-                                feature_dict[f"hand2_{key}"] = value
+                        if "hand1" in features and "hand2" in features:
+                            for key, value in features["hand1"].items():
+                                if key != "normalized_landmarks" and key != "feature_vector":
+                                    feature_dict[f"hand1_{key}"] = value
+                            for key, value in features["hand2"].items():
+                                if key != "normalized_landmarks" and key != "feature_vector":
+                                    feature_dict[f"hand2_{key}"] = value
                         
                         # Extract combined hand features
                         for key, value in features.items():

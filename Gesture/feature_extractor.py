@@ -344,39 +344,120 @@ class FeatureExtractor:
         dot_product = sum([normal1[i] * normal2[i] for i in range(3)])
         palm_orientation_similarity = abs(dot_product)  # 接近1表示方向相似或相反
         
-        # 存储所有双手特征
-        combined_features["mirror_diff"] = mirror_diff
-        combined_features["height_diff"] = height_diff
-        combined_features["symmetry_score"] = symmetry_score
-        combined_features["wrist_dist"] = wrist_dist
-        combined_features["palm_dist"] = palm_dist
-        combined_features["min_tip_dist"] = min_tip_dist
-        combined_features["tip_dist_matrix"] = tip_dist_matrix
-        combined_features["x_position_diff"] = x_position_diff
-        combined_features["y_position_diff"] = y_position_diff
-        combined_features["palm_orientation_similarity"] = palm_orientation_similarity
-        
-        # 构建最终特征向量（双手特征重新排列并强化）
         final_feature_vector = []
-        # 单手特征
-        final_feature_vector.extend(features1["feature_vector"])  # 第一只手特征
-        final_feature_vector.extend(features2["feature_vector"])  # 第二只手特征
+        final_feature_vector.extend(features1["feature_vector"])
+        final_feature_vector.extend(features2["feature_vector"])
 
-        # 双手空间关系特征（重新排列并强化）
-        final_feature_vector.append(symmetry_score)               # 整体对称得分（重要）
-        final_feature_vector.append(wrist_dist)                   # 手腕距离（重要）
-        final_feature_vector.append(wrist_dist ** 2)              # 手腕距离平方（强化）
-        final_feature_vector.append(math.log(wrist_dist + 1e-6))  # 手腕距离对数（强化）
-        final_feature_vector.append(palm_dist)                    # 掌心距离（重要）
-        final_feature_vector.append(palm_dist ** 2)               # 掌心距离平方（强化）
-        final_feature_vector.append(math.log(palm_dist + 1e-6))   # 掌心距离对数（强化）
-        final_feature_vector.append(min_tip_dist)                 # 最小指尖距离（重要）
-        final_feature_vector.append(palm_orientation_similarity)  # 掌心朝向相似度（重要）
-        final_feature_vector.extend(mirror_diff)                  # 镜像差异（次重要）
-        final_feature_vector.extend(height_diff)                  # 高度差异（次重要）
-        final_feature_vector.extend(tip_dist_matrix)              # 指尖距离矩阵（次重要）
-        final_feature_vector.append(x_position_diff)              # 水平位置差异（次重要）
-        final_feature_vector.append(y_position_diff)              # 垂直位置差异（次重要）
+        # ==== 新增结构性特征（蛙 vs 猫头鹰） ====
+        # 1. thumb_vs_upper: 双手拇指y均值 - 其余指尖y均值
+        thumb_y = (landmarks1[self.THUMB_TIP]["y"] + landmarks2[self.THUMB_TIP]["y"]) / 2
+        upper_fingers = [self.INDEX_TIP, self.MIDDLE_TIP, self.RING_TIP, self.PINKY_TIP]
+        upper_y = [
+            landmarks1[i]["y"] for i in upper_fingers
+        ] + [
+            landmarks2[i]["y"] for i in upper_fingers
+        ]
+        avg_upper_finger_y = np.mean(upper_y)
+        thumb_vs_upper = thumb_y - avg_upper_finger_y
+
+        # 2. pinky_angle_up: 小指抬高角度（两手均值）
+        def pinky_angle_up(landmarks):
+            dx = landmarks[self.PINKY_TIP]["x"] - landmarks[self.PINKY_MCP]["x"]
+            dy = landmarks[self.PINKY_TIP]["y"] - landmarks[self.PINKY_MCP]["y"]
+            dz = landmarks[self.PINKY_TIP]["z"] - landmarks[self.PINKY_MCP]["z"]
+            norm_xy = np.linalg.norm([dx, dy])
+            # y轴向下为正，取-arctan2
+            return np.arctan2(-dy, norm_xy + 1e-8)
+        pinky_angle_1 = pinky_angle_up(landmarks1)
+        pinky_angle_2 = pinky_angle_up(landmarks2)
+        pinky_angle_up_mean = (pinky_angle_1 + pinky_angle_2) / 2
+
+        # 3. finger_folding_score: 所有指尖到指根的距离均值（两手均值）
+        fingers = [self.THUMB_TIP, self.INDEX_TIP, self.MIDDLE_TIP, self.RING_TIP, self.PINKY_TIP]
+        mcps = [self.THUMB_CMC, self.INDEX_MCP, self.MIDDLE_MCP, self.RING_MCP, self.PINKY_MCP]
+        def folding_score(landmarks):
+            return np.mean([
+                self._calculate_distance(landmarks[tip], landmarks[mcp])
+                for tip, mcp in zip(fingers, mcps)
+            ])
+        folding_score_1 = folding_score(landmarks1)
+        folding_score_2 = folding_score(landmarks2)
+        finger_folding_score = (folding_score_1 + folding_score_2) / 2
+
+        # 插入到特征向量最前面
+        struct_feats = [thumb_vs_upper, pinky_angle_up_mean, finger_folding_score]
+        final_feature_vector = struct_feats + final_feature_vector
+
+        # ==== Frog/Owl 结构性特征强化 ====
+        def frog_owl_struct_features(landmarks):
+            # y坐标：大拇指与其他指尖
+            thumb_tip_y = landmarks[self.THUMB_TIP]["y"]
+            other_tips_y = [landmarks[i]["y"] for i in [self.INDEX_TIP, self.MIDDLE_TIP, self.RING_TIP, self.PINKY_TIP]]
+            # frog: 大拇指y最大，其余四指y较小
+            thumb_vs_others_y_mean = thumb_tip_y - np.mean(other_tips_y)
+            thumb_vs_others_y_min = thumb_tip_y - min(other_tips_y)
+            thumb_vs_others_y_max = thumb_tip_y - max(other_tips_y)
+            # frog: 大拇指与其他指尖距离均值（围成圈时较小）
+            thumb_vs_others_dist = [self._calculate_distance(landmarks[self.THUMB_TIP], landmarks[i]) for i in [self.INDEX_TIP, self.MIDDLE_TIP, self.RING_TIP, self.PINKY_TIP]]
+            thumb_vs_others_dist_mean = np.mean(thumb_vs_others_dist)
+            # owl: 大拇指与无名指距离（并拢时很小）
+            thumb_ring_dist = self._calculate_distance(landmarks[self.THUMB_TIP], landmarks[self.RING_TIP])
+            # owl: 小拇指与其他指尖y坐标差（小拇指y最小）
+            pinky_tip_y = landmarks[self.PINKY_TIP]["y"]
+            pinky_vs_others_y_mean = pinky_tip_y - np.mean([landmarks[i]["y"] for i in [self.THUMB_TIP, self.INDEX_TIP, self.MIDDLE_TIP, self.RING_TIP]])
+            # owl: 小拇指与其他指尖距离均值
+            pinky_vs_others_dist = [self._calculate_distance(landmarks[self.PINKY_TIP], landmarks[i]) for i in [self.THUMB_TIP, self.INDEX_TIP, self.MIDDLE_TIP, self.RING_TIP]]
+            pinky_vs_others_dist_mean = np.mean(pinky_vs_others_dist)
+            return [
+                thumb_vs_others_y_mean, thumb_vs_others_y_min, thumb_vs_others_y_max, thumb_vs_others_dist_mean,
+                thumb_ring_dist, pinky_vs_others_y_mean, pinky_vs_others_dist_mean
+            ]
+
+        # 对两只手分别提取结构特征
+        frog_owl_feats1 = frog_owl_struct_features(landmarks1)
+        frog_owl_feats2 = frog_owl_struct_features(landmarks2)
+        # 合并（可用均值，也可直接拼接）
+        frog_owl_feats_mean = list(np.mean([frog_owl_feats1, frog_owl_feats2], axis=0))
+        # 插入到特征向量最前面
+        final_feature_vector = frog_owl_feats_mean + final_feature_vector
+
+        # ==== 针对frog/goose/owl/bird区分强化（特征7/19） ====
+        # 取出关键特征（假定为两手特征拼接后索引，0-based）
+        # 1、2、7、10、11、13、14、15、19
+        feat_idx = [1, 2, 7, 10, 11, 13, 14, 15, 19]
+        def safe_get(lst, idx): return lst[idx] if len(lst) > idx else 0
+        f1 = safe_get(final_feature_vector, 1)
+        f2 = safe_get(final_feature_vector, 2)
+        f7 = safe_get(final_feature_vector, 7)
+        f10 = safe_get(final_feature_vector, 10)
+        f11 = safe_get(final_feature_vector, 11)
+        f13 = safe_get(final_feature_vector, 13)
+        f14 = safe_get(final_feature_vector, 14)
+        f15 = safe_get(final_feature_vector, 15)
+        f19 = safe_get(final_feature_vector, 19)
+        # 组合特征
+        frog_goose_mean_large = np.mean([f7, f10, f11, f13, f14, f15, f19])
+        frog_goose_mean_small = np.mean([f1, f2])
+        frog_goose_diff = frog_goose_mean_large - frog_goose_mean_small
+        # 插入到特征向量前部
+        frog_goose_feats = [f7, f19, f10, f11, f13, f14, f15, f1, f2, frog_goose_mean_large, frog_goose_mean_small, frog_goose_diff]
+        final_feature_vector = frog_goose_feats + final_feature_vector
+
+        # ==== 原有双手空间关系特征 ====
+        final_feature_vector.append(symmetry_score)
+        final_feature_vector.append(wrist_dist)
+        final_feature_vector.append(wrist_dist ** 2)
+        final_feature_vector.append(math.log(wrist_dist + 1e-6))
+        final_feature_vector.append(palm_dist)
+        final_feature_vector.append(palm_dist ** 2)
+        final_feature_vector.append(math.log(palm_dist + 1e-6))
+        final_feature_vector.append(min_tip_dist)
+        final_feature_vector.append(palm_orientation_similarity)
+        final_feature_vector.extend(mirror_diff)
+        final_feature_vector.extend(height_diff)
+        final_feature_vector.extend(tip_dist_matrix)
+        final_feature_vector.append(x_position_diff)
+        final_feature_vector.append(y_position_diff)
 
         combined_features["feature_vector"] = final_feature_vector
         
