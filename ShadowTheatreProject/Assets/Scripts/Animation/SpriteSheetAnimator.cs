@@ -49,7 +49,7 @@ public class SpriteSheetAnimator : MonoBehaviour
         {
             // 静态贴图处理器已经处理了初始大小和比例，不需要额外操作
             // 我们可以使用该组件计算的尺寸比例来设置动画尺寸
-            Debug.Log($"[{gameObject.name}] 使用StaticTextureHandler的比例设置");
+            //Debug.Log($"[{gameObject.name}] 使用StaticTextureHandler的比例设置");
         }
     }
 
@@ -59,7 +59,7 @@ public class SpriteSheetAnimator : MonoBehaviour
         {
             if (Time.frameCount % 300 == 0) // 每300帧检查一次
             {
-                Debug.Log($"[{gameObject.name}] 动画未播放 - isPlaying:{isPlaying}, 有当前动画:{currentAnimation != null}");
+                //Debug.Log($"[{gameObject.name}] 动画未播放 - isPlaying:{isPlaying}, 有当前动画:{currentAnimation != null}");
             }
             return;
         }
@@ -80,13 +80,13 @@ public class SpriteSheetAnimator : MonoBehaviour
                 if (isLooping)
                 {
                     currentFrame = 0;
-                    Debug.Log($"[{gameObject.name}] 动画 {currentAnimationName} 循环");
+                    //Debug.Log($"[{gameObject.name}] 动画 {currentAnimationName} 循环");
                 }
                 else
                 {
                     currentFrame = currentAnimation.frameCount - 1;
                     isPlaying = false;
-                    Debug.Log($"[{gameObject.name}] 动画 {currentAnimationName} 完成播放");
+                    //Debug.Log($"[{gameObject.name}] 动画 {currentAnimationName} 完成播放");
                 }
             }
 
@@ -94,7 +94,7 @@ public class SpriteSheetAnimator : MonoBehaviour
             UpdateFrame();
 
             // 每次更新帧时记录日志
-            Debug.Log($"[{gameObject.name}] 更新帧: {currentFrame}/{currentAnimation.frameCount}, 动画:{currentAnimationName}");
+            //Debug.Log($"[{gameObject.name}] 更新帧: {currentFrame}/{currentAnimation.frameCount}, 动画:{currentAnimationName}");
         }
     }
 
@@ -103,17 +103,17 @@ public class SpriteSheetAnimator : MonoBehaviour
     /// </summary>
     public void Play(string animationName, bool loop = true)
     {
-        Debug.Log($"[{gameObject.name}] 尝试播放动画: {animationName}, 循环播放: {loop}");
+        //Debug.Log($"[{gameObject.name}] 尝试播放动画: {animationName}, 循环播放: {loop}");
 
         // 查找动画数据
         SpriteSheetAnimation anim = animations.Find(a => a.animationName == animationName);
         if (anim == null)
         {
-            Debug.LogWarning($"[{gameObject.name}] 动画未找到: {animationName}, 可用动画: {string.Join(", ", GetAvailableAnimations())}");
+            //Debug.LogWarning($"[{gameObject.name}] 动画未找到: {animationName}, 可用动画: {string.Join(", ", GetAvailableAnimations())}");
             return;
         }
 
-        Debug.Log($"[{gameObject.name}] 找到动画: {animationName}, 帧数: {anim.frameCount}, 帧率: {anim.frameRate}");
+        //Debug.Log($"[{gameObject.name}] 找到动画: {animationName}, 帧数: {anim.frameCount}, 帧率: {anim.frameRate}");
 
         // 设置当前动画
         currentAnimation = anim;
@@ -141,11 +141,11 @@ public class SpriteSheetAnimator : MonoBehaviour
                 // 例如，调整为动画贴图的比例
             }
 
-            Debug.Log($"[{gameObject.name}] 设置材质参数: 贴图={anim.spriteSheet != null}, 帧数={anim.frameCount}, 当前帧={currentFrame}");
+            //Debug.Log($"[{gameObject.name}] 设置材质参数: 贴图={anim.spriteSheet != null}, 帧数={anim.frameCount}, 当前帧={currentFrame}");
         }
         else
         {
-            Debug.LogError($"[{gameObject.name}] targetRenderer为空，无法设置材质属性");
+            //Debug.LogError($"[{gameObject.name}] targetRenderer为空，无法设置材质属性");
         }
     }
 
@@ -180,7 +180,7 @@ public class SpriteSheetAnimator : MonoBehaviour
     {
         if (currentAnimation == null || targetRenderer == null)
         {
-            Debug.LogWarning($"[{gameObject.name}] UpdateFrame失败: currentAnimation={currentAnimation != null}, targetRenderer={targetRenderer != null}");
+            //Debug.LogWarning($"[{gameObject.name}] UpdateFrame失败: currentAnimation={currentAnimation != null}, targetRenderer={targetRenderer != null}");
             return;
         }
 
@@ -188,7 +188,7 @@ public class SpriteSheetAnimator : MonoBehaviour
         propertyBlock.SetFloat(FrameIndexProperty, currentFrame);
         targetRenderer.SetPropertyBlock(propertyBlock);
 
-        Debug.Log($"[{gameObject.name}] 更新材质属性: 帧={currentFrame}");
+        //Debug.Log($"[{gameObject.name}] 更新材质属性: 帧={currentFrame}");
     }
 
     /// <summary>

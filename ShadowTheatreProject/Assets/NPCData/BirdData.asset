@@ -22,8 +22,13 @@ MonoBehaviour:
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: 
+      minScore: 0
+      maxScore: 20
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions: []
   pathConnections: []
   pathDecisions: []
-  importExportPath: 
+  importExportPath: D:/College/Game/ShadowTheatre/ShadowTheatreProject/Assets/NPCData/Bird_data.csv

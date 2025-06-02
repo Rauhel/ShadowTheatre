@@ -2356,7 +2356,7 @@ Transform:
   m_GameObject: {fileID: 1217259979}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.5474735e-13, y: 9.771776, z: 42.600643}
+  m_LocalPosition: {x: -4.5474735e-13, y: 9.771776, z: 42.60069}
   m_LocalScale: {x: 78.17421, y: 19.543552, z: 78.17421}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -4387,6 +4387,7 @@ GameObject:
   - component: {fileID: 1742255568}
   - component: {fileID: 1742255570}
   - component: {fileID: 1742255571}
+  - component: {fileID: 1742255572}
   m_Layer: 0
   m_Name: Wolf
   m_TagString: Untagged
@@ -4660,6 +4661,29 @@ MonoBehaviour:
   targetRenderer: {fileID: 1742255552}
   texture: {fileID: 0}
   setBottomToZero: 0
+--- !u!114 &1742255572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1742255550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3a04fc9e68ea08a49bb45dfc3c4bfee0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  eventIndicatorAnimation:
+    animationName: EventIndicator
+    spriteSheet: {fileID: 2800000, guid: 4b118cda0e52f6d489141315928dc9de, type: 3}
+    frameCount: 4
+    frameRate: 10
+    autoCalculate: 1
+    horizontal: 1
+  eventIndicatorAnimationName: EventIndicator
+  offsetFromNPC: {x: 0, y: 2, z: 0}
+  indicatorSize: 1
+  autoSetupOnAwake: 1
 --- !u!1 &1795299107
 GameObject:
   m_ObjectHideFlags: 0
@@ -5642,7 +5666,7 @@ Transform:
   m_GameObject: {fileID: 2116763512}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.5999987, y: 9.771776, z: 41.70064}
+  m_LocalPosition: {x: 1.5999987, y: 9.771776, z: 41.700687}
   m_LocalScale: {x: 78.17421, y: 19.543552, z: 78.17421}
   m_ConstrainProportionsScale: 1
   m_Children: []

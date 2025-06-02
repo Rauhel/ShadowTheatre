@@ -23,7 +23,7 @@ MonoBehaviour:
     maxScore: 100
     events:
     - eventID: Event_WolfPath1_1
-      startPointIndex: 10
+      startPointIndex: 2
       endPointIndex: 20
       playerInteractionRadius: 3
       showInteractionRange: 1
@@ -223,7 +223,7 @@ MonoBehaviour:
       waitTime: 0
       overridePrevious: 1
       loopAnimation: 0
-      pathPointIndex: 15
+      pathPointIndex: 33
       isActionActive: 1
     - dialogueText: "\u516C\u4E3B\uFF0C\u6211\u7684\u516C\u4E3B\u2026\u2026"
       displayDuration: 2
@@ -233,7 +233,7 @@ MonoBehaviour:
       waitTime: 0
       overridePrevious: 1
       loopAnimation: 0
-      pathPointIndex: 16
+      pathPointIndex: 34
       isActionActive: 1
     - dialogueText: "\u6211\u662F\u60A8\u7684\u62A4\u536B\uFF0C\u6211\u4E00\u5B9A\u4F1A\u5B88\u62A4\u60A8\u7684\uFF01"
       displayDuration: 2

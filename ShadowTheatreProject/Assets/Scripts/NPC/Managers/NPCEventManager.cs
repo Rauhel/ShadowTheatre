@@ -11,6 +11,7 @@ public class NPCEventManager : MonoBehaviour
     private NPCController controller;
     private NPCPathManager pathManager;
     private GestureEventHandler gestureHandler;
+    private GestureEventIndicator eventIndicator;
 
     [Header("当前事件状态")]
     private PathEvent currentEvent = null;
@@ -55,14 +56,13 @@ public class NPCEventManager : MonoBehaviour
             gestureHandler = gameObject.AddComponent<GestureEventHandler>();
         }
 
+        // 获取事件指示器（不再自动创建，改为手动添加）
+        eventIndicator = GetComponent<GestureEventIndicator>();
+
         if (gestureHandler != null)
         {
             gestureHandler.OnGestureSuccess += OnGestureSuccess;
             gestureHandler.OnGestureFailure += OnGestureFailure;
-        }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] 缺少 GestureEventHandler 组件，无法处理手势事件");
         }
     }
 
@@ -124,7 +124,9 @@ public class NPCEventManager : MonoBehaviour
         activePathEvents.Clear();
 
         if (controller == null || controller.Data == null || string.IsNullOrEmpty(currentPathID))
+        {
             return;
+        }
 
         // 找到当前路径配置
         PathConfig pathConfig = controller.Data.paths.Find(p => p.pathID == currentPathID);
@@ -136,8 +138,6 @@ public class NPCEventManager : MonoBehaviour
 
             // 筛选当前幕中可用的事件
             RefreshActiveEvents();
-
-            //Debug.Log($"[{gameObject.name}] 设置路径: {currentPathID}, 有 {CurrentPathEvents.Count} 个事件, 当前幕活跃: {activePathEvents.Count}");
         }
     }
 
@@ -148,7 +148,9 @@ public class NPCEventManager : MonoBehaviour
 
         foreach (var evt in CurrentPathEvents)
         {
-            if (IsEventEnabledInCurrentAct(evt))
+            bool enabled = IsEventEnabledInCurrentAct(evt);
+            
+            if (enabled)
             {
                 activePathEvents.Add(evt);
             }
@@ -191,7 +193,6 @@ public class NPCEventManager : MonoBehaviour
                     if (actionIndex >= 0 && actionIndex < pathEvent.defaultResponse.actions.Count)
                     {
                         pathEvent.defaultResponse.actions[actionIndex].isActionActive = active;
-                        Debug.Log($"[{gameObject.name}] 设置事件 {eventID} 默认响应的动作 {actionIndex} 为 {(active ? "可用" : "不可用")}");
                         return;
                     }
                 }
@@ -206,7 +207,6 @@ public class NPCEventManager : MonoBehaviour
                             if (actionIndex >= 0 && actionIndex < response.actions.Count)
                             {
                                 response.actions[actionIndex].isActionActive = active;
-                                Debug.Log($"[{gameObject.name}] 设置事件 {eventID} 手势 {gestureType} 响应的动作 {actionIndex} 为 {(active ? "可用" : "不可用")}");
                                 return;
                             }
                         }
@@ -214,8 +214,6 @@ public class NPCEventManager : MonoBehaviour
                 }
             }
         }
-
-        Debug.LogWarning($"[{gameObject.name}] 找不到事件 {eventID} 或手势 {gestureType} 或动作索引 {actionIndex}");
     }
 
     // 新增：批量设置特定事件所有动作的可用状态
@@ -246,12 +244,9 @@ public class NPCEventManager : MonoBehaviour
                     }
                 }
 
-                Debug.Log($"[{gameObject.name}] 已将事件 {eventID} 的所有动作设置为 {(active ? "可用" : "不可用")}");
                 return;
             }
         }
-
-        Debug.LogWarning($"[{gameObject.name}] 找不到事件 {eventID}");
     }
 
     private void OnGameStateChanged()
@@ -281,28 +276,41 @@ public class NPCEventManager : MonoBehaviour
     private void CheckForEvents()
     {
         if (activePathEvents.Count == 0 || currentPathPointsParent == null)
+        {
             return;
+        }
 
         // 获取当前最近的路径点索引
         int currentPointIndex = GetCurrentPathPointIndex();
 
+        // 如果 currentPointIndex 为 -1，说明还没有到达任何路径点
+        // 这种情况下，检查从点 0 开始的事件
+        int checkPointIndex = currentPointIndex == -1 ? 0 : currentPointIndex;
+
         // 检查所有活跃事件
-        foreach (var pathEvent in activePathEvents)
+        for (int i = 0; i < activePathEvents.Count; i++)
         {
+            var pathEvent = activePathEvents[i];
+            
             // 只有未激活的事件才需要检查
             if (pathEvent == currentEvent)
+            {
                 continue;
+            }
 
             // 检查事件是否已完成
             if (completedEventIDs.Contains(pathEvent.eventID))
+            {
                 continue;
+            }
 
             // 检查是否到达事件起始点
-            if (IsPathPointInEventRange(currentPointIndex, pathEvent))
+            bool inRange = IsPathPointInEventRange(checkPointIndex, pathEvent);
+            
+            if (inRange)
             {
                 // 找到事件，激活它
                 TriggerEvent(pathEvent);
-
                 break;
             }
         }
@@ -342,13 +350,17 @@ public class NPCEventManager : MonoBehaviour
         // 记录事件开始位置
         RecordEventStartPosition();
 
+        // 显示事件指示器
+        if (eventIndicator != null)
+        {
+            eventIndicator.ShowIndicator();
+        }
+
         // 告诉手势处理器开始检测
         if (gestureHandler != null)
         {
             gestureHandler.StartGestureRecognition(pathEvent);
         }
-
-        Debug.Log($"[事件触发] NPC: {gameObject.name} | 事件: {pathEvent.eventID}");
     }
 
     // 修改获取事件结束点的方法
@@ -441,10 +453,14 @@ public class NPCEventManager : MonoBehaviour
             // 记录事件完成时使用的手势类型
             eventCompletionGestures[eventID] = gestureType;
 
+            // 隐藏事件指示器
+            if (eventIndicator != null)
+            {
+                eventIndicator.HideIndicator();
+            }
+
             // 触发事件完成事件
             OnEventCompleted?.Invoke(currentPathID, currentEvent, gestureType);
-
-            Debug.Log($"[事件完成] NPC: {gameObject.name} | 事件: {eventID} | 手势: {(string.IsNullOrEmpty(gestureType) ? "无" : gestureType)}");
 
             // 重置状态
             currentEvent = null;
@@ -489,8 +505,6 @@ public class NPCEventManager : MonoBehaviour
     {
         if (pathEvent == null)
             return;
-
-        Debug.Log($"[事件测试] 触发事件: {pathEvent.eventID}");
 
         // 临时设置路径ID
         currentPathID = pathId;
@@ -540,7 +554,6 @@ public class NPCEventManager : MonoBehaviour
         // 如果在活跃事件中找到了
         if (targetEvent != null)
         {
-            Debug.Log($"[{gameObject.name}] 通过ID触发事件: {eventID}");
             TriggerEvent(targetEvent);
         }
         else
@@ -551,7 +564,7 @@ public class NPCEventManager : MonoBehaviour
             if (targetEvent != null)
             {
                 // 找到了，但该事件在当前幕不可用
-                Debug.LogWarning($"[{gameObject.name}] 事件 {eventID} 存在但在当前幕 {currentAct} 中不可用");
+                return;
             }
             else
             {
@@ -572,9 +585,6 @@ public class NPCEventManager : MonoBehaviour
                         }
                     }
                 }
-
-                // 完全没找到对应事件
-                Debug.LogWarning($"[{gameObject.name}] 找不到ID为 {eventID} 的事件");
             }
         }
     }
@@ -671,6 +681,25 @@ public class NPCEventManager : MonoBehaviour
             EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act1.ToString(), () => SetCurrentAct(1));
             EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act2.ToString(), () => SetCurrentAct(2));
             EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act3.ToString(), () => SetCurrentAct(3));
+        }
+    }
+
+    // 新增：手动添加事件指示器（编辑器调用）
+    [ContextMenu("添加事件指示器")]
+    public void AddEventIndicator()
+    {
+        if (eventIndicator == null)
+        {
+            eventIndicator = gameObject.AddComponent<GestureEventIndicator>();
+        }
+    }
+
+    // 新增：设置事件指示器组件（供编辑器调用）
+    public void SetupEventIndicatorComponents()
+    {
+        if (eventIndicator != null)
+        {
+            // 设置完成
         }
     }
 }

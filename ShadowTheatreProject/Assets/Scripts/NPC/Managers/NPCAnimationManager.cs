@@ -63,7 +63,6 @@ public class NPCAnimationManager : MonoBehaviour
         if (animator != null && !string.IsNullOrEmpty(currentAnimationName) &&
             currentAnimationName != defaultAnimationName && !animator.IsPlaying())
         {
-            Debug.Log($"[{gameObject.name}] 检测到非循环动画结束，恢复默认动画 {defaultAnimationName}");
             PlayAnimation(defaultAnimationName, true);
         }
     }
@@ -73,8 +72,6 @@ public class NPCAnimationManager : MonoBehaviour
     {
         // 先记录当前路径点，以便动作序列可以使用
         currentPathPointIndex = pathPointIndex;
-
-        Debug.Log($"[{gameObject.name}] 检查路径点{pathPointIndex}的动画");
 
         // 获取当前路径配置
         NPCData npcData = controller.Data;
@@ -97,8 +94,6 @@ public class NPCAnimationManager : MonoBehaviour
                 string eventID = completedEvent.eventID;
                 string completionGesture = eventManager.GetEventCompletionGesture(eventID);
 
-                Debug.Log($"[{gameObject.name}] 检查已完成事件 {eventID} (手势={completionGesture}) 的路径点{pathPointIndex}动作");
-
                 // 首先处理默认响应的动画 - 这总是执行
                 bool defaultAnimationPlayed = false;
                 if (completedEvent.defaultResponse != null)
@@ -111,7 +106,6 @@ public class NPCAnimationManager : MonoBehaviour
                         {
                             PlayAnimation(action.animationName, action.loopAnimation);
                             defaultAnimationPlayed = true;
-                            Debug.Log($"[{gameObject.name}] 路径点{pathPointIndex}播放已完成事件 {eventID} 的默认响应动画: {action.animationName}");
                             break; // 只播放第一个匹配的
                         }
                     }
@@ -134,7 +128,6 @@ public class NPCAnimationManager : MonoBehaviour
                                     if (action.overridePrevious || !defaultAnimationPlayed)
                                     {
                                         PlayAnimation(action.animationName, action.loopAnimation);
-                                        Debug.Log($"[{gameObject.name}] 路径点{pathPointIndex}播放已完成事件 {eventID} 的手势 {completionGesture} 响应动画: {action.animationName}");
                                     }
                                     return; // 找到对应手势的动作后退出
                                 }
@@ -159,7 +152,6 @@ public class NPCAnimationManager : MonoBehaviour
             {
                 // 播放动画，使用动作中定义的循环设置
                 PlayAnimation(action.animationName, action.loopAnimation);
-                Debug.Log($"[{gameObject.name}] 路径点{pathPointIndex}播放默认路径动画: {action.animationName}");
                 return;
             }
         }
@@ -167,7 +159,6 @@ public class NPCAnimationManager : MonoBehaviour
         // 如果没有找到任何动画，恢复默认动画（这确保非循环动画结束后有动画播放）
         if (!animator.IsPlaying())
         {
-            Debug.Log($"[{gameObject.name}] 路径点{pathPointIndex}没有找到动画，恢复默认动画: {defaultAnimationName}");
             PlayAnimation(defaultAnimationName, true);
         }
     }
@@ -175,8 +166,6 @@ public class NPCAnimationManager : MonoBehaviour
     // 事件完成回调
     private void OnEventCompleted(string pathId, PathEvent completedEvent, string gestureType)
     {
-        Debug.Log($"[{gameObject.name}] 事件完成回调: 事件={completedEvent.eventID}, 手势={gestureType}");
-
         // 对于事件完成时的动作，仅处理不关联特定路径点的动作(pathPointIndex < 0)或与当前路径点匹配的动作
         // 其他路径点的动作将在NPC到达相应路径点时由CheckForPathAnimation处理
 
@@ -191,7 +180,6 @@ public class NPCAnimationManager : MonoBehaviour
                 if (r.gestureType == gestureType)
                 {
                     response = r;
-                    Debug.Log($"[{gameObject.name}] 找到匹配手势响应: {gestureType}");
                     break;
                 }
             }
@@ -201,7 +189,6 @@ public class NPCAnimationManager : MonoBehaviour
         if (response == null)
         {
             response = completedEvent.defaultResponse;
-            Debug.Log($"[{gameObject.name}] 使用默认响应");
         }
 
         // 如果有动作序列，播放动作序列中的动画
@@ -223,17 +210,8 @@ public class NPCAnimationManager : MonoBehaviour
 
             if (activeActions.Count > 0)
             {
-                Debug.Log($"[{gameObject.name}] 开始播放动作序列: {activeActions.Count}个动作(当前路径点{currentPathPointIndex})");
                 StartCoroutine(PlayActionAnimationSequence(activeActions));
             }
-            else
-            {
-                Debug.Log($"[{gameObject.name}] 事件响应中没有当前路径点({currentPathPointIndex})可用的动作");
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] 事件响应中没有定义动作");
         }
     }
 
@@ -242,18 +220,14 @@ public class NPCAnimationManager : MonoBehaviour
     {
         if (actions == null || actions.Count == 0)
         {
-            Debug.LogWarning($"[{gameObject.name}] 动作序列为空");
             yield break;
         }
-
-        Debug.Log($"[{gameObject.name}] 准备播放动作序列: {actions.Count}个动作");
 
         // 获取当前路径上的点索引
         int currentPathPointIndex = -1;
         if (eventManager != null)
         {
             currentPathPointIndex = eventManager.GetCurrentPathPointIndex();
-            Debug.Log($"[{gameObject.name}] 当前路径点索引: {currentPathPointIndex}");
         }
 
         // 设置一个标志，表示我们正在处理事件动作序列
@@ -263,12 +237,10 @@ public class NPCAnimationManager : MonoBehaviour
         foreach (var action in actions)
         {
             actionCounter++;
-            Debug.Log($"[{gameObject.name}] 准备执行动作{actionCounter}: 动画={action.animationName}, 路径点={action.pathPointIndex}");
 
             // 等待延迟
             if (action.delay > 0)
             {
-                Debug.Log($"[{gameObject.name}] 等待延迟: {action.delay}秒");
                 yield return new WaitForSeconds(action.delay);
             }
 
@@ -284,15 +256,11 @@ public class NPCAnimationManager : MonoBehaviour
             // 播放动画，使用动作中定义的循环设置
             if (shouldPlayAnimation && !string.IsNullOrEmpty(action.animationName))
             {
-                Debug.Log($"[{gameObject.name}] 播放动作动画: {action.animationName}, 循环={action.loopAnimation}");
                 PlayAnimation(action.animationName, action.loopAnimation);
 
                 // 等待对话显示完成
                 if (action.displayDuration > 0)
                 {
-                    Debug.Log($"[{gameObject.name}] 等待对话显示完成: {action.displayDuration}秒");
-
-                    // 分段等待，以便可以被路径点动画打断
                     float remainingTime = action.displayDuration;
                     float waitInterval = 0.1f; // 每段等待0.1秒
 
@@ -305,21 +273,15 @@ public class NPCAnimationManager : MonoBehaviour
                         // 检查是否已经被新的路径点动画中断
                         if (!inEventActionSequence)
                         {
-                            Debug.Log($"[{gameObject.name}] 动作序列被路径点动画中断");
                             yield break;
                         }
                     }
                 }
             }
-            else
-            {
-                Debug.Log($"[{gameObject.name}] 跳过动作，不在当前路径点(当前={currentPathPointIndex}, 动作定义={action.pathPointIndex})或没有指定动画");
-            }
         }
 
         // 如果没有被中断，恢复默认动画
         PlayAnimation(defaultAnimationName, true);
-        Debug.Log($"[{gameObject.name}] 动作序列播放完成，恢复默认动画");
         inEventActionSequence = false;
     }
 
@@ -330,11 +292,8 @@ public class NPCAnimationManager : MonoBehaviour
     /// <param name="loop">是否循环播放</param>
     public void PlayAnimation(string animName, bool loop = false)
     {
-        Debug.Log($"[{gameObject.name}] PlayAnimation被调用: {animName}, 循环={loop}");
-
         if (string.IsNullOrEmpty(animName) || animator == null)
         {
-            Debug.LogWarning($"[{gameObject.name}] 无法播放动画: animName={animName}, animator={animator != null}");
             return;
         }
 
@@ -343,7 +302,6 @@ public class NPCAnimationManager : MonoBehaviour
 
         // 使用 SpriteSheetAnimator 播放动画
         animator.Play(animName, loop);
-        Debug.Log($"[{gameObject.name}] 调用animator.Play: {animName}, 循环={loop}");
     }
 
     public List<string> GetAvailableAnimations()

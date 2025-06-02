@@ -15,6 +15,7 @@ MonoBehaviour:
   npcID: 2
   npcName: goose
   currentScore: 0
+  moveSpeed: 1
   paths:
   - pathID: g1
     pathName: GoosePath1
@@ -1213,6 +1214,16 @@ MonoBehaviour:
       loopAnimation: 0
       pathPointIndex: 119
       isActionActive: 1
+    - dialogueText: 
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      delay: 0.5
+      waitTime: 0
+      overridePrevious: 1
+      loopAnimation: 0
+      pathPointIndex: 126
+      isActionActive: 1
   pathConnections: []
   pathDecisions: []
-  importExportPath: D:/College/Game/ShadowTheatre/ShadowTheatreProject/Assets/NPCData/Goose_data.csv
+  importExportPath: D:/College/Game/ShadowTheatre/ShadowTheatreProject/Assets/NPCData/goose_data1111.csv
