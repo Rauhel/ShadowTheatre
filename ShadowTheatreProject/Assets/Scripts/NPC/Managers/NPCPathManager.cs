@@ -19,6 +19,9 @@ public class NPCPathManager : MonoBehaviour
     private NavMeshAgent agent;
     private bool isWaitingAtPoint = false; // 新增：标记是否正在等待
 
+    // 调试设置
+    public bool ShowDebugLogs { get; set; } = false; // 默认关闭调试日志
+
     // 公共属性
     public Transform CurrentPath => currentPathPoints;
     public bool IsFollowingPath => currentPathPoints != null && !pathProcessingPaused;
@@ -61,7 +64,8 @@ public class NPCPathManager : MonoBehaviour
 
         if (currentPathPointIndex >= currentPathCreator.GetPathPointCount())
         {
-            Debug.LogWarning($"[{gameObject.name}] 路径点索引超出范围: {currentPathPointIndex}/{currentPathCreator.GetPathPointCount()}");
+            if (ShowDebugLogs)
+                Debug.LogWarning($"[{gameObject.name}] 路径点索引超出范围: {currentPathPointIndex}/{currentPathCreator.GetPathPointCount()}");
             return;
         }
 
@@ -83,26 +87,19 @@ public class NPCPathManager : MonoBehaviour
         // 设置目标（如果需要）
         if (agent.destination != targetPosition)
         {
-            Debug.Log($"[{gameObject.name}] 设置新目标点: 点{currentPathPointIndex}, 位置: {targetPosition}");
+            if (ShowDebugLogs)
+                Debug.Log($"[{gameObject.name}] 设置新目标点: 点{currentPathPointIndex}, 位置: {targetPosition}");
             agent.SetDestination(targetPosition);
         }
 
         // 检查是否到达当前点
         float distanceToTarget = Vector3.Distance(transform.position, targetPosition);
 
-        // 添加调试信息
-        //if (distanceToTarget < reachDistance * 2) // 扩大一点检测范围仅用于调试
-        //{
-        //    Debug.Log($"[{gameObject.name}] 接近目标点 {currentPathPointIndex}，距离: {distanceToTarget}, 阈值: {reachDistance}");
-        //}
-
         if (distanceToTarget < reachDistance)
         {
-            //Debug.Log($"[{gameObject.name}] 已到达路径点 {currentPathPointIndex}");
-
             // 记录已达到的点
             int reachedPointIndex = currentPathPointIndex;
-            
+
             // 更新最后到达的路径点索引
             lastReachedPointIndex = reachedPointIndex;
 
@@ -206,12 +203,12 @@ public class NPCPathManager : MonoBehaviour
         if (controller.Data.paths != null && controller.Data.paths.Count > 0)
         {
             initialPath = controller.Data.paths[0].pathID;
-            //Debug.Log($"[{gameObject.name}] 使用第一个可用路径作为初始路径: {initialPath}");
         }
 
         if (string.IsNullOrEmpty(initialPath))
         {
-            Debug.LogWarning($"[{gameObject.name}] 未设置初始路径");
+            if (ShowDebugLogs)
+                Debug.LogWarning($"[{gameObject.name}] 未设置初始路径");
             return;
         }
 
@@ -219,24 +216,19 @@ public class NPCPathManager : MonoBehaviour
         MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(initialPath);
         if (pathCreator != null)
         {
-            //Debug.Log($"[{gameObject.name}] 使用路径初始化: {pathCreator.name}");
-
             // 确保路径点数据已生成
             if (pathCreator.pathPointPositions.Count == 0 && pathCreator.controlPoints.Count >= 2)
             {
-                //Debug.Log($"[{gameObject.name}] 正在为路径生成路径点: {pathCreator.name}");
                 pathCreator.GeneratePathPoints();
             }
-
-            // 确保验证
-            //Debug.Log($"[{gameObject.name}] 路径 {pathCreator.name} 包含 {pathCreator.GetPathPointCount()} 个路径点");
 
             // 切换到该路径
             SwitchToPath(pathCreator);
         }
         else
         {
-            Debug.LogError($"[{gameObject.name}] 找不到初始路径: {initialPath}");
+            if (ShowDebugLogs)
+                Debug.LogError($"[{gameObject.name}] 找不到初始路径: {initialPath}");
         }
     }
 
@@ -245,7 +237,8 @@ public class NPCPathManager : MonoBehaviour
     {
         if (currentPathCreator == null || controller.Data == null)
         {
-            Debug.LogWarning($"[{gameObject.name}] 路径数据不完整，无法确定下一步");
+            if (ShowDebugLogs)
+                Debug.LogWarning($"[{gameObject.name}] 路径数据不完整，无法确定下一步");
             controller.StopMovement(true);
             return;
         }
@@ -254,7 +247,8 @@ public class NPCPathManager : MonoBehaviour
         PathConfig currentPathConfig = controller.Data.FindPathById(currentPathCreator.pathID);
         if (currentPathConfig == null)
         {
-            Debug.LogWarning($"[{gameObject.name}] 找不到当前路径的配置: {currentPathCreator.pathID}");
+            if (ShowDebugLogs)
+                Debug.LogWarning($"[{gameObject.name}] 找不到当前路径的配置: {currentPathCreator.pathID}");
             controller.StopMovement(true);
             return;
         }
@@ -262,7 +256,6 @@ public class NPCPathManager : MonoBehaviour
         // 检查是否有下一条路径
         if (currentPathConfig.nextPaths.Count == 0)
         {
-            //Debug.Log($"[{gameObject.name}] 路径 {currentPathConfig.pathName} 没有下一条路径，停止移动");
             controller.StopMovement(true);
             return;
         }
@@ -271,7 +264,8 @@ public class NPCPathManager : MonoBehaviour
         string nextPathID = currentPathConfig.SelectNextPathByScore(controller.Data.currentScore);
         if (string.IsNullOrEmpty(nextPathID))
         {
-            Debug.LogWarning($"[{gameObject.name}] 无法确定下一条路径，停止移动");
+            if (ShowDebugLogs)
+                Debug.LogWarning($"[{gameObject.name}] 无法确定下一条路径，停止移动");
             controller.StopMovement(true);
             return;
         }
@@ -284,7 +278,8 @@ public class NPCPathManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"[{gameObject.name}] 找不到ID为 {nextPathID} 的路径，停止移动");
+            if (ShowDebugLogs)
+                Debug.LogWarning($"[{gameObject.name}] 找不到ID为 {nextPathID} 的路径，停止移动");
             controller.StopMovement(true);
         }
     }
@@ -294,18 +289,18 @@ public class NPCPathManager : MonoBehaviour
     {
         if (newPathCreator == null)
         {
-            Debug.LogError($"[{gameObject.name}] 尝试切换到空路径");
+            if (ShowDebugLogs)
+                Debug.LogError($"[{gameObject.name}] 尝试切换到空路径");
             return;
         }
 
         // 修改这里：使用 GetPathPointCount() 而不是 pathPointsParent.childCount
         if (newPathCreator.GetPathPointCount() == 0)
         {
-            Debug.LogError($"[{gameObject.name}] 路径 {newPathCreator.name} 没有路径点");
+            if (ShowDebugLogs)
+                Debug.LogError($"[{gameObject.name}] 路径 {newPathCreator.name} 没有路径点");
             return;
         }
-
-        //Debug.Log($"[{gameObject.name}] 切换到路径: {newPathCreator.name} (包含 {newPathCreator.GetPathPointCount()} 个点)");
 
         // 设置新路径
         currentPathCreator = newPathCreator;
@@ -346,7 +341,8 @@ public class NPCPathManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"[{gameObject.name}] 无法获取 NavMeshAgent 组件，导航失败");
+            if (ShowDebugLogs)
+                Debug.LogError($"[{gameObject.name}] 无法获取 NavMeshAgent 组件，导航失败");
         }
     }
 
@@ -360,7 +356,8 @@ public class NPCPathManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"[{gameObject.name}] 找不到ID为 {pathID} 的路径");
+            if (ShowDebugLogs)
+                Debug.LogError($"[{gameObject.name}] 找不到ID为 {pathID} 的路径");
         }
     }
 

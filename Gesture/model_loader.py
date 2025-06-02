@@ -15,13 +15,15 @@ class ModelLoader:
         try:
             # 获取当前文件夹的绝对路径
             current_dir = os.path.dirname(os.path.abspath(__file__))
+            print(f"模型搜索目录: {current_dir}")
             
             # 加载单手模型
             single_hand_path = os.path.join(current_dir, "gesture_model_single_hand.pkl")
             if os.path.exists(single_hand_path):
                 with open(single_hand_path, 'rb') as f:
                     self.single_hand_model = pickle.load(f)
-                print("成功加载单手模型")
+                print(f"成功加载单手模型: {single_hand_path}")
+                print(f"单手模型类别: {self.single_hand_model.classes_}")
             else:
                 print(f"单手模型文件不存在: {single_hand_path}")
                 self.single_hand_model = None
@@ -31,7 +33,8 @@ class ModelLoader:
             if os.path.exists(two_hands_path):
                 with open(two_hands_path, 'rb') as f:
                     self.two_hands_model = pickle.load(f)
-                print(f"成功加载双手模型")
+                print(f"成功加载双手模型: {two_hands_path}")
+                print(f"双手模型类别: {self.two_hands_model.classes_}")
             else:
                 print(f"双手模型文件不存在: {two_hands_path}")
                 self.two_hands_model = None
@@ -41,18 +44,17 @@ class ModelLoader:
             if os.path.exists(hand_types_path):
                 with open(hand_types_path, 'r') as f:
                     self.hand_type_dict = json.load(f)
-                print("成功加载手势类型信息")
+                print(f"成功加载手势类型信息: {hand_types_path}")
+                print(f"手势类型映射: {self.hand_type_dict}")
             else:
                 print(f"手势类型文件不存在: {hand_types_path}")
                 self.hand_type_dict = {}
             
-            # 显示加载结果
-            if self.single_hand_model:
-                print(f"单手手势: {self.single_hand_model.classes_}")
-            if self.two_hands_model:
-                print(f"双手手势: {self.two_hands_model.classes_}")
+            # 检查是否至少加载了一个模型
+            models_loaded = (self.single_hand_model is not None or self.two_hands_model is not None)
+            print(f"模型加载结果: {'成功' if models_loaded else '失败'}")
             
-            return (self.single_hand_model is not None or self.two_hands_model is not None)
+            return models_loaded
         except Exception as e:
             print(f"加载手势模型失败: {e}")
             self.single_hand_model = None

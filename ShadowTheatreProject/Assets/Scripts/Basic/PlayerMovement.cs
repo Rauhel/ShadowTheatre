@@ -130,7 +130,7 @@ public class PlayerMovement : MonoBehaviour
         if (newHoverState != isHovering)
         {
             isHovering = newHoverState;
-            Debug.Log($"PlayerMovement: 悬停状态变更为 {(isHovering ? "悬停中" : "移动中")}");
+            //Debug.Log($"PlayerMovement: 悬停状态变更为 {(isHovering ? "悬停中" : "移动中")}");
 
             // 如果启用了调试指针，更新颜色以反映悬停状态
             if (debugPointer != null && debugPointer.activeSelf)
@@ -189,14 +189,14 @@ public class PlayerMovement : MonoBehaviour
         if (groundPlane.Raycast(ray, out float distance))
         {
             Vector3 hitPoint = ray.GetPoint(distance);
-            
+
             // 应用Z轴偏移量，让射线命中点向后偏移
             hitPoint.z += raycastZOffset;
-            
+
             // 计算与玩家的距离，确保玩家可以向任何方向移动
             Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
             float minDistance = 0.5f; // 可以调整的最小距离
-            
+
             if ((hitPoint - transform.position).magnitude < minDistance)
             {
                 // 向屏幕边缘方向延长点位
@@ -213,7 +213,7 @@ public class PlayerMovement : MonoBehaviour
                     }
                 }
             }
-            
+
             currentPointerPosition = hitPoint;
 
             // 更新调试指针位置

@@ -44,6 +44,9 @@ public class NPCEventManager : MonoBehaviour
     [Range(1, 3)]
     [SerializeField] private int currentAct = 1;
 
+    [Header("调试设置")]
+    [SerializeField] private bool showDebugLogs = true;
+
     private void Awake()
     {
         controller = GetComponent<NPCController>();
@@ -63,6 +66,12 @@ public class NPCEventManager : MonoBehaviour
         {
             gestureHandler.OnGestureSuccess += OnGestureSuccess;
             gestureHandler.OnGestureFailure += OnGestureFailure;
+        }
+
+        if (pathManager != null)
+        {
+            // 关闭PathManager的调试日志
+            pathManager.ShowDebugLogs = false;
         }
     }
 
@@ -149,7 +158,7 @@ public class NPCEventManager : MonoBehaviour
         foreach (var evt in CurrentPathEvents)
         {
             bool enabled = IsEventEnabledInCurrentAct(evt);
-            
+
             if (enabled)
             {
                 activePathEvents.Add(evt);
@@ -291,7 +300,7 @@ public class NPCEventManager : MonoBehaviour
         for (int i = 0; i < activePathEvents.Count; i++)
         {
             var pathEvent = activePathEvents[i];
-            
+
             // 只有未激活的事件才需要检查
             if (pathEvent == currentEvent)
             {
@@ -306,7 +315,7 @@ public class NPCEventManager : MonoBehaviour
 
             // 检查是否到达事件起始点
             bool inRange = IsPathPointInEventRange(checkPointIndex, pathEvent);
-            
+
             if (inRange)
             {
                 // 找到事件，激活它
@@ -350,6 +359,11 @@ public class NPCEventManager : MonoBehaviour
         // 记录事件开始位置
         RecordEventStartPosition();
 
+        if (showDebugLogs)
+        {
+            Debug.Log($"<color=cyan>[事件] 开始事件: {pathEvent.eventID}</color>");
+        }
+
         // 显示事件指示器
         if (eventIndicator != null)
         {
@@ -368,14 +382,14 @@ public class NPCEventManager : MonoBehaviour
     {
         if (currentEvent == null || currentPathPointsParent == null)
             return Vector3.zero;
-        
+
         MultiPointPathCreator currentPathCreator = PathRegistry.GetPathCreatorByID(currentPathID);
-        if (currentPathCreator == null) 
+        if (currentPathCreator == null)
             return Vector3.zero;
-        
+
         if (currentEvent.endPointIndex < 0 || currentEvent.endPointIndex >= currentPathCreator.GetPathPointCount())
             return Vector3.zero;
-        
+
         return currentPathCreator.GetPathPointPosition(currentEvent.endPointIndex);
     }
 
@@ -385,7 +399,7 @@ public class NPCEventManager : MonoBehaviour
         Vector3 endPointPosition = GetEventEndPointPosition();
         if (endPointPosition == Vector3.zero)
             return false;
-        
+
         float distanceToEnd = Vector3.Distance(transform.position, endPointPosition);
         return distanceToEnd <= 0.5f; // 使用合适的阈值
     }
@@ -396,6 +410,11 @@ public class NPCEventManager : MonoBehaviour
         if (currentEvent == null || !isProcessingEvent || !isDetectingGesture)
             return;
 
+        if (showDebugLogs)
+        {
+            Debug.Log($"<color=green>[事件] 识别到手势: {gestureType}, 事件ID: {currentEvent.eventID}</color>");
+        }
+
         // 找到对应的手势响应
         GestureResponse matchedResponse = null;
 
@@ -404,6 +423,12 @@ public class NPCEventManager : MonoBehaviour
             if (response.gestureType == gestureType)
             {
                 matchedResponse = response;
+
+                if (showDebugLogs)
+                {
+                    Debug.Log($"<color=yellow>[事件] 进入手势分支: {gestureType}</color>");
+                }
+
                 break;
             }
         }
@@ -412,6 +437,11 @@ public class NPCEventManager : MonoBehaviour
         if (matchedResponse == null)
         {
             matchedResponse = currentEvent.defaultResponse;
+
+            if (showDebugLogs)
+            {
+                Debug.Log($"<color=orange>[事件] 未找到匹配手势分支，使用默认响应</color>");
+            }
         }
 
         // 应用分数效果
@@ -430,6 +460,11 @@ public class NPCEventManager : MonoBehaviour
         if (currentEvent == null || !isProcessingEvent)
             return;
 
+        if (showDebugLogs)
+        {
+            Debug.Log($"<color=red>[事件] 手势失败，使用默认响应，事件ID: {currentEvent.eventID}</color>");
+        }
+
         // 使用默认响应
         if (controller != null && currentEvent.defaultResponse != null)
         {
@@ -446,6 +481,11 @@ public class NPCEventManager : MonoBehaviour
         if (currentEvent != null)
         {
             string eventID = currentEvent.eventID;
+
+            if (showDebugLogs)
+            {
+                Debug.Log($"<color=cyan>[事件] 结束事件: {eventID}, 使用手势: {(string.IsNullOrEmpty(gestureType) ? "无" : gestureType)}</color>");
+            }
 
             // 记录事件已完成
             completedEventIDs.Add(eventID);

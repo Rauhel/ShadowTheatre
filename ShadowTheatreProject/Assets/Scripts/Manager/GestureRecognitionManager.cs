@@ -263,11 +263,11 @@ public class GestureRecognitionManager : MonoBehaviour
         // 如果在识别过程中，每帧尝试获取最新手势数据
         if (isRecognizing && inputManager != null)
         {
-            // 获取当前手势类型
-            InputManager.GestureData currentData = inputManager.GetCurrentGesture();
-            if (!string.IsNullOrEmpty(currentData.type))
+            // 获取当前手势类型（使用新的分离方法）
+            string latestGestureType = inputManager.GetCurrentGestureType();
+            if (!string.IsNullOrEmpty(latestGestureType) && latestGestureType != "Unknown")
             {
-                currentGesture = currentData.type;
+                currentGesture = latestGestureType;
 
                 // 确保手势类型在字典中
                 if (!gestureProgressMap.ContainsKey(currentGesture))
@@ -275,6 +275,15 @@ public class GestureRecognitionManager : MonoBehaviour
                     gestureProgressMap[currentGesture] = 0f;
                 }
 
+                if (debugMode)
+                {
+                    Debug.Log($"Update获取手势: {currentGesture}, 目标: {targetGesture}");
+                }
+            }
+            else
+            {
+                // 如果没有有效手势，设置为Unknown
+                currentGesture = "Unknown";
                 if (debugMode)
                 {
                     Debug.Log($"Update获取手势: {currentGesture}, 目标: {targetGesture}");

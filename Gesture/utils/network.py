@@ -17,7 +17,7 @@ class NetworkManager:
             # 不绑定本地地址，因为我们只是发送方
             self.is_connected = True
             # 测试发送一条消息
-            test_message = "test_gesture|Unknown"
+            test_message = "gesture|Unknown"
             self.sock.sendto(test_message.encode('utf-8'), (self.host, self.port))
             print(f"NetworkManager: 成功连接并向{self.host}:{self.port}发送测试消息")
             return True
@@ -42,6 +42,23 @@ class NetworkManager:
         try:
             message = f"gesture|{gesture_type}"
             self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
+            print(f"NetworkManager: 发送手势 - {message}")
+            return True
+        except Exception as e:
+            print(f"NetworkManager: 发送错误 - {e}")
+            return False
+
+    def send_hand_detection_status(self, detected):
+        """发送手部检测状态"""
+        if not self.is_connected:
+            print("NetworkManager: 未连接，请先调用 connect() 方法")
+            return False
+        
+        try:
+            status_str = "True" if detected else "False"
+            message = f"HandDetectionStatus|{status_str}"
+            self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
+            print(f"NetworkManager: 发送手部检测状态 - {message}")
             return True
         except Exception as e:
             print(f"NetworkManager: 发送错误 - {e}")

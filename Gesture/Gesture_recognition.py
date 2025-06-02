@@ -208,13 +208,13 @@ class GestureRecognition:
                     # 检测不到手的情况
                     if time.time() - self.last_hand_detected_time > 0.5:
                         print("屏幕中0.5s检测不到手")
-                        self.network.send_gesture("HandDetectionStatus|False")
+                        self.network.send_hand_detection_status(False)
                         self.last_hand_detected_time = time.time()
                         current_gesture = "Unknown"
                 
                 # 有手时发送状态
                 if results.multi_hand_landmarks and time.time() - self.last_hand_detected_time > 1:
-                    self.network.send_gesture("HandDetectionStatus|True")
+                    self.network.send_hand_detection_status(True)
                     self.last_hand_detected_time = time.time()
                 
                 # 发送手势（只在手势变化时发送）

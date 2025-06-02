@@ -17,6 +17,10 @@ public class InputManager : MonoBehaviour
     // 手部检测状态
     private bool handDetected = false;
 
+    // 分离手势类型和位置数据
+    private string currentGestureType = "Unknown";
+    private Vector2 currentHandPosition = Vector2.zero;
+
     // 手势数据类
     [System.Serializable]
     public class GestureData
@@ -58,14 +62,76 @@ public class InputManager : MonoBehaviour
     /// </summary>
     private void ResetGestureData()
     {
-        currentGesture.type = "";
-        currentGesture.position = Vector2.zero;
+        currentGestureType = "Unknown";
+        currentHandPosition = Vector2.zero;
+        currentGesture.type = currentGestureType;
+        currentGesture.position = currentHandPosition;
         currentGesture.confidence = 0f;
         currentGesture.additionalData.Clear();
     }
 
     /// <summary>
-    /// 处理手势输入数据：标准化并分发
+    /// 更新手势类型数据
+    /// </summary>
+    public void UpdateGestureType(string gestureType, Dictionary<string, float> additionalData = null)
+    {
+        // 更新手势类型
+        currentGestureType = gestureType;
+        
+        // 更新合并的手势数据
+        currentGesture.type = currentGestureType;
+        currentGesture.confidence = 1.0f;
+
+        if (additionalData != null)
+        {
+            currentGesture.additionalData.Clear();
+            foreach (var kvp in additionalData)
+            {
+                currentGesture.additionalData[kvp.Key] = kvp.Value;
+            }
+        }
+
+        // 触发手势类型事件
+        OnGestureTypeReceived?.Invoke(gestureType, 1.0f);
+        
+        // 通知所有监听器
+        NotifyGestureListeners();
+        
+        Debug.Log($"[InputManager] 手势类型更新: {gestureType}");
+    }
+
+    /// <summary>
+    /// 更新手部位置数据
+    /// </summary>
+    public void UpdateHandPosition(Vector2 rawPosition, Dictionary<string, float> additionalData = null)
+    {
+        // 标准化位置数据
+        currentHandPosition = NormalizeGesturePosition(rawPosition);
+        
+        // 更新合并的手势数据
+        currentGesture.position = currentHandPosition;
+
+        if (additionalData != null)
+        {
+            // 只更新位置相关的附加数据，不覆盖手势类型相关数据
+            foreach (var kvp in additionalData)
+            {
+                if (kvp.Key.Contains("hand") || kvp.Key.Contains("depth") || kvp.Key.Contains("position"))
+                {
+                    currentGesture.additionalData[kvp.Key] = kvp.Value;
+                }
+            }
+        }
+
+        // 触发手部位置更新事件
+        OnHandPositionUpdated?.Invoke(currentHandPosition);
+        
+        // 通知所有监听器
+        NotifyGestureListeners();
+    }
+
+    /// <summary>
+    /// 处理手势输入数据：标准化并分发（兼容旧接口）
     /// </summary>
     public void UpdateGestureData(string type, Vector2 rawPosition, Dictionary<string, float> additionalData = null)
     {
@@ -89,38 +155,22 @@ public class InputManager : MonoBehaviour
             return;
         }
 
-        // 保存手势数据
-        currentGesture.type = type;
-        currentGesture.position = rawPosition;
-
-        // 移除置信度相关代码
-        currentGesture.confidence = 1.0f; // 默认值设为1.0
-
-        if (additionalData != null)
+        // 检查是否是位置数据
+        if (type == "position" || type == "HandPosition")
         {
-            currentGesture.additionalData.Clear();
-            foreach (var kvp in additionalData)
-            {
-                currentGesture.additionalData[kvp.Key] = kvp.Value;
-            }
+            UpdateHandPosition(rawPosition, additionalData);
+            return;
         }
 
-        // 处理手势类型消息
+        // 检查是否是手势类型数据
         if (additionalData != null && additionalData.ContainsKey("is_gesture_type") && additionalData["is_gesture_type"] > 0.5f)
         {
-            // 触发手势类型事件 - 移除置信度参数或使用默认值1.0
-            OnGestureTypeReceived?.Invoke(type, 1.0f);
-        }
-        else if (type == "HandPosition" || type == "position") // 手部位置消息
-        {
-            // 标准化位置数据
-            Vector2 normalizedPosition = NormalizeGesturePosition(rawPosition);
-            // 触发手部位置更新事件
-            OnHandPositionUpdated?.Invoke(normalizedPosition);
+            UpdateGestureType(type, additionalData);
+            return;
         }
 
-        // 通知所有监听器
-        NotifyGestureListeners();
+        // 默认处理为手势类型
+        UpdateGestureType(type, additionalData);
     }
 
     /// <summary>
@@ -155,6 +205,12 @@ public class InputManager : MonoBehaviour
         return currentGesture;
     }
 
+    // 获取当前手势类型
+    public string GetCurrentGestureType()
+    {
+        return currentGestureType;
+    }
+
     // 获取当前手部检测状态
     public bool IsHandDetected()
     {
@@ -164,7 +220,7 @@ public class InputManager : MonoBehaviour
     // 获取当前标准化手部位置
     public Vector2 GetNormalizedHandPosition()
     {
-        return NormalizeGesturePosition(currentGesture.position);
+        return currentHandPosition;
     }
 
     // 通知手势监听器

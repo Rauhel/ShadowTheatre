@@ -19,6 +19,13 @@ public class GestureReceiver : MonoBehaviour
     [SerializeField] private bool autoConnect = true;
     [SerializeField] private string messageDelimiter = "|";
 
+    [Header("运行模式设置")]
+    [Tooltip("true=调试模式(手动运行Python脚本), false=正式模式(自动启动exe)")]
+    [SerializeField] private bool debugMode = false;
+    
+    [Tooltip("调试模式下显示的提示信息")]
+    [SerializeField] private bool showDebugInstructions = true;
+
     // 连接状态和网络组件
     private bool isPositionConnected = false;
     private bool isPositionRunning = false;
@@ -44,8 +51,25 @@ public class GestureReceiver : MonoBehaviour
 
     private void Start()
     {
-        // 新增：自动启动gesture_app.exe
-        StartGestureApp();
+        if (debugMode)
+        {
+            // 调试模式：不启动exe，等待手动运行Python脚本
+            UnityEngine.Debug.Log("[GestureReceiver] === 调试模式 ===");
+            if (showDebugInstructions)
+            {
+                UnityEngine.Debug.Log("[GestureReceiver] 请手动运行Python脚本:");
+                UnityEngine.Debug.Log("[GestureReceiver] 1. 打开命令行，进入Gesture目录");
+                UnityEngine.Debug.Log("[GestureReceiver] 2. 运行: python main.py");
+                UnityEngine.Debug.Log("[GestureReceiver] 或者运行: python gesture_recognition.py");
+                UnityEngine.Debug.Log("[GestureReceiver] 注意：确保Python环境已安装所需依赖");
+            }
+        }
+        else
+        {
+            // 正式模式：自动启动gesture_app.exe
+            UnityEngine.Debug.Log("[GestureReceiver] === 正式模式 ===");
+            StartGestureApp();
+        }
 
         // 获取InputManager引用
         inputManager = InputManager.Instance;
@@ -65,7 +89,7 @@ public class GestureReceiver : MonoBehaviour
         }
     }
 
-    // 新增：启动StreamingAssets下的gesture_app.exe
+    // 启动StreamingAssets下的gesture_app.exe（正式模式）
     private void StartGestureApp()
     {
         string exePath = System.IO.Path.Combine(Application.streamingAssetsPath, "gesture_app.exe");
@@ -78,6 +102,7 @@ public class GestureReceiver : MonoBehaviour
                 gestureAppProcess.StartInfo.UseShellExecute = false;
                 gestureAppProcess.StartInfo.CreateNoWindow = true;
                 gestureAppProcess.Start();
+                UnityEngine.Debug.Log($"[GestureReceiver] 成功启动手势识别应用: {exePath}");
             }
             catch (Exception e)
             {
@@ -88,6 +113,72 @@ public class GestureReceiver : MonoBehaviour
         {
             UnityEngine.Debug.LogError($"未找到手势识别应用: {exePath}");
         }
+    }
+
+    // 在Inspector中切换模式时调用（仅在编辑器中有效）
+    [ContextMenu("切换到调试模式")]
+    public void SwitchToDebugMode()
+    {
+        if (debugMode)
+        {
+            UnityEngine.Debug.Log("[GestureReceiver] 已经处于调试模式");
+            return;
+        }
+
+        // 先关闭正式模式的exe进程
+        if (gestureAppProcess != null && !gestureAppProcess.HasExited)
+        {
+            try
+            {
+                gestureAppProcess.Kill();
+                UnityEngine.Debug.Log("[GestureReceiver] 已关闭exe进程，切换到调试模式");
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogWarning($"关闭exe进程时出现错误: {e.Message}");
+            }
+            gestureAppProcess = null;
+        }
+
+        debugMode = true;
+        UnityEngine.Debug.Log("[GestureReceiver] 已切换到调试模式");
+        if (showDebugInstructions)
+        {
+            PrintDebugInstructions();
+        }
+    }
+
+    [ContextMenu("切换到正式模式")]
+    public void SwitchToReleaseMode()
+    {
+        if (!debugMode)
+        {
+            UnityEngine.Debug.Log("[GestureReceiver] 已经处于正式模式");
+            return;
+        }
+
+        debugMode = false;
+        UnityEngine.Debug.Log("[GestureReceiver] 已切换到正式模式，正在启动exe...");
+        
+        // 启动exe进程
+        StartGestureApp();
+    }
+
+    [ContextMenu("显示调试说明")]
+    public void PrintDebugInstructions()
+    {
+        UnityEngine.Debug.Log("=== 调试模式使用说明 ===");
+        UnityEngine.Debug.Log("1. 确保Python环境已安装（Python 3.7+）");
+        UnityEngine.Debug.Log("2. 安装必需的Python包：");
+        UnityEngine.Debug.Log("   pip install opencv-python mediapipe numpy scikit-learn");
+        UnityEngine.Debug.Log("3. 打开命令行，进入Gesture目录");
+        UnityEngine.Debug.Log("4. 运行Python脚本：");
+        UnityEngine.Debug.Log("   python main.py");
+        UnityEngine.Debug.Log("   或");
+        UnityEngine.Debug.Log("   python gesture_recognition.py");
+        UnityEngine.Debug.Log("5. 确保摄像头可用且未被其他程序占用");
+        UnityEngine.Debug.Log("6. Python脚本会自动连接到Unity（端口5000和8000）");
+        UnityEngine.Debug.Log("===================");
     }
 
     private void Update()
@@ -226,10 +317,10 @@ public class GestureReceiver : MonoBehaviour
                     }
                 }
 
-                // 更新手势数据
+                // 更新手部位置数据（使用新的分离方法）
                 if (inputManager != null)
                 {
-                    inputManager.UpdateGestureData("position", new Vector2(x, y), additionalData);
+                    inputManager.UpdateHandPosition(new Vector2(x, y), additionalData);
                 }
             }
         }
@@ -244,7 +335,13 @@ public class GestureReceiver : MonoBehaviour
         try
         {
             string messageType = parts[0];
-            string gestureType = (messageType == "gesture" && parts.Length > 1) ? parts[1] : messageType;
+            string gestureType = messageType;
+
+            // 如果消息格式是 "gesture|GestureType"，则提取手势类型
+            if (messageType == "gesture" && parts.Length > 1)
+            {
+                gestureType = parts[1];
+            }
 
             Dictionary<string, float> additionalData = new Dictionary<string, float>();
             int startIndex = (messageType == "gesture") ? 2 : 1;
@@ -277,27 +374,70 @@ public class GestureReceiver : MonoBehaviour
                 return;
             }
 
-            // 标记为手势类型消息
-            additionalData["is_gesture_type"] = 1.0f;
-
-            // 更新手势数据
-            if (inputManager != null)
+            // 验证手势类型是否为有效的手势名称
+            if (IsValidGestureType(gestureType))
             {
-                inputManager.UpdateGestureData(gestureType, Vector2.zero, additionalData);
+                // 标记为手势类型消息
+                additionalData["is_gesture_type"] = 1.0f;
+
+                // 更新手势类型数据（使用新的分离方法）
+                if (inputManager != null)
+                {
+                    inputManager.UpdateGestureType(gestureType, additionalData);
+                }
+                
+                UnityEngine.Debug.Log($"[GestureReceiver] 接收到手势类型: {gestureType}");
+            }
+            else
+            {
+                UnityEngine.Debug.LogWarning($"[GestureReceiver] 接收到未知手势类型: {gestureType}");
             }
         }
-        catch (Exception) { /* 忽略解析错误 */ }
+        catch (Exception e) 
+        { 
+            UnityEngine.Debug.LogError($"[GestureReceiver] 解析手势消息失败: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 验证手势类型是否有效
+    /// </summary>
+    private bool IsValidGestureType(string gestureType)
+    {
+        // 定义有效的手势类型
+        string[] validGestures = { "bird", "goose", "wolf", "fist", "frog", "owl", "Unknown" };
+        
+        foreach (string validGesture in validGestures)
+        {
+            if (string.Equals(gestureType, validGesture, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     // 清理资源
     private void OnDestroy()
     {
-        // 新增：关闭手势识别进程
-        if (gestureAppProcess != null && !gestureAppProcess.HasExited)
+        // 关闭手势识别进程（仅在正式模式下）
+        if (!debugMode && gestureAppProcess != null && !gestureAppProcess.HasExited)
         {
-            try { gestureAppProcess.Kill(); }
-            catch { /* 忽略异常 */ }
+            try 
+            { 
+                gestureAppProcess.Kill();
+                UnityEngine.Debug.Log("[GestureReceiver] 已关闭手势识别进程");
+            }
+            catch 
+            { 
+                UnityEngine.Debug.LogWarning("[GestureReceiver] 关闭手势识别进程时出现异常");
+            }
             gestureAppProcess = null;
+        }
+        else if (debugMode)
+        {
+            UnityEngine.Debug.Log("[GestureReceiver] 调试模式下，请手动关闭Python脚本");
         }
 
         DisconnectAll();
@@ -355,5 +495,47 @@ public class GestureReceiver : MonoBehaviour
     public bool IsConnected()
     {
         return isPositionConnected && isGestureConnected;
+    }
+
+    // 公共方法：供外部脚本调用
+    public void SetDebugMode(bool isDebugMode)
+    {
+        if (isDebugMode)
+        {
+            SwitchToDebugMode();
+        }
+        else
+        {
+            SwitchToReleaseMode();
+        }
+    }
+
+    // 获取当前模式
+    public bool IsDebugMode()
+    {
+        return debugMode;
+    }
+
+    // 获取连接状态信息
+    public string GetConnectionStatus()
+    {
+        string mode = debugMode ? "调试模式" : "正式模式";
+        string posStatus = isPositionConnected ? "已连接" : "未连接";
+        string gestureStatus = isGestureConnected ? "已连接" : "未连接";
+        string processStatus = "";
+        
+        if (!debugMode)
+        {
+            if (gestureAppProcess != null && !gestureAppProcess.HasExited)
+            {
+                processStatus = " (exe运行中)";
+            }
+            else
+            {
+                processStatus = " (exe未运行)";
+            }
+        }
+        
+        return $"模式: {mode}{processStatus}, 位置端口: {posStatus}, 手势端口: {gestureStatus}";
     }
 }
