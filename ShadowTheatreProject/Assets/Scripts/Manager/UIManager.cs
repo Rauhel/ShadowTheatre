@@ -30,6 +30,9 @@ public class UIManager : MonoBehaviour
     public GameObject promptPanel;        // 提示面板
     public TextMeshProUGUI promptText;    // 提示文本
 
+    [Header("NPC状态UI")]
+    public NPCStatusUIManager npcStatusUIManager; // NPC状态UI管理器
+
     // 内部状态
     private bool isGameActive = false;    // 游戏是否活跃
     private bool isPaused = false;        // 游戏是否暂停
@@ -48,6 +51,12 @@ public class UIManager : MonoBehaviour
 
         // 查找InputManager
         inputManager = InputManager.Instance;
+        
+        // 自动查找NPC状态UI管理器
+        if (npcStatusUIManager == null)
+        {
+            npcStatusUIManager = FindObjectOfType<NPCStatusUIManager>();
+        }
     }
 
     private void Start()
@@ -153,6 +162,12 @@ public class UIManager : MonoBehaviour
         // 开始计时
         isGameActive = true;
         gameTimer = 0f;
+        
+        // 确保NPC状态UI在游戏开始时显示
+        if (npcStatusUIManager != null)
+        {
+            npcStatusUIManager.RefreshAllNPCStatus();
+        }
     }
 
     // 切换暂停菜单
@@ -232,6 +247,8 @@ public class UIManager : MonoBehaviour
 
         // 通知游戏回到主菜单
         EventCenter.Instance.Publish("ReturnToMainMenu");
+        
+        // 注意：在新的简化系统中，NPC状态图标保持映射不变，不需要清空
     }
 
     // 启用手势控制
@@ -331,5 +348,27 @@ public class UIManager : MonoBehaviour
         {
             promptPanel.SetActive(false);
         }
+    }
+    
+    /// <summary>
+    /// 设置NPC状态图标的自定义颜色（供外部调用的接口）
+    /// </summary>
+    /// <param name="npcId">NPC ID</param>
+    /// <param name="normalColor">正常状态颜色</param>
+    /// <param name="processingColor">正在处理事件时的颜色</param>
+    public void SetNPCStatusColors(string npcId, Color normalColor, Color processingColor)
+    {
+        if (npcStatusUIManager != null)
+        {
+            npcStatusUIManager.SetCustomColorScheme(npcId, normalColor, processingColor);
+        }
+    }
+    
+    /// <summary>
+    /// 获取NPC状态UI管理器（供外部访问）
+    /// </summary>
+    public NPCStatusUIManager GetNPCStatusUIManager()
+    {
+        return npcStatusUIManager;
     }
 }

@@ -375,6 +375,17 @@ public class NPCEventManager : MonoBehaviour
         {
             gestureHandler.StartGestureRecognition(pathEvent);
         }
+
+        // 立即通知NPCController状态发生变化
+        if (controller != null)
+        {
+            Debug.Log($"[NPCEventManager] {gameObject.name} 调用controller.RefreshStatus()");
+            controller.RefreshStatus();
+        }
+        else
+        {
+            Debug.LogError($"[NPCEventManager] {gameObject.name} controller为null，无法刷新状态");
+        }
     }
 
     // 修改获取事件结束点的方法
@@ -511,6 +522,17 @@ public class NPCEventManager : MonoBehaviour
             if (gestureHandler != null)
             {
                 gestureHandler.CancelGestureRecognition();
+            }
+
+            // 立即通知NPCController状态发生变化
+            if (controller != null)
+            {
+                Debug.Log($"[NPCEventManager] {gameObject.name} 调用controller.RefreshStatus()");
+                controller.RefreshStatus();
+            }
+            else
+            {
+                Debug.LogError($"[NPCEventManager] {gameObject.name} controller为null，无法刷新状态");
             }
         }
     }
