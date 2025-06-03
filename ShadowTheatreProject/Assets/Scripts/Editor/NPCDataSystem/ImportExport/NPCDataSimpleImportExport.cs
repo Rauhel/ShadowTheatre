@@ -277,11 +277,10 @@ public class NPCDataSimpleImportExport : Editor
                     action.animationName = fields[5];
                     
                     // 设置默认值
-                    action.loopAnimation = false;
+                    action.animationLoopCount = 1; // 改为animationLoopCount，默认1次
                     action.displayDuration = 2.0f;
                     action.delay = 0f;
-                    action.waitTime = 0f;
-                    action.overridePrevious = true;
+                    action.stopTime = 0f; // 改为stopTime
                     action.isActionActive = true;
                     
                     // 处理不同类型的动作

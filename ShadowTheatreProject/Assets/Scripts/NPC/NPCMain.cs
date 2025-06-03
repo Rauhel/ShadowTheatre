@@ -4,8 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(NPCController))]
 [RequireComponent(typeof(NPCPathManager))]
 [RequireComponent(typeof(NPCEventManager))]
-[RequireComponent(typeof(NPCDialogueManager))]
-[RequireComponent(typeof(NPCAnimationManager))] // 添加动画管理器需求
+[RequireComponent(typeof(NPCActionExecutor))] // 新的统一Action执行器
 [RequireComponent(typeof(WorldSpaceUIElement))] // 添加世界空间UI元素需求
 [RequireComponent(typeof(GestureEventHandler))] // 添加手势事件处理器需求
 public class NPCMain : MonoBehaviour
@@ -14,8 +13,7 @@ public class NPCMain : MonoBehaviour
     private NPCController controller;
     private NPCPathManager pathManager;
     private NPCEventManager eventManager;
-    private NPCDialogueManager dialogueManager;
-    private NPCAnimationManager animationManager; // 添加动画管理器引用
+    private NPCActionExecutor actionExecutor; // 新的统一Action执行器
     private WorldSpaceUIElement worldSpaceUIElement; // 添加世界空间UI元素引用
     private GestureEventHandler gestureEventHandler; // 添加手势事件处理器引用
 
@@ -25,8 +23,7 @@ public class NPCMain : MonoBehaviour
         controller = GetComponent<NPCController>();
         pathManager = GetComponent<NPCPathManager>();
         eventManager = GetComponent<NPCEventManager>();
-        dialogueManager = GetComponent<NPCDialogueManager>();
-        animationManager = GetComponent<NPCAnimationManager>(); // 初始化动画管理器
+        actionExecutor = GetComponent<NPCActionExecutor>(); // 初始化Action执行器
         worldSpaceUIElement = GetComponent<WorldSpaceUIElement>(); // 初始化世界空间UI元素
         gestureEventHandler = GetComponent<GestureEventHandler>(); // 初始化手势事件处理器
 
@@ -46,14 +43,9 @@ public class NPCMain : MonoBehaviour
             Debug.LogError($"[{gameObject.name}] 缺少 NPCEventManager 组件");
         }
 
-        if (dialogueManager == null)
+        if (actionExecutor == null)
         {
-            Debug.LogError($"[{gameObject.name}] 缺少 NPCDialogueManager 组件");
-        }
-
-        if (animationManager == null)
-        {
-            Debug.LogError($"[{gameObject.name}] 缺少 NPCAnimationManager 组件");
+            Debug.LogError($"[{gameObject.name}] 缺少 NPCActionExecutor 组件");
         }
 
         if (worldSpaceUIElement == null)
@@ -130,6 +122,12 @@ public class NPCMain : MonoBehaviour
             Debug.Log($"[{gameObject.name}] 事件数量: {currentPathConfig.events.Count}");
             Debug.Log($"[{gameObject.name}] 下一路径分支数: {currentPathConfig.nextPaths.Count}");
         }
+
+        // 显示Action队列状态
+        if (actionExecutor != null)
+        {
+            Debug.Log($"[{gameObject.name}] Action队列中的action数量: {actionExecutor.GetQueueCount()}");
+        }
     }
 
     public NPCData GetNPCData()
@@ -154,16 +152,56 @@ public class NPCMain : MonoBehaviour
         return null;
     }
 
-    // 添加播放动画的公共接口
+    // 添加播放动画的公共接口（使用新的ActionExecutor）
     public void PlayAnimation(string animName, bool loop = false)
     {
-        if (animationManager != null)
+        if (actionExecutor != null)
         {
-            animationManager.PlayAnimation(animName, loop);
+            actionExecutor.PlayAnimation(animName, loop);
         }
         else
         {
-            Debug.LogError($"[{gameObject.name}] 无法播放动画：缺少 NPCAnimationManager 组件");
+            Debug.LogError($"[{gameObject.name}] 无法播放动画：缺少 NPCActionExecutor 组件");
+        }
+    }
+
+    // 添加手动添加Action的接口
+    public void AddActionToQueue(ActionData action)
+    {
+        if (actionExecutor != null)
+        {
+            actionExecutor.AddActionToQueue(action);
+        }
+        else
+        {
+            Debug.LogError($"[{gameObject.name}] 无法添加Action：缺少 NPCActionExecutor 组件");
+        }
+    }
+
+    // 添加清空Action队列的接口
+    public void ClearActionQueue()
+    {
+        if (actionExecutor != null)
+        {
+            actionExecutor.ClearActionQueue();
+        }
+        else
+        {
+            Debug.LogError($"[{gameObject.name}] 无法清空Action队列：缺少 NPCActionExecutor 组件");
+        }
+    }
+
+    // 获取可用动画列表
+    public System.Collections.Generic.List<string> GetAvailableAnimations()
+    {
+        if (actionExecutor != null)
+        {
+            return actionExecutor.GetAvailableAnimations();
+        }
+        else
+        {
+            Debug.LogError($"[{gameObject.name}] 无法获取动画列表：缺少 NPCActionExecutor 组件");
+            return new System.Collections.Generic.List<string>();
         }
     }
 }

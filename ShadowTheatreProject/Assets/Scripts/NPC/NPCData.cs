@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 [CreateAssetMenu(fileName = "New NPC Data", menuName = "Shadow Theatre/NPC Data")]
 public class NPCData : ScriptableObject
@@ -98,6 +99,13 @@ public class PathConfig
 
     [Header("路径动作")]
     public List<ActionData> pathActions = new List<ActionData>();
+    
+    [Header("时间控制")]
+    [Tooltip("NPC应该何时到达此路径起始点的故事时间")]
+    public float pathStartStoryTime = 0f;
+    
+    [Tooltip("此路径上的关键时间控制点")]
+    public List<PathTimePoint> timePoints = new List<PathTimePoint>();
 
     // 根据分数选择下一条路径
     public string SelectNextPathByScore(float score)
@@ -121,6 +129,33 @@ public class PathConfig
 
         return selectedPath;
     }
+    
+    // 查找下一个时间控制点
+    public PathTimePoint GetNextTimePoint(int currentPathPoint, float currentRelativeTime)
+    {
+        if (timePoints == null || timePoints.Count == 0) return null;
+        
+        // 先按照路径点索引和时间排序
+        var sortedTimePoints = timePoints
+            .Where(tp => tp.pathPointIndex >= currentPathPoint && 
+                        (tp.pathPointIndex > currentPathPoint || tp.requiredStoryTime > currentRelativeTime))
+            .OrderBy(tp => tp.pathPointIndex)
+            .ThenBy(tp => tp.requiredStoryTime)
+            .ToList();
+        
+        return sortedTimePoints.FirstOrDefault();
+    }
+    
+    // 查找指定时间之前的最后一个时间点
+    public PathTimePoint GetLastPassedTimePoint(float currentRelativeTime)
+    {
+        if (timePoints == null || timePoints.Count == 0) return null;
+        
+        return timePoints
+            .Where(tp => tp.requiredStoryTime <= currentRelativeTime)
+            .OrderByDescending(tp => tp.requiredStoryTime)
+            .FirstOrDefault();
+    }
 }
 
 [Serializable]
@@ -128,17 +163,17 @@ public class ActionData
 {
     [Header("基础内容")]
     public string dialogueText = "";        // 对话文本
-    public float displayDuration = 1.5f;    // 显示时间
+    public float displayDuration = 2f;      // 对话显示时间
     public AudioClip voiceClip;             // 语音片段
     public string animationName = "";       // 动画名称
-    public float delay = 0f;                // 执行延迟
-    public float waitTime = 0f;             // NPC在此点停留时间
-    public bool overridePrevious = true;    // 是否覆盖前一个动作
-    public bool loopAnimation = false;
-
+    public int animationLoopCount = 1;      // 动画循环次数 (0=不播放)
+    public AudioClip oneShotSFX;           // 一次性音效
+    public float delay = 0f;                // 距离上一个行动结束的延迟时间
+    public float stopTime = 0f;             // 停止移动时间
+    
     [Header("执行条件")]
     public int pathPointIndex = 0;          // 路径点索引
-    public bool isActionActive = true;        // 动作是否可用
+    public bool isActionActive = true;      // 动作是否可用
 }
 
 [Serializable]
@@ -199,5 +234,28 @@ public class PathBranch
     public bool IsScoreInRange(float score)
     {
         return score >= minScore && score < maxScore;
+    }
+}
+
+[Serializable]
+public class PathTimePoint
+{
+    [SerializeField]
+    [Tooltip("路径点索引")]
+    public int pathPointIndex = 0;
+    
+    [SerializeField]
+    [Tooltip("从路径开始计算的相对时间（秒）")]
+    public float requiredStoryTime = 0f;
+    
+    [SerializeField]
+    [Tooltip("时间点描述")]
+    public string description = "";
+    
+    // 编辑器显示用
+    public string GetDisplayText()
+    {
+        return $"点{pathPointIndex} - {requiredStoryTime:F1}s" + 
+               (string.IsNullOrEmpty(description) ? "" : $" ({description})");
     }
 }

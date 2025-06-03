@@ -18,7 +18,6 @@ public class NPCDataEditor : Editor
     // 子编辑器实例
     private NPCPathConfigEditor pathEditor;
     private NPCPathEventEditor eventEditor;
-    private NPCDialogueEditor dialogueEditor;
     private NPCActionEditor actionEditor;
 
     private void OnEnable()
@@ -28,7 +27,6 @@ public class NPCDataEditor : Editor
         // 初始化子编辑器
         pathEditor = new NPCPathConfigEditor(this);
         eventEditor = new NPCPathEventEditor(this);
-        dialogueEditor = new NPCDialogueEditor(this);
         actionEditor = new NPCActionEditor(this);
     }
 
@@ -173,7 +171,6 @@ public class NPCDataEditor : Editor
     // 获取其他编辑器的引用
     public NPCPathConfigEditor PathEditor => pathEditor;
     public NPCPathEventEditor EventEditor => eventEditor;
-    public NPCDialogueEditor DialogueEditor => dialogueEditor;
     public NPCActionEditor ActionEditor => actionEditor;
 }
 #endif

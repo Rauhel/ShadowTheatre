@@ -132,9 +132,9 @@ public class NPCPathManager : MonoBehaviour
             {
                 foreach (var action in completedEvent.defaultResponse.actions)
                 {
-                    if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.waitTime > 0)
+                    if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.stopTime > 0)
                     {
-                        waitTime = action.waitTime;
+                        waitTime = action.stopTime;
                         break;
                     }
                 }
@@ -148,9 +148,9 @@ public class NPCPathManager : MonoBehaviour
             {
                 foreach (var action in currentPath.pathActions)
                 {
-                    if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.waitTime > 0)
+                    if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.stopTime > 0)
                     {
-                        waitTime = action.waitTime;
+                        waitTime = action.stopTime;
                         break;
                     }
                 }
@@ -418,5 +418,27 @@ public class NPCPathManager : MonoBehaviour
     public int GetCurrentPathPointIndex()
     {
         return lastReachedPointIndex;
+    }
+
+    /// <summary>
+    /// 停止NPC移动 (用于Action执行期间)
+    /// </summary>
+    public void StopMovement()
+    {
+        if (agent != null)
+        {
+            agent.isStopped = true;
+        }
+    }
+
+    /// <summary>
+    /// 恢复NPC移动 (Action执行完毕后)
+    /// </summary>
+    public void ResumeMovement()
+    {
+        if (agent != null && !pathProcessingPaused)
+        {
+            agent.isStopped = false;
+        }
     }
 }

@@ -12,7 +12,7 @@ public class NPCDataImportExport : Editor
     private static readonly string[] HeaderRow = new string[] {
         "路径ID", "路径名称", "分数下限", "分数上限", "事件ID", "动作类型", "路径点索引", 
         "对话内容", "动画名称", "循环动画", "显示时间", "延迟时间", "停留时间", 
-        "手势类型", "分数影响", "覆盖前一动作", "是否活跃", "事件起始点", "事件结束点"
+        "手势类型", "分数影响", "是否活跃", "事件起始点", "事件结束点"
     };
 
     // Excel文件类型
@@ -40,8 +40,18 @@ public class NPCDataImportExport : Editor
         // 导出路径和动作
         foreach (var path in data.paths)
         {
-            // 路径描述作为注释
+            // 路径描述作为注释（增加时间信息）
             csv.AppendLine($"# PATH,{path.pathID},{path.pathName}");
+            csv.AppendLine($"# PATH_START_TIME,{path.pathID},{path.pathStartStoryTime}");
+            
+            // 导出时间控制点作为注释
+            if (path.timePoints != null && path.timePoints.Count > 0)
+            {
+                foreach (var timePoint in path.timePoints)
+                {
+                    csv.AppendLine($"# TIME_POINT,{path.pathID},{timePoint.pathPointIndex},{timePoint.requiredStoryTime},{EscapeCSVField(timePoint.description)}");
+                }
+            }
             
             // 导出路径动作
             foreach (var action in path.pathActions)
@@ -56,16 +66,15 @@ public class NPCDataImportExport : Editor
                 row[6] = action.pathPointIndex.ToString();
                 row[7] = EscapeCSVField(action.dialogueText);
                 row[8] = action.animationName;
-                row[9] = action.loopAnimation.ToString();
+                row[9] = action.animationLoopCount.ToString();
                 row[10] = action.displayDuration.ToString();
                 row[11] = action.delay.ToString();
-                row[12] = action.waitTime.ToString();
+                row[12] = action.stopTime.ToString();
                 row[13] = "";  // 路径动作没有手势类型
                 row[14] = "";  // 路径动作没有分数影响
-                row[15] = action.overridePrevious.ToString();
-                row[16] = action.isActionActive.ToString();
-                row[17] = "";  // 路径动作没有起始点
-                row[18] = "";  // 路径动作没有结束点
+                row[15] = action.isActionActive.ToString();
+                row[16] = "";  // 路径动作没有起始点
+                row[17] = "";  // 路径动作没有结束点
                 
                 csv.AppendLine(string.Join(",", row));
             }
@@ -89,16 +98,15 @@ public class NPCDataImportExport : Editor
                     row[6] = action.pathPointIndex.ToString();
                     row[7] = EscapeCSVField(action.dialogueText);
                     row[8] = action.animationName;
-                    row[9] = action.loopAnimation.ToString();
+                    row[9] = action.animationLoopCount.ToString();
                     row[10] = action.displayDuration.ToString();
                     row[11] = action.delay.ToString();
-                    row[12] = action.waitTime.ToString();
+                    row[12] = action.stopTime.ToString();
                     row[13] = "";  // 默认响应没有手势类型
                     row[14] = pathEvent.defaultResponse.scoreEffect.ToString();
-                    row[15] = action.overridePrevious.ToString();
-                    row[16] = action.isActionActive.ToString();
-                    row[17] = pathEvent.startPointIndex.ToString();
-                    row[18] = pathEvent.endPointIndex.ToString();
+                    row[15] = action.isActionActive.ToString();
+                    row[16] = pathEvent.startPointIndex.ToString();
+                    row[17] = pathEvent.endPointIndex.ToString();
                     
                     csv.AppendLine(string.Join(",", row));
                 }
@@ -118,16 +126,15 @@ public class NPCDataImportExport : Editor
                         row[6] = action.pathPointIndex.ToString();
                         row[7] = EscapeCSVField(action.dialogueText);
                         row[8] = action.animationName;
-                        row[9] = action.loopAnimation.ToString();
+                        row[9] = action.animationLoopCount.ToString();
                         row[10] = action.displayDuration.ToString();
                         row[11] = action.delay.ToString();
-                        row[12] = action.waitTime.ToString();
+                        row[12] = action.stopTime.ToString();
                         row[13] = gestureResponse.gestureType;
                         row[14] = gestureResponse.scoreEffect.ToString();
-                        row[15] = action.overridePrevious.ToString();
-                        row[16] = action.isActionActive.ToString();
-                        row[17] = pathEvent.startPointIndex.ToString();
-                        row[18] = pathEvent.endPointIndex.ToString();
+                        row[15] = action.isActionActive.ToString();
+                        row[16] = pathEvent.startPointIndex.ToString();
+                        row[17] = pathEvent.endPointIndex.ToString();
                         
                         csv.AppendLine(string.Join(",", row));
                     }
@@ -212,6 +219,8 @@ public class NPCDataImportExport : Editor
                 // 清空当前数据前先解析基本信息
                 Dictionary<string, string> metadata = new Dictionary<string, string>();
                 Dictionary<string, List<PathBranch>> pathBranches = new Dictionary<string, List<PathBranch>>();
+                Dictionary<string, float> pathStartTimes = new Dictionary<string, float>(); // 新增：路径起始时间
+                Dictionary<string, List<PathTimePoint>> pathTimePoints = new Dictionary<string, List<PathTimePoint>>(); // 新增：时间控制点
                 
                 // 第一遍：解析元数据和分支信息
                 for (int i = 0; i < lines.Length; i++)
@@ -233,6 +242,41 @@ public class NPCDataImportExport : Editor
                             if (type == "NPC_ID" || type == "NPC_NAME" || type == "CURRENT_SCORE")
                             {
                                 metadata[type] = parts[1].Trim();
+                            }
+                            // 路径起始时间
+                            else if (type == "PATH_START_TIME" && parts.Length >= 3)
+                            {
+                                string pathID = parts[1].Trim();
+                                float startTime;
+                                if (float.TryParse(parts[2], out startTime))
+                                {
+                                    pathStartTimes[pathID] = startTime;
+                                }
+                            }
+                            // 时间控制点
+                            else if (type == "TIME_POINT" && parts.Length >= 4)
+                            {
+                                string pathID = parts[1].Trim();
+                                int pathPointIndex;
+                                float requiredTime;
+                                
+                                if (int.TryParse(parts[2], out pathPointIndex) && 
+                                    float.TryParse(parts[3], out requiredTime))
+                                {
+                                    if (!pathTimePoints.ContainsKey(pathID))
+                                    {
+                                        pathTimePoints[pathID] = new List<PathTimePoint>();
+                                    }
+                                    
+                                    PathTimePoint timePoint = new PathTimePoint
+                                    {
+                                        pathPointIndex = pathPointIndex,
+                                        requiredStoryTime = requiredTime,
+                                        description = parts.Length >= 5 ? parts[4] : ""
+                                    };
+                                    
+                                    pathTimePoints[pathID].Add(timePoint);
+                                }
                             }
                             // 分支信息
                             else if (type == "BRANCH" && parts.Length >= 5)
@@ -401,6 +445,23 @@ public class NPCDataImportExport : Editor
                             newPath.nextPaths = pathBranches[pathID];
                         }
                         
+                        // 应用时间控制数据
+                        if (pathStartTimes.ContainsKey(pathID))
+                        {
+                            newPath.pathStartStoryTime = pathStartTimes[pathID];
+                        }
+                        
+                        if (pathTimePoints.ContainsKey(pathID))
+                        {
+                            newPath.timePoints = pathTimePoints[pathID];
+                            // 按时间排序时间控制点
+                            newPath.timePoints.Sort((a, b) => a.requiredStoryTime.CompareTo(b.requiredStoryTime));
+                        }
+                        else
+                        {
+                            newPath.timePoints = new List<PathTimePoint>();
+                        }
+                        
                         pathConfigs[pathID] = newPath;
                         pathEvents[pathID] = new Dictionary<string, PathEvent>();
                     }
@@ -420,12 +481,11 @@ public class NPCDataImportExport : Editor
                     // 动画名称
                     action.animationName = fields[8];
                     
-                    // 循环动画 - 修正错误的布尔值
-                    string boolField = fields[9].ToUpper();
-                    if (boolField == "TRUE" || boolField == "T" || boolField == "1" || boolField == "YES" || boolField == "Y")
-                        action.loopAnimation = true;
+                    // 循环动画 - 改为动画循环次数
+                    if (int.TryParse(fields[9], out int loopCount))
+                        action.animationLoopCount = loopCount;
                     else
-                        action.loopAnimation = false; // 默认为false
+                        action.animationLoopCount = 1; // 默认值为1次
                     
                     // 显示时间
                     if (float.TryParse(fields[10], out float displayTime))
@@ -441,23 +501,9 @@ public class NPCDataImportExport : Editor
                     
                     // 停留时间
                     if (float.TryParse(fields[12], out float waitTime))
-                        action.waitTime = waitTime;
+                        action.stopTime = waitTime;
                     else
-                        action.waitTime = 0f; // 默认值
-                    
-                    // 覆盖前一动作
-                    boolField = fields.Length > 15 ? fields[15].ToUpper() : "";
-                    if (boolField == "FALSE" || boolField == "F" || boolField == "0" || boolField == "NO" || boolField == "N")
-                        action.overridePrevious = false;
-                    else
-                        action.overridePrevious = true; // 默认为true
-                    
-                    // 是否活跃
-                    boolField = fields.Length > 16 ? fields[16].ToUpper() : "";
-                    if (boolField == "FALSE" || boolField == "F" || boolField == "0" || boolField == "NO" || boolField == "N")
-                        action.isActionActive = false;
-                    else
-                        action.isActionActive = true; // 默认为true
+                        action.stopTime = 0f; // 默认值
                     
                     // 处理不同类型的动作
                     if (actionType == "PATH_ACTION")
@@ -480,12 +526,12 @@ public class NPCDataImportExport : Editor
                             };
                             
                             // 设置事件起始点和结束点
-                            if (fields.Length > 17 && int.TryParse(fields[17], out int startPoint))
+                            if (fields.Length > 13 && int.TryParse(fields[13], out int startPoint))
                                 newEvent.startPointIndex = startPoint;
                             else
                                 newEvent.startPointIndex = action.pathPointIndex; // 默认使用当前路径点
                             
-                            if (fields.Length > 18 && int.TryParse(fields[18], out int endPoint))
+                            if (fields.Length > 14 && int.TryParse(fields[14], out int endPoint))
                                 newEvent.endPointIndex = endPoint;
                             else
                                 newEvent.endPointIndex = action.pathPointIndex + 2; // 默认结束点为当前点+2

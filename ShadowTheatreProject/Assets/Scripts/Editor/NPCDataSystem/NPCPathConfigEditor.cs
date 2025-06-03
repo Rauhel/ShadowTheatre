@@ -60,6 +60,9 @@ public class NPCPathConfigEditor
             EditorGUILayout.Space(2);
             DrawPathScoreRequirements(config);
             
+            // ===== 新增：时间控制设置 =====
+            mainEditor.ActionEditor.DrawPathTimeSettings(config);
+            
             EditorGUILayout.Space(2);
             EditorGUILayout.LabelField("3. 路径动作", EditorStyles.boldLabel);
             mainEditor.ActionEditor.DrawPathActions(config);
