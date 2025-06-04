@@ -777,9 +777,17 @@ MonoBehaviour:
       isActionActive: 1
     pathStartStoryTime: 0
     timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     - pathPointIndex: 1
       requiredStoryTime: 5
       stopTime: 2
+      description: 
+    - pathPointIndex: 9
+      requiredStoryTime: 30
+      stopTime: 0
       description: 
     pathPointStopConfigs: []
   pathConnections: []

@@ -63,6 +63,19 @@ public class NPCActionExecutor : MonoBehaviour
                 dialogueText = currentDialogueBubble.GetComponentInChildren<TextMeshProUGUI>();
                 Debug.Log($"[{gameObject.name}] 从预制体创建新的对话气泡");
             }
+            
+            // 确保对话气泡有CanvasGroup组件（用于淡入淡出效果）
+            if (currentDialogueBubble != null)
+            {
+                CanvasGroup canvasGroup = currentDialogueBubble.GetComponent<CanvasGroup>();
+                if (canvasGroup == null)
+                {
+                    canvasGroup = currentDialogueBubble.AddComponent<CanvasGroup>();
+                    Debug.Log($"[{gameObject.name}] 自动为对话气泡添加CanvasGroup组件以支持淡入淡出效果");
+                }
+                canvasGroup.alpha = 0f; // 初始设为透明
+            }
+            
             currentDialogueBubble.SetActive(false);
         }
         else
@@ -116,7 +129,7 @@ public class NPCActionExecutor : MonoBehaviour
         foreach (var action in newActions)
         {
             actionQueue.Enqueue(action);
-            Debug.Log($"[{gameObject.name}] 添加action到队列: 路径点{action.pathPointIndex}, 停留时间:{action.stopTime}秒");
+            Debug.Log($"[{gameObject.name}] 添加action到队列: 路径点{action.pathPointIndex}");
         }
 
         Debug.Log($"[{gameObject.name}] 当前action队列长度: {actionQueue.Count}, 正在执行action: {isExecutingAction}");
@@ -427,11 +440,11 @@ public class NPCActionExecutor : MonoBehaviour
             }
 
             canvasGroup.alpha = 1;
-            Debug.Log($"[{gameObject.name}] 对话淡入完成，CanvasGroup Alpha: {canvasGroup.alpha}");
+            Debug.Log($"[{gameObject.name}] 对话淡入完成");
         }
         else
         {
-            Debug.Log($"[{gameObject.name}] 没有CanvasGroup，直接显示对话");
+            Debug.LogWarning($"[{gameObject.name}] 对话气泡缺少CanvasGroup组件，无法实现淡入淡出效果");
         }
 
         // 等待显示时间

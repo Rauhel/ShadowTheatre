@@ -57,8 +57,7 @@ public class NPCTimeController : MonoBehaviour
         
         InitializeTimeControl();
         
-        // 在游戏开始时执行初始瞬移
-        // 使用协程延迟执行，确保所有组件都已初始化
+        // 延迟执行初始瞬移（只在游戏开始时执行一次）
         StartCoroutine(PerformInitialTeleportAfterDelay());
     }
     
@@ -140,17 +139,36 @@ public class NPCTimeController : MonoBehaviour
         // 重新初始化时间控制
         InitializeTimeControl();
         
-        // 新幕开始时，计算NPC应该在的位置并瞬移
-        if (timeControlEnabled && hasInitialized)
-        {
-            Debug.Log($"[{gameObject.name}] 幕开始，执行位置校正瞬移");
-            TeleportToCorrectPositionForNewAct();
-        }
+        // 注意：不在这里执行瞬移，因为PerformInitialTeleportAfterDelay已经处理了
+        Debug.Log($"[{gameObject.name}] 幕开始事件处理完成，时间控制系统已重新初始化");
     }
     
     private void OnPathPointReached(int pathPointIndex)
     {
         Debug.Log($"[{gameObject.name}] 时间控制器收到路径点到达事件：点{pathPointIndex}");
+        
+        // 检查当前路径点是否是时间控制点
+        PathConfig currentPath = pathManager.GetCurrentPathConfig();
+        bool isTimeControlPoint = false;
+        
+        if (currentPath != null && currentPath.timePoints != null)
+        {
+            foreach (var timePoint in currentPath.timePoints)
+            {
+                if (timePoint.pathPointIndex == pathPointIndex)
+                {
+                    isTimeControlPoint = true;
+                    break;
+                }
+            }
+        }
+        
+        // 只在时间控制点才进行速度计算
+        if (!isTimeControlPoint)
+        {
+            Debug.Log($"[{gameObject.name}] 路径点{pathPointIndex}不是时间控制点，跳过速度计算");
+            return;
+        }
         
         // 检查是否到达了当前的目标时间点
         if (currentTargetTimePoint != null && pathPointIndex == currentTargetTimePoint.pathPointIndex)
@@ -472,22 +490,29 @@ public class NPCTimeController : MonoBehaviour
             
             if (currentPathPoint == -1)
             {
-                // 路径刚开始，查找第一个时间点（任何时间点都是有效的）
+                // 路径刚开始，查找第一个时间点
                 isValidTarget = true;
                 Debug.Log($"[{gameObject.name}] 路径开始，找到第一个时间控制点: 点{timePoint.pathPointIndex}, 时间{timePoint.requiredStoryTime}s");
             }
             else
             {
                 // 已在路径上，查找未来的时间点
-                // 条件：路径点索引更大，或者相对时间还没到达
+                // 关键修复：严格要求路径点索引更大，避免重复选择当前点
                 bool isFuturePoint = timePoint.pathPointIndex > currentPathPoint;
-                bool isTimeNotReached = timePoint.requiredStoryTime > currentRelativeTime + 0.1f; // 加0.1秒容差避免浮点误差
                 
-                isValidTarget = isFuturePoint || (timePoint.pathPointIndex >= currentPathPoint && isTimeNotReached);
+                // 或者是相同路径点但时间还没到（用于处理同一路径点的多个时间控制）
+                bool isSamePointButTimeNotReached = (timePoint.pathPointIndex == currentPathPoint && 
+                                                   timePoint.requiredStoryTime > currentRelativeTime + 0.1f);
+                
+                isValidTarget = isFuturePoint; // 移除同点时间等待逻辑
                 
                 if (isValidTarget)
                 {
                     Debug.Log($"[{gameObject.name}] 找到下一个时间控制点: 点{timePoint.pathPointIndex}, 时间{timePoint.requiredStoryTime}s (当前在点{currentPathPoint}, 时间{currentRelativeTime:F1}s)");
+                }
+                else if (isSamePointButTimeNotReached)
+                {
+                    Debug.Log($"[{gameObject.name}] 跳过当前点{timePoint.pathPointIndex}的时间等待（时间控制点应确保准时到达，不应等待）");
                 }
             }
             
@@ -505,7 +530,7 @@ public class NPCTimeController : MonoBehaviour
         }
         else
         {
-            Debug.Log($"[{gameObject.name}] 未找到下一个时间控制目标");
+            Debug.Log($"[{gameObject.name}] 未找到下一个时间控制目标，所有时间控制点已完成");
         }
     }
     
@@ -670,56 +695,16 @@ public class NPCTimeController : MonoBehaviour
         var pathCreator = PathRegistry.GetPathCreatorByID(pathManager.CurrentPathID);
         if (pathCreator == null) return 0f;
         
-        float distance = 0f;
         int currentPoint = pathManager.CurrentPathPointIndex;
         int targetPoint = currentTargetTimePoint.pathPointIndex;
         
         // 如果目标点就是当前点，距离为0
         if (targetPoint <= currentPoint) return 0f;
         
-        // 计算从当前位置到目标点的路径距离
-        Vector3 currentPos = transform.position;
+        // 使用MultiPointPathCreator的新方法计算实际路径距离
+        float distance = pathCreator.GetDistanceFromCurrentPosition(transform.position, currentPoint, targetPoint);
         
-        // 处理路径刚开始的情况（currentPoint = -1）
-        if (currentPoint == -1)
-        {
-            // 从当前位置到目标路径点的距离
-            for (int i = 0; i <= targetPoint && i < pathCreator.GetPathPointCount(); i++)
-            {
-                Vector3 pointPos = pathCreator.GetPathPointPosition(i);
-                
-                if (i == 0)
-                {
-                    // 从当前位置到第一个路径点
-                    distance += Vector3.Distance(currentPos, pointPos);
-                }
-                else if (i <= targetPoint)
-                {
-                    // 路径点之间的距离
-                    Vector3 prevPointPos = pathCreator.GetPathPointPosition(i - 1);
-                    distance += Vector3.Distance(prevPointPos, pointPos);
-                }
-            }
-        }
-        else
-        {
-            // 先计算到下一个路径点的距离
-            if (currentPoint < pathCreator.GetPathPointCount() - 1)
-            {
-                Vector3 nextPointPos = pathCreator.GetPathPointPosition(currentPoint + 1);
-                distance += Vector3.Distance(currentPos, nextPointPos);
-                
-                // 然后计算后续路径点之间的距离
-                for (int i = currentPoint + 1; i < targetPoint && i < pathCreator.GetPathPointCount() - 1; i++)
-                {
-                    Vector3 pointA = pathCreator.GetPathPointPosition(i);
-                    Vector3 pointB = pathCreator.GetPathPointPosition(i + 1);
-                    distance += Vector3.Distance(pointA, pointB);
-                }
-            }
-        }
-        
-        Debug.Log($"[{gameObject.name}] 计算距离 - 从路径点{currentPoint}到{targetPoint}: {distance:F1}m");
+        Debug.Log($"[{gameObject.name}] 计算路径距离 - 从路径点{currentPoint}到{targetPoint}: {distance:F1}m (使用路径实际距离计算)");
         return distance;
     }
     

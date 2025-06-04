@@ -349,6 +349,104 @@ public class MultiPointPathCreator : MonoBehaviour
         return pathPointNames.IndexOf(pointName);
     }
 
+    /// <summary>
+    /// 计算两个路径点之间的实际路径距离
+    /// 基于路径点均匀分布的特性，使用平均路径长度 × 路径点间隔
+    /// </summary>
+    public float GetDistanceBetweenPathPoints(int fromIndex, int toIndex)
+    {
+        if (fromIndex < 0 || toIndex < 0 || fromIndex >= pathPointPositions.Count || toIndex >= pathPointPositions.Count)
+        {
+            Debug.LogWarning($"路径点索引超出范围: from={fromIndex}, to={toIndex}, total={pathPointPositions.Count}");
+            return 0f;
+        }
+        
+        if (fromIndex == toIndex)
+            return 0f;
+            
+        // 确保 fromIndex < toIndex
+        if (fromIndex > toIndex)
+        {
+            int temp = fromIndex;
+            fromIndex = toIndex;
+            toIndex = temp;
+        }
+        
+        // 计算总路径长度
+        float totalPathLength = CalculateTotalPathLength();
+        
+        if (totalPathLength <= 0f || pathPointPositions.Count <= 1)
+            return 0f;
+        
+        // 计算平均每个路径点间隔的距离
+        float averageSegmentLength = totalPathLength / (pathPointPositions.Count - 1);
+        
+        // 路径点间隔数 × 平均段长度
+        int segmentCount = toIndex - fromIndex;
+        float pathDistance = segmentCount * averageSegmentLength;
+        
+        return pathDistance;
+    }
+    
+    /// <summary>
+    /// 计算整个路径的总长度
+    /// </summary>
+    public float CalculateTotalPathLength()
+    {
+        if (controlPoints.Count < 2)
+            return 0f;
+        
+        float totalLength = 0f;
+        
+        // 计算所有控制点之间的直线距离总和
+        for (int i = 0; i < controlPoints.Count - 1; i++)
+        {
+            if (controlPoints[i] != null && controlPoints[i + 1] != null)
+            {
+                float segmentLength = Vector3.Distance(controlPoints[i].position, controlPoints[i + 1].position);
+                totalLength += segmentLength;
+            }
+        }
+        
+        // 如果是闭合路径，添加最后一个点到第一个点的距离
+        if (closedPath && controlPoints.Count > 2)
+        {
+            if (controlPoints[controlPoints.Count - 1] != null && controlPoints[0] != null)
+            {
+                float closingLength = Vector3.Distance(controlPoints[controlPoints.Count - 1].position, controlPoints[0].position);
+                totalLength += closingLength;
+            }
+        }
+        
+        return totalLength;
+    }
+    
+    /// <summary>
+    /// 从当前位置到指定路径点的距离（包含当前位置到下一个路径点的部分距离）
+    /// </summary>
+    public float GetDistanceFromCurrentPosition(Vector3 currentPosition, int currentPathPointIndex, int targetPathPointIndex)
+    {
+        if (targetPathPointIndex <= currentPathPointIndex)
+            return 0f;
+            
+        float totalDistance = 0f;
+        
+        // 1. 当前位置到下一个路径点的距离
+        if (currentPathPointIndex >= -1 && currentPathPointIndex + 1 < pathPointPositions.Count)
+        {
+            Vector3 nextPointPos = pathPointPositions[currentPathPointIndex + 1];
+            totalDistance += Vector3.Distance(currentPosition, nextPointPos);
+        }
+        
+        // 2. 中间路径点之间的距离
+        if (currentPathPointIndex + 1 < targetPathPointIndex)
+        {
+            totalDistance += GetDistanceBetweenPathPoints(currentPathPointIndex + 1, targetPathPointIndex);
+        }
+        
+        return totalDistance;
+    }
+
     private void OnDrawGizmos()
     {
         if (controlPoints.Count < 2) return;

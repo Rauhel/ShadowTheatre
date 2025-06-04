@@ -235,7 +235,7 @@ public class NPCPathManager : MonoBehaviour
     // 只取第一个匹配的 ActionData 的 waitTime，其它同路径点的 waitTime 会被忽略
     private float GetWaitTimeForPathPoint(int pathPointIndex)
     {
-        // 首先检查路径配置中的停留时间设置
+        // 检查路径配置中的停留时间设置
         PathConfig currentPath = GetCurrentPathConfig();
         if (currentPath != null)
         {
@@ -248,31 +248,9 @@ public class NPCPathManager : MonoBehaviour
             }
         }
         
-        // 然后检查是否有路径特定的等待时间配置（时间控制点）
-        if (currentPath != null && currentPath.timePoints != null)
-        {
-            foreach (var timePoint in currentPath.timePoints)
-            {
-                if (timePoint.pathPointIndex == pathPointIndex)
-                {
-                    // 如果有时间控制点，可能需要等待到指定时间
-                    if (GameState.Instance != null)
-                    {
-                        float currentStoryTime = GameState.Instance.GetStoryTime();
-                        float currentRelativeTime = currentStoryTime - currentPath.pathStartStoryTime;
-                        float requiredTime = timePoint.requiredStoryTime;
-                        
-                        if (requiredTime > currentRelativeTime)
-                        {
-                            // 需要等待到指定时间
-                            float waitTime = requiredTime - currentRelativeTime;
-                            Debug.Log($"[{gameObject.name}] 时间控制等待: {waitTime}秒 (等到故事时间{requiredTime}s)");
-                            return waitTime;
-                        }
-                    }
-                }
-            }
-        }
+        // 移除时间控制等待逻辑！
+        // 时间控制点的作用是确保NPC准时到达，而不是等待到指定时间
+        // 如果NPC提前到达时间控制点，应该立即寻找下一个目标
         
         return 0f; // 路径本身不需要等待时间
     }
@@ -282,6 +260,9 @@ public class NPCPathManager : MonoBehaviour
     {
         isWaitingAtPoint = true;
         Debug.Log($"[{gameObject.name}] 开始在路径点停留 {waitTime} 秒");
+        
+        // 记录停留前的速度，以便停留结束后恢复
+        float speedBeforeStop = agent != null ? agent.speed : 0f;
         
         // 直接停止Agent，不通过controller以避免与ActionExecutor冲突
         if (agent != null)
@@ -295,6 +276,13 @@ public class NPCPathManager : MonoBehaviour
         if (agent != null)
         {
             agent.isStopped = false;
+            
+            // 关键修复：恢复停留前的速度，保持时间控制器的设置
+            if (speedBeforeStop > 0f)
+            {
+                agent.speed = speedBeforeStop;
+                Debug.Log($"[{gameObject.name}] 停留结束，恢复移动速度为: {speedBeforeStop:F1}m/s");
+            }
         }
         
         Debug.Log($"[{gameObject.name}] 停留结束，继续移动");
