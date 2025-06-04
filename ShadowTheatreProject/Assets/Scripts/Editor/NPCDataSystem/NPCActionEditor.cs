@@ -217,6 +217,7 @@ public class NPCActionEditor
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("停止:", GUILayout.Width(40));
             action.stopTime = EditorGUILayout.FloatField(action.stopTime, GUILayout.Width(80));
+            EditorGUILayout.LabelField("(已弃用，请使用路径点停留设置)", EditorStyles.miniLabel);
             EditorGUILayout.EndHorizontal();
             
             // 分隔线
@@ -705,6 +706,14 @@ public class NPCActionEditor
         EditorGUILayout.LabelField(FormatTimeDisplay(timePoint.requiredStoryTime), GUILayout.Width(60));
         EditorGUILayout.EndHorizontal();
         
+        // 停留时间设置
+        EditorGUILayout.BeginHorizontal();
+        timePoint.stopTime = EditorGUILayout.FloatField("停留时间(秒)", timePoint.stopTime);
+        
+        // 时间显示
+        EditorGUILayout.LabelField(FormatTimeDisplay(timePoint.stopTime), GUILayout.Width(60));
+        EditorGUILayout.EndHorizontal();
+        
         // 添加时间预设按钮
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("快速设置:", GUILayout.Width(60));
@@ -741,7 +750,7 @@ public class NPCActionEditor
         EditorGUILayout.Space(2);
         
         // 确保数据被标记为脏数据
-        EditorUtility.SetDirty(mainEditor.Data);
+            EditorUtility.SetDirty(mainEditor.Data);
     }
     
     private string FormatTimeDisplay(float timeInSeconds)
@@ -836,6 +845,178 @@ public class NPCActionEditor
         }
         
         return totalDistance;
+    }
+    
+    // ===== 新增：路径点停留设置编辑器 =====
+    public void DrawPathPointStopSettings(PathConfig config)
+    {
+        EditorGUILayout.Space(10);
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        
+        // 标题
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("⏸️ 路径点停留设置", EditorStyles.boldLabel);
+        
+        // 帮助按钮
+        if (GUILayout.Button("?", GUILayout.Width(20)))
+        {
+            EditorUtility.DisplayDialog("停留设置说明", 
+                "• 路径点停留设置：NPC到达指定路径点时的停留时间\n" +
+                "• 与Action系统独立：停留时间由路径管理，Action专注表演内容\n" +
+                "• 优先级：时间控制点停留时间 > 路径点停留设置\n" +
+                "• 适用场景：需要NPC在某个位置等待一段时间的情况", "明白了");
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        if (config.pathPointStopConfigs == null)
+            config.pathPointStopConfigs = new List<PathPointStopConfig>();
+        
+        // 绘制现有停留配置
+        for (int i = 0; i < config.pathPointStopConfigs.Count; i++)
+        {
+            DrawPathPointStopField(config, config.pathPointStopConfigs[i], i);
+        }
+        
+        // 添加停留配置按钮
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("+ 添加路径点停留"))
+        {
+            config.pathPointStopConfigs.Add(new PathPointStopConfig 
+            { 
+                pathPointIndex = 0, 
+                stopTime = 3f,
+                description = ""
+            });
+            EditorUtility.SetDirty(mainEditor.Data);
+        }
+        
+        // 清理重复按钮
+        if (config.pathPointStopConfigs.Count > 1 && GUILayout.Button("清理重复", GUILayout.Width(80)))
+        {
+            // 按路径点索引分组，保留每个索引的第一个配置
+            var uniqueConfigs = config.pathPointStopConfigs
+                .GroupBy(c => c.pathPointIndex)
+                .Select(g => g.First())
+                .OrderBy(c => c.pathPointIndex)
+                .ToList();
+            
+            if (uniqueConfigs.Count != config.pathPointStopConfigs.Count)
+            {
+                config.pathPointStopConfigs = uniqueConfigs;
+                EditorUtility.SetDirty(mainEditor.Data);
+                Debug.Log($"已清理重复的路径点停留配置，剩余{uniqueConfigs.Count}个");
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.EndVertical();
+    }
+    
+    private void DrawPathPointStopField(PathConfig config, PathPointStopConfig stopConfig, int index)
+    {
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        
+        // 获取路径创建器（只获取一次）
+        MultiPointPathCreator pathCreator = PathRegistry.GetPathCreatorByID(config.pathID);
+        
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField($"停留配置 {index + 1}", EditorStyles.boldLabel, GUILayout.Width(100));
+        
+        // 显示当前选择的路径点信息
+        string currentPointInfo = $"点{stopConfig.pathPointIndex}";
+        if (pathCreator != null && stopConfig.pathPointIndex < pathCreator.GetPathPointCount())
+        {
+            float relativePos = pathCreator.GetPathPointCount() > 1 ? 
+                               (float)stopConfig.pathPointIndex / (pathCreator.GetPathPointCount() - 1) : 0f;
+            currentPointInfo += $" ({relativePos:P0})";
+        }
+        EditorGUILayout.LabelField(currentPointInfo, EditorStyles.miniLabel, GUILayout.Width(100));
+        
+        // 删除按钮
+        if (GUILayout.Button("删除", GUILayout.Width(50)))
+        {
+            if (EditorUtility.DisplayDialog("确认删除", "确定要删除此停留配置?", "删除", "取消"))
+            {
+                config.pathPointStopConfigs.RemoveAt(index);
+                EditorUtility.SetDirty(mainEditor.Data);
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
+                return;
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        // 路径点选择
+        if (pathCreator != null)
+        {
+            int pointCount = pathCreator.GetPathPointCount();
+            string[] pointOptions = new string[pointCount];
+            
+            for (int i = 0; i < pointCount; i++)
+            {
+                float relativePos = pointCount > 1 ? (float)i / (pointCount - 1) : 0f;
+                pointOptions[i] = $"点 {i} ({relativePos:P0})";
+            }
+            
+            stopConfig.pathPointIndex = EditorGUILayout.Popup("路径点", 
+                Mathf.Clamp(stopConfig.pathPointIndex, 0, pointCount - 1), 
+                pointOptions);
+        }
+        else
+        {
+            stopConfig.pathPointIndex = EditorGUILayout.IntField("路径点", stopConfig.pathPointIndex);
+        }
+        
+        // 停留时间设置
+        EditorGUILayout.BeginHorizontal();
+        stopConfig.stopTime = EditorGUILayout.FloatField("停留时间(秒)", stopConfig.stopTime);
+        
+        // 时间显示
+        EditorGUILayout.LabelField(FormatTimeDisplay(stopConfig.stopTime), GUILayout.Width(60));
+        EditorGUILayout.EndHorizontal();
+        
+        // 添加时间预设按钮
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("快速设置:", GUILayout.Width(60));
+        if (GUILayout.Button("1秒", GUILayout.Width(35)))
+        {
+            stopConfig.stopTime = 1f;
+            EditorUtility.SetDirty(mainEditor.Data);
+        }
+        if (GUILayout.Button("3秒", GUILayout.Width(35)))
+        {
+            stopConfig.stopTime = 3f;
+            EditorUtility.SetDirty(mainEditor.Data);
+        }
+        if (GUILayout.Button("5秒", GUILayout.Width(35)))
+        {
+            stopConfig.stopTime = 5f;
+            EditorUtility.SetDirty(mainEditor.Data);
+        }
+        if (GUILayout.Button("10秒", GUILayout.Width(40)))
+        {
+            stopConfig.stopTime = 10f;
+            EditorUtility.SetDirty(mainEditor.Data);
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        // 描述
+        stopConfig.description = EditorGUILayout.TextField("描述", stopConfig.description);
+        
+        // 检查是否与时间控制点冲突
+        if (config.timePoints != null)
+        {
+            var conflictTimePoint = config.timePoints.FirstOrDefault(tp => tp.pathPointIndex == stopConfig.pathPointIndex && tp.stopTime > 0);
+            if (conflictTimePoint != null)
+            {
+                EditorGUILayout.HelpBox($"注意：此路径点在时间控制点中也设置了停留时间({conflictTimePoint.stopTime}s)，时间控制点优先级更高", MessageType.Warning);
+            }
+        }
+        
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.Space(2);
+        
+        EditorUtility.SetDirty(mainEditor.Data);
     }
 }
 #endif

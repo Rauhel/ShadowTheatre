@@ -63,6 +63,9 @@ public class NPCPathConfigEditor
             // ===== 新增：时间控制设置 =====
             mainEditor.ActionEditor.DrawPathTimeSettings(config);
             
+            // ===== 新增：路径点停留设置 =====
+            mainEditor.ActionEditor.DrawPathPointStopSettings(config);
+            
             EditorGUILayout.Space(2);
             EditorGUILayout.LabelField("3. 路径动作", EditorStyles.boldLabel);
             mainEditor.ActionEditor.DrawPathActions(config);

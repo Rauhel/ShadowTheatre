@@ -40,10 +40,10 @@ MonoBehaviour:
           displayDuration: 2
           voiceClip: {fileID: 0}
           animationName: 
+          animationLoopCount: 1
+          oneShotSFX: {fileID: 0}
           delay: 0
-          waitTime: 0
-          overridePrevious: 1
-          loopAnimation: 0
+          stopTime: 0
           pathPointIndex: 0
           isActionActive: 1
       - gestureType: Deer
@@ -53,10 +53,10 @@ MonoBehaviour:
           displayDuration: 2
           voiceClip: {fileID: 0}
           animationName: 
+          animationLoopCount: 1
+          oneShotSFX: {fileID: 0}
           delay: 0
-          waitTime: 0
-          overridePrevious: 1
-          loopAnimation: 0
+          stopTime: 0
           pathPointIndex: 0
           isActionActive: 1
       defaultResponse:
@@ -67,10 +67,10 @@ MonoBehaviour:
           displayDuration: 2
           voiceClip: {fileID: 0}
           animationName: 
+          animationLoopCount: 1
+          oneShotSFX: {fileID: 0}
           delay: 0
-          waitTime: 0
-          overridePrevious: 1
-          loopAnimation: 0
+          stopTime: 0
           pathPointIndex: 0
           isActionActive: 1
     nextPaths: []
@@ -79,702 +79,709 @@ MonoBehaviour:
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 10
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 1
       isActionActive: 1
     - dialogueText: "\u8FD9\u662F\u4E0D\u53EF\u5BB9\u5FCD\u7684\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 10
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 1
       isActionActive: 1
     - dialogueText: "\u8FD9\u662F\u4EC0\u4E48\u8BDD\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 10
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 1
       isActionActive: 1
     - dialogueText: "\u5979\u5C31\u662F\u4E0D\u542C\u8BDD\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 4
       isActionActive: 1
     - dialogueText: "\u6211\u90FD\u8BA9\u5979\u4E0D\u8981\u51FA\u53BB\u4E86\u5979\u8FD8\u51FA\u53BB\uFF0C\u8FD9\u50CF\u4EC0\u4E48\u8BDD\uFF1F\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 5
       isActionActive: 1
     - dialogueText: "\u6211\u77E5\u9053\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 6
       isActionActive: 1
     - dialogueText: "\u6211\u8981\u7559\u5728\u516C\u4E3B\u8EAB\u8FB9\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 7
       isActionActive: 1
     - dialogueText: "\u6211\u2026\u2026\u6211\u5F53\u7136\u53EF\u4EE5\u4FDD\u62A4\u5979\uFF01\u4F60\u4EEC\u6211\u90FD\u4E0D\u653E\u5FC3\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 8
       isActionActive: 1
     - dialogueText: "\u8C01\u8BF4\u7684\uFF1F\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 9
       isActionActive: 1
     - dialogueText: "\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 10
       isActionActive: 1
     - dialogueText: "\u6211\u6CA1\u6709\u8001\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 11
       isActionActive: 1
     - dialogueText: "\u5373\u4F7F\u6211\u8001\u4E86\uFF0C\u6211\u4E5F\u53EF\u4EE5\u6253\u5F97\u8FC7\u4F60\u4EEC\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 12
       isActionActive: 1
     - dialogueText: "\u5982\u679C\u8FD9\u6837\u5BF9\u516C\u4E3B\u66F4\u597D\u7684\u8BDD\uFF0C\u90A3\u7528\u8FD9\u4E2A\u65B9\u6CD5\u4E5F\u884C\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 13
       isActionActive: 1
     - dialogueText: "\u6211\u4F1A\u5728\u6700\u540E\u65F6\u523B\u5B88\u62A4\u5728\u516C\u4E3B\u8EAB\u8FB9\u7684\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 14
       isActionActive: 1
     - dialogueText: "\u8FD9\u7FA4\u5BB6\u4F19\uFF0C\u771F\u60F9\u4EBA\u8BA8\u538C\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 33
       isActionActive: 1
     - dialogueText: "\u516C\u4E3B\uFF0C\u6211\u7684\u516C\u4E3B\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 34
       isActionActive: 1
     - dialogueText: "\u6211\u662F\u60A8\u7684\u62A4\u536B\uFF0C\u6211\u4E00\u5B9A\u4F1A\u5B88\u62A4\u60A8\u7684\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 17
       isActionActive: 1
     - dialogueText: "\u4ECE\u60A8\u5C0F\u65F6\u5019\u8D77\uFF0C\u6211\u5C31\u5F00\u59CB\u7167\u770B\u60A8\u4E86\uFF0C"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 18
       isActionActive: 1
     - dialogueText: "\u60A8\u7684\u4E00\u4E3E\u4E00\u52A8\u6211\u53EF\u592A\u719F\u6089\u4E86\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 19
       isActionActive: 1
     - dialogueText: "\u5C0F\u7684\u65F6\u5019\u60A8\u603B\u662F\u558A\u7740\u2014\u2014"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 20
       isActionActive: 1
     - dialogueText: "w\u2014\u2014Wolf\uFF01\u5FEB\u8FC7\u6765\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 21
       isActionActive: 1
     - dialogueText: "\u54FC\uFF0C\u90A3\u4E9B\u5BB6\u4F19\u6839\u672C\u4E0D\u61C2\u60A8\u554A\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 22
       isActionActive: 1
     - dialogueText: "\u53EA\u662F\u957F\u5927\u4E86\u60A8\u5C31\u4E0D\u7406\u6211\u4E86\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 23
       isActionActive: 1
     - dialogueText: "\u4E0D\u5149\u4E0D\u7406\u6211\uFF0C\u8FD8\u9010\u6E10\u8F7B\u89C6\u4E86\u6211\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 24
       isActionActive: 1
     - dialogueText: "\u662F\u7684\uFF0C\u6211\u662F\u8001\u4E86\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 25
       isActionActive: 1
     - dialogueText: "\u90A3\u53C8\u5982\u4F55\u5462\uFF1F\u6211\u8FD8\u662F\u60A8\u7684\u62A4\u536B\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 26
       isActionActive: 1
     - dialogueText: "\u6211\u6C38\u8FDC\u3001\u6C38\u8FDC\u90FD\u662F\u60A8\u6700\u771F\u8BDA\u7684\u62A4\u536B\u554A\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 27
       isActionActive: 1
     - dialogueText: "\u4E16\u754C\u4E0A\u7684\u574F\u4EBA\u90A3\u4E48\u591A\u3001"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 28
       isActionActive: 1
     - dialogueText: "\u60A8\u770B\u60A8\u9A6C\u4E0A\u5C31\u8981\u88AB\u6076\u9F99\u593A\u8D70\u4E86\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 29
       isActionActive: 1
     - dialogueText: "\u5929\u54EA\u771F\u662F\u65E0\u6CD5\u60F3\u8C61\u2014\u2014\u8FD9\u592A\u53EF\u6015\u4E86\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 30
       isActionActive: 1
     - dialogueText: "\u542C\u6211\u7684\u8BDD\u4E0D\u597D\u5417\uFF1F"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 31
       isActionActive: 1
     - dialogueText: "\u4E56\u4E56\u5730\u5728\u57CE\u5821\u4E2D\u8FC7\u4E30\u8863\u8DB3\u98DF\u7684\u751F\u6D3B\uFF0C"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 32
       isActionActive: 1
     - dialogueText: "\u6240\u6709\u4EBA\u90FD\u4F1A\u7FA1\u6155\u60A8\u7684\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 33
       isActionActive: 1
     - dialogueText: "\u2014\u2014\u54CE\u5440\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 34
       isActionActive: 1
     - dialogueText: "\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 35
       isActionActive: 1
     - dialogueText: "\u54B3\u54B3\u54B3\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 36
       isActionActive: 1
     - dialogueText: "\u6211\u771F\u662F\u8001\u4E86\u2014\u2014"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 37
       isActionActive: 1
     - dialogueText: "\u4E0D\u5BF9\uFF01\u6211\u6CA1\u6709\u8001\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 38
       isActionActive: 1
     - dialogueText: "\u6211\uFF01\u6CA1\uFF01\u6709\uFF01\u8001\uFF01\u554A\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 39
       isActionActive: 1
     - dialogueText: "\u6211\u8FD8\u8981\u5B88\u62A4\u6211\u7684\u516C\u4E3B\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 40
       isActionActive: 1
     - dialogueText: "\u6211\u600E\u4E48\u653E\u5FC3\u5176\u4ED6\u4EBA\u66FF\u6211\u5B88\u62A4\u60A8\u5462\uFF1F"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 41
       isActionActive: 1
     - dialogueText: "\u90A3\u53EA\u9E45\uFF0C\u4E00\u5929\u5230\u665A\u5600\u5600\u5495\u5495\u560E\u560E\u560E\u7684\uFF0C"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 42
       isActionActive: 1
     - dialogueText: "\u6CA1\u4EBA\u77E5\u9053\u4ED6\u5230\u5E95\u5728\u53EB\u4EC0\u4E48\uFF0C"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 43
       isActionActive: 1
     - dialogueText: "\u4EC0\u4E48\u8BD7\u6B4C\u554A\uFF0C\u4EC0\u4E48\u827A\u672F\u554A\uFF0C\u4EC0\u4E48\u7406\u60F3\u554A\uFF0C"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 44
       isActionActive: 1
     - dialogueText: "\u6839\u672C\u6CA1\u6709\u4EC0\u4E48\u7528\uFF01\u2014\u2014\u563F\u54BB\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 45
       isActionActive: 1
     - dialogueText: "\u54FC\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 46
       isActionActive: 1
     - dialogueText: "\u2026\u2026\u6211\u8FDE\u5B83\u4EEC\u662F\u4EC0\u4E48\u90FD\u4E0D\u77E5\u9053\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 47
       isActionActive: 1
     - dialogueText: "\u90A3\u53EA\u9E7F\u5462\uFF0C"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 48
       isActionActive: 1
     - dialogueText: "\u6211\u4E5F\u641E\u4E0D\u6E05\u695A\u4ED6\u600E\u4E48\u60F3\u7684\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 49
       isActionActive: 1
     - dialogueText: "\u4EC0\u4E48\u5B88\u62A4\u8005\u3001\u901A\u7075\u4EEA\u5F0F\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 50
       isActionActive: 1
     - dialogueText: "\u771F\u7684\u4F1A\u6709\u4E00\u4E2A\u8FD9\u6837\u7684\u5B58\u5728\u770B\u7740\u6211\u4EEC\u5417\uFF1F"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 51
       isActionActive: 1
     - dialogueText: "\u4ED6\u8BC1\u660E\u4E0D\u4E86\uFF0C\u90A3\u6211\u53EA\u80FD\u5F53\u4F5C\u4E0D\u77E5\u9053\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 52
       isActionActive: 1
     - dialogueText: "\u96BE\u9053\u6211\u771F\u80FD\u6307\u671B\u8FD9\u6837\u4E00\u4E2A\u4E1C\u897F\u80FD\u4FDD\u62A4\u6211\u7684\u516C\u4E3B\uFF1F"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 53
       isActionActive: 1
     - dialogueText: "\u800C\u4E14\u4ED6\u795E\u795E\u53E8\u53E8\u7684\uFF0C"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 54
       isActionActive: 1
     - dialogueText: "\u641E\u4E0D\u61C2\u8111\u5B50\u91CC\u5728\u60F3\u4EC0\u4E48\u4E1C\u897F\uFF0C"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 55
       isActionActive: 1
     - dialogueText: "\u505A\u7684\u4E8B\u60C5\u4E5F\u83AB\u540D\u5176\u5999\u7684\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 56
       isActionActive: 1
     - dialogueText: "\u81F3\u4E8E\u90A3\u53EA\u5154\u5B50\u2026\u2026\u54FC\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 57
       isActionActive: 1
     - dialogueText: "\u8BF4\u662F\u4EC0\u4E48\u6267\u4E8B\uFF0C\u6211\u770B\u554A"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 58
       isActionActive: 1
     - dialogueText: "\u4ED6\u4E00\u809A\u5B50\u574F\u6C34\uFF0C\u8FD8\u4E0D\u77E5\u9053\u5728\u8C0B\u5212\u2014\u2014"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 59
       isActionActive: 1
     - dialogueText: "\u5443\u554A\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 60
       isActionActive: 1
     - dialogueText: "\u4F60\u600E\u4E48\u2014\u2014\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 61
       isActionActive: 1
     - dialogueText: "\u6211\u53EA\u662F\u9A82\u4F60\u4E24\u53E5\u4F60\u5C31\u6740\u6211\uFF1F\u4F60\u662F\u4E0D\u662F\u4EBA\u554A\uFF1F"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 62
       isActionActive: 1
     - dialogueText: "\u554A\uFF1F\uFF1F\uFF1F\uFF1F\uFF01\uFF01\uFF01\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 63
       isActionActive: 1
     - dialogueText: "\u6211\u600E\u4E48\u80FD\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 64
       isActionActive: 1
     - dialogueText: "\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 65
       isActionActive: 1
     - dialogueText: "\u653E\u5FC3\u5730\u628A\u516C\u4E3B\u4EA4\u7ED9\u4F60\u4EEC\u8FD9\u4E9B\u4EBA\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 66
       isActionActive: 1
     - dialogueText: "\u4E0D\u2014\u2014\u516C\u4E3B\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 67
       isActionActive: 1
     - dialogueText: "\u5176\u4ED6\u4EBA\u5462\uFF1F\u5FEB\u6551\u516C\u4E3B\u554A\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 68
       isActionActive: 1
     - dialogueText: "\u4E0D\u2014\u2014\uFF01"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 69
       isActionActive: 1
     - dialogueText: "\u8D76\u7D27\u53BB\u795E\u6BBF\u2026\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
       delay: 0.5
-      waitTime: 0
-      overridePrevious: 1
-      loopAnimation: 0
+      stopTime: 0
       pathPointIndex: 70
       isActionActive: 1
+    pathStartStoryTime: 0
+    timePoints:
+    - pathPointIndex: 1
+      requiredStoryTime: 10
+      stopTime: 2
+      description: 
+    pathPointStopConfigs: []
   pathConnections: []
   pathDecisions: []
   importExportPath: D:/College/Game/ShadowTheatre/ShadowTheatreProject/Assets/NPCData/Wolf_data.csv

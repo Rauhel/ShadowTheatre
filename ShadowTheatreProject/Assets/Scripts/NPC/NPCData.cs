@@ -107,6 +107,10 @@ public class PathConfig
     [Tooltip("此路径上的关键时间控制点")]
     public List<PathTimePoint> timePoints = new List<PathTimePoint>();
 
+    // 在PathConfig中添加一个新的路径点停留配置
+    [Header("路径点停留配置")]
+    public List<PathPointStopConfig> pathPointStopConfigs = new List<PathPointStopConfig>();
+
     // 根据分数选择下一条路径
     public string SelectNextPathByScore(float score)
     {
@@ -155,6 +159,32 @@ public class PathConfig
             .Where(tp => tp.requiredStoryTime <= currentRelativeTime)
             .OrderByDescending(tp => tp.requiredStoryTime)
             .FirstOrDefault();
+    }
+    
+    // 获取指定路径点的停留时间
+    public float GetPathPointStopTime(int pathPointIndex)
+    {
+        // 首先检查PathTimePoint中的停留时间
+        if (timePoints != null)
+        {
+            var timePoint = timePoints.FirstOrDefault(tp => tp.pathPointIndex == pathPointIndex);
+            if (timePoint != null && timePoint.stopTime > 0)
+            {
+                return timePoint.stopTime;
+            }
+        }
+        
+        // 然后检查路径点停留配置
+        if (pathPointStopConfigs != null)
+        {
+            var stopConfig = pathPointStopConfigs.FirstOrDefault(config => config.pathPointIndex == pathPointIndex);
+            if (stopConfig != null)
+            {
+                return stopConfig.stopTime;
+            }
+        }
+        
+        return 0f; // 默认不停留
     }
 }
 
@@ -249,6 +279,10 @@ public class PathTimePoint
     public float requiredStoryTime = 0f;
     
     [SerializeField]
+    [Tooltip("在此路径点的停留时间（秒）")]
+    public float stopTime = 0f;
+    
+    [SerializeField]
     [Tooltip("时间点描述")]
     public string description = "";
     
@@ -256,6 +290,21 @@ public class PathTimePoint
     public string GetDisplayText()
     {
         return $"点{pathPointIndex} - {requiredStoryTime:F1}s" + 
+               (stopTime > 0 ? $" (停留{stopTime:F1}s)" : "") +
                (string.IsNullOrEmpty(description) ? "" : $" ({description})");
     }
+}
+
+// 在PathConfig中添加一个新的路径点停留配置
+[Serializable]
+public class PathPointStopConfig
+{
+    [Tooltip("路径点索引")]
+    public int pathPointIndex = 0;
+    
+    [Tooltip("在此路径点的停留时间（秒）")]
+    public float stopTime = 0f;
+    
+    [Tooltip("停留原因描述")]
+    public string description = "";
 }

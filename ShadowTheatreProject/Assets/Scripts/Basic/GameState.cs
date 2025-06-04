@@ -34,11 +34,16 @@ public class GameState : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
 
-            // 在游戏开始前，确保游戏逻辑时间暂停（但不影响UI动画）
+            // 修改时间缩放逻辑 - 只在MainMenu和GameStart状态暂停时间
             if (currentState == State.MainMenu || currentState == State.GameStart)
             {
                 // 使用时间缩放为很小的值而不是0，以便UI动画仍能播放
                 Time.timeScale = 0.00001f;
+            }
+            else
+            {
+                // 其他状态（包括Act1）使用正常时间缩放
+                Time.timeScale = 1f;
             }
         }
         else if (instance != this)
@@ -62,7 +67,7 @@ public class GameState : MonoBehaviour
     }
 
     // Current state of the game
-    [SerializeField] private State currentState = State.MainMenu;
+    [SerializeField] private State currentState = State.Act1; // 直接开始第一幕，跳过主菜单
 
     // Previous state (useful for returning from pause)
     private State previousState;
@@ -167,6 +172,16 @@ public class GameState : MonoBehaviour
         
         // 在游戏管理器的GameOver方法中调用
         NPCController.ResetAllNPCScores();
+        
+        // 添加状态调试信息
+        // Debug.Log($"GameState.Start() - 当前状态: {currentState}, 时间缩放: {Time.timeScale}");
+        
+        // 如果当前状态是Act状态，初始化幕的时间系统
+        if (IsActState(currentState))
+        {
+            Debug.Log($"直接启动幕: {currentState}"); // 保留关键信息
+            InitializeActTime(currentState);
+        }
     }
     
     void Update()
@@ -198,7 +213,7 @@ public class GameState : MonoBehaviour
             InitializeActTime(newState);
         }
 
-        Debug.Log($"State changed from {oldState} to {currentState}");
+        Debug.Log($"游戏状态改变: {oldState} -> {currentState}");
 
         // Broadcast events using EventCenter
         EventCenter.Instance.Publish(EventNames.STATE_EXITED + oldState.ToString());
@@ -209,17 +224,20 @@ public class GameState : MonoBehaviour
         if (currentState == State.GamePaused)
         {
             Time.timeScale = 0f;
+            Debug.Log("游戏暂停，时间缩放设置为0");
         }
         else if (currentState == State.MainMenu || currentState == State.GameStart)
         {
             // 主菜单或游戏开始状态下，保持时间几乎暂停（但不影响UI动画）
             Time.timeScale = 0.00001f;
+            Debug.Log("主菜单/游戏开始状态，时间缩放设置为0.00001");
         }
         else if (currentState == State.Act1 || currentState == State.Act2 ||
                  currentState == State.Act3 || currentState == State.Curtain)
         {
             // 游戏进行中的状态
             Time.timeScale = 1f;
+            Debug.Log("游戏进行状态，时间缩放设置为1");
         }
 
         // Load the appropriate scene if mapped
@@ -228,6 +246,7 @@ public class GameState : MonoBehaviour
             string sceneName = stateToSceneMap[newState];
             if (SceneManager.GetActiveScene().name != sceneName)
             {
+                Debug.Log($"加载场景: {sceneName}");
                 SceneManager.LoadScene(sceneName);
             }
         }
@@ -254,10 +273,12 @@ public class GameState : MonoBehaviour
         if (actToStoryTimeSettings.ContainsKey(actState))
         {
             currentStoryTime = actToStoryTimeSettings[actState].storyStartTime;
+            Debug.Log($"进入{actState}，故事时间重置为{FormatTime(currentStoryTime)}");
         }
         else
         {
             currentStoryTime = 0f; // 默认从0开始
+            Debug.Log($"进入{actState}，故事时间重置为{FormatTime(currentStoryTime)}（默认值）");
         }
         
         Debug.Log($"幕 {actState} 开始 - 初始故事时间: {FormatTime(currentStoryTime)}");
@@ -286,6 +307,12 @@ public class GameState : MonoBehaviour
             {
                 currentStoryTime = newStoryTime;
                 EventCenter.Instance.Publish(EventNames.STORY_TIME_UPDATED);
+                
+                // 每10秒输出一次故事时间更新
+                if (Mathf.FloorToInt(currentStoryTime) % 10 == 0 && Mathf.FloorToInt(currentStoryTime) != Mathf.FloorToInt(currentStoryTime - 0.1f))
+                {
+                    Debug.Log($"故事时间更新: {FormatTime(currentStoryTime)} ({currentState})");
+                }
             }
             else
             {

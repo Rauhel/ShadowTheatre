@@ -23,8 +23,6 @@ public class NPCActionExecutor : MonoBehaviour
     private Queue<ActionData> actionQueue = new Queue<ActionData>(); // 全局action队列
     private bool isExecutingAction = false;                          // 是否正在执行action
     private float lastActionEndTime = 0f;                           // 上一个action结束时间
-    private float totalStopTime = 0f;                               // 累积停留时间
-    private bool isMovementStopped = false;                         // 移动是否被停止
 
     [Header("对话系统")]
     private GameObject currentDialogueBubble;
@@ -48,9 +46,23 @@ public class NPCActionExecutor : MonoBehaviour
         // 初始化对话气泡
         if (dialoguePrefab != null)
         {
-            currentDialogueBubble = Instantiate(dialoguePrefab, transform);
-            currentDialogueBubble.transform.localPosition = dialogueOffset;
-            dialogueText = currentDialogueBubble.GetComponentInChildren<TextMeshProUGUI>();
+            // 首先检查是否已经有现成的对话气泡（用户在Scene中设置的）
+            TextMeshProUGUI existingText = GetComponentInChildren<TextMeshProUGUI>();
+            if (existingText != null)
+            {
+                // 使用Scene中现有的对话气泡
+                currentDialogueBubble = existingText.transform.GetComponentInParent<Canvas>().gameObject;
+                dialogueText = existingText;
+                Debug.Log($"[{gameObject.name}] 使用Scene中现有的对话气泡，保持用户设置");
+            }
+            else
+            {
+                // 如果Scene中没有，再从预制体创建
+                currentDialogueBubble = Instantiate(dialoguePrefab, transform);
+                currentDialogueBubble.transform.localPosition = dialogueOffset;
+                dialogueText = currentDialogueBubble.GetComponentInChildren<TextMeshProUGUI>();
+                Debug.Log($"[{gameObject.name}] 从预制体创建新的对话气泡");
+            }
             currentDialogueBubble.SetActive(false);
         }
         else
@@ -96,19 +108,28 @@ public class NPCActionExecutor : MonoBehaviour
     // 路径点到达时添加action到队列
     private void OnPathPointReached(int pathPointIndex)
     {
-        Debug.Log($"[{gameObject.name}] 到达路径点 {pathPointIndex}");
+        Debug.Log($"[{gameObject.name}] ActionExecutor收到路径点到达事件：点{pathPointIndex}");
 
         List<ActionData> newActions = CollectActionsForPoint(pathPointIndex);
+        Debug.Log($"[{gameObject.name}] 为路径点{pathPointIndex}收集到{newActions.Count}个action");
+        
         foreach (var action in newActions)
         {
             actionQueue.Enqueue(action);
-            Debug.Log($"[{gameObject.name}] 添加action到队列: 路径点{action.pathPointIndex}");
+            Debug.Log($"[{gameObject.name}] 添加action到队列: 路径点{action.pathPointIndex}, 停留时间:{action.stopTime}秒");
         }
+
+        Debug.Log($"[{gameObject.name}] 当前action队列长度: {actionQueue.Count}, 正在执行action: {isExecutingAction}");
 
         // 如果当前没有执行action，开始执行队列
         if (!isExecutingAction && actionQueue.Count > 0)
         {
+            Debug.Log($"[{gameObject.name}] 开始执行action队列");
             StartCoroutine(ProcessActionQueue());
+        }
+        else if (isExecutingAction)
+        {
+            Debug.Log($"[{gameObject.name}] 已在执行action，新action已加入队列等待");
         }
     }
 
@@ -227,15 +248,14 @@ public class NPCActionExecutor : MonoBehaviour
     private IEnumerator ProcessActionQueue()
     {
         isExecutingAction = true;
-        totalStopTime = 0f;
         
-        Debug.Log($"[{gameObject.name}] 开始处理action队列，共{actionQueue.Count}个action");
+        Debug.Log($"[{gameObject.name}] ActionExecutor开始处理action队列，共{actionQueue.Count}个action");
 
         while (actionQueue.Count > 0)
         {
             ActionData action = actionQueue.Dequeue();
             
-            Debug.Log($"[{gameObject.name}] 执行action: 路径点{action.pathPointIndex}, 延迟{action.delay}s, 停留{action.stopTime}s");
+            Debug.Log($"[{gameObject.name}] 执行action: 路径点{action.pathPointIndex}, 延迟{action.delay}s, 对话:{!string.IsNullOrEmpty(action.dialogueText)}");
 
             // 等待延迟时间
             if (action.delay > 0)
@@ -248,37 +268,15 @@ public class NPCActionExecutor : MonoBehaviour
                 }
             }
 
-            // 累加停留时间并停止移动
-            if (action.stopTime > 0)
-            {
-                totalStopTime += action.stopTime;
-                if (!isMovementStopped && pathManager != null)
-                {
-                    pathManager.StopMovement(); // 停止移动
-                    isMovementStopped = true;
-                    Debug.Log($"[{gameObject.name}] 停止移动，累积停留时间: {totalStopTime}s");
-                }
-            }
-
-            // 执行action内容
+            // 执行action内容（不再控制移动）
             yield return StartCoroutine(ExecuteSingleAction(action));
 
             // 更新上次action结束时间
             lastActionEndTime = Time.time;
         }
 
-        // 所有action执行完毕，处理停留时间
-        if (totalStopTime > 0 && isMovementStopped && pathManager != null)
-        {
-            Debug.Log($"[{gameObject.name}] 等待停留时间结束: {totalStopTime}s");
-            yield return new WaitForSeconds(totalStopTime);
-            pathManager.ResumeMovement(); // 恢复移动
-            isMovementStopped = false;
-            Debug.Log($"[{gameObject.name}] 恢复移动");
-        }
-
         isExecutingAction = false;
-        Debug.Log($"[{gameObject.name}] Action队列执行完毕");
+        Debug.Log($"[{gameObject.name}] ActionExecutor队列执行完毕");
     }
 
     // 执行单个action
@@ -400,6 +398,8 @@ public class NPCActionExecutor : MonoBehaviour
             yield break;
         }
 
+        Debug.Log($"[{gameObject.name}] 开始显示对话: '{text}', 时长: {duration}秒");
+
         // 播放语音
         if (voiceClip != null)
         {
@@ -408,6 +408,8 @@ public class NPCActionExecutor : MonoBehaviour
 
         // 设置文本
         dialogueText.text = text;
+        
+        Debug.Log($"[{gameObject.name}] 文字设置完成 - 内容: '{dialogueText.text}', 大小: {dialogueText.fontSize}, 颜色: {dialogueText.color}");
 
         // 淡入
         currentDialogueBubble.SetActive(true);
@@ -425,9 +427,15 @@ public class NPCActionExecutor : MonoBehaviour
             }
 
             canvasGroup.alpha = 1;
+            Debug.Log($"[{gameObject.name}] 对话淡入完成，CanvasGroup Alpha: {canvasGroup.alpha}");
+        }
+        else
+        {
+            Debug.Log($"[{gameObject.name}] 没有CanvasGroup，直接显示对话");
         }
 
         // 等待显示时间
+        Debug.Log($"[{gameObject.name}] 对话显示中，等待 {duration} 秒");
         yield return new WaitForSeconds(duration);
 
         // 淡出
@@ -442,9 +450,11 @@ public class NPCActionExecutor : MonoBehaviour
             }
 
             canvasGroup.alpha = 0;
+            Debug.Log($"[{gameObject.name}] 对话淡出完成");
         }
 
         currentDialogueBubble.SetActive(false);
+        Debug.Log($"[{gameObject.name}] 对话显示结束");
     }
 
     // 播放对话声音
@@ -508,12 +518,6 @@ public class NPCActionExecutor : MonoBehaviour
         actionQueue.Clear();
         StopAllCoroutines();
         
-        if (isMovementStopped && pathManager != null)
-        {
-            pathManager.ResumeMovement();
-            isMovementStopped = false;
-        }
-        
         isExecutingAction = false;
     }
 
@@ -521,6 +525,37 @@ public class NPCActionExecutor : MonoBehaviour
     public int GetQueueCount()
     {
         return actionQueue.Count;
+    }
+
+    // 测试对话显示（用于调试）
+    [ContextMenu("测试对话显示")]
+    public void TestDialogueDisplay()
+    {
+        if (dialogueText == null || currentDialogueBubble == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 对话组件未初始化，无法测试");
+            return;
+        }
+        
+        // 只设置文字内容，保持用户的字体设置
+        dialogueText.text = "测试对话文字显示";
+        currentDialogueBubble.SetActive(true);
+        
+        Debug.Log($"[{gameObject.name}] 测试对话已显示：'{dialogueText.text}'");
+        Debug.Log($"[{gameObject.name}] 文字位置：{dialogueText.transform.position}");
+        Debug.Log($"[{gameObject.name}] Canvas位置：{currentDialogueBubble.transform.position}");
+        Debug.Log($"[{gameObject.name}] 当前字体设置 - 大小: {dialogueText.fontSize}, 颜色: {dialogueText.color}");
+    }
+    
+    // 隐藏测试对话
+    [ContextMenu("隐藏测试对话")]
+    public void HideTestDialogue()
+    {
+        if (currentDialogueBubble != null)
+        {
+            currentDialogueBubble.SetActive(false);
+            Debug.Log($"[{gameObject.name}] 测试对话已隐藏");
+        }
     }
 
     #endregion

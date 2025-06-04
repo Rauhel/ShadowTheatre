@@ -39,33 +39,75 @@ public class NPCPathManager : MonoBehaviour
         controller = GetComponent<NPCController>();
         eventManager = GetComponent<NPCEventManager>();
         agent = GetComponent<NavMeshAgent>();
+        
+        // 默认开启调试日志以便诊断问题
+        ShowDebugLogs = false; // 关闭详细调试日志
+        // Debug.Log($"[{gameObject.name}] NPCPathManager初始化完成，调试日志已开启，原始速度: {agent.speed}");
     }
 
     void Start()
     {
         // 初始化路径
         InitializeStartingPath();
+        
+        // 添加游戏状态调试信息
+        // Debug.Log($"[{gameObject.name}] NPCPathManager.Start() - 当前游戏状态: {GameState.Instance.GetCurrentState()}");
+        // Debug.Log($"[{gameObject.name}] NPCPathManager.Start() - 当前时间缩放: {Time.timeScale}");
+        
+        // 订阅游戏状态变化事件
+        if (EventCenter.Instance != null)
+        {
+            EventCenter.Instance.Subscribe(GameState.EventNames.STATE_CHANGED, OnGameStateChanged);
+        }
     }
 
     void Update()
     {
         if (pathProcessingPaused || controller.Data == null)
             return;
+            
+        // 检查时间缩放，如果几乎为0则暂停路径跟随
+        if (Time.timeScale < 0.001f)
+        {
+            // if (ShowDebugLogs && Time.frameCount % 120 == 0) // 每2秒输出一次
+            //     Debug.Log($"[{gameObject.name}] 时间缩放过小 ({Time.timeScale})，暂停路径跟随");
+            return;
+        }
 
         // 路径移动
         FollowCurrentPath();
+    }
+
+    void OnDisable()
+    {
+        // NPCPathManager只负责路径管理，不需要订阅故事时间事件
+        // 时间控制由独立的NPCTimeController负责
+        
+        // 取消订阅事件
+        if (EventCenter.Instance != null)
+        {
+            EventCenter.Instance.Unsubscribe(GameState.EventNames.STATE_CHANGED, OnGameStateChanged);
+        }
     }
 
     // 路径跟随逻辑
     private void FollowCurrentPath()
     {
         if (currentPathCreator == null || agent == null || isWaitingAtPoint)
+        {
+            // if (currentPathCreator == null && ShowDebugLogs)
+            //     Debug.LogWarning($"[{gameObject.name}] 路径跟随失败：currentPathCreator为空");
+            // if (agent == null && ShowDebugLogs)
+            //     Debug.LogWarning($"[{gameObject.name}] 路径跟随失败：agent为空");
+            // if (isWaitingAtPoint && ShowDebugLogs)
+            //     Debug.Log($"[{gameObject.name}] 正在等待点，暂停路径跟随");
             return;
+        }
 
         if (currentPathPointIndex >= currentPathCreator.GetPathPointCount())
         {
-            if (ShowDebugLogs)
-                Debug.LogWarning($"[{gameObject.name}] 路径点索引超出范围: {currentPathPointIndex}/{currentPathCreator.GetPathPointCount()}");
+            // if (ShowDebugLogs)
+            //     Debug.LogWarning($"[{gameObject.name}] 路径点索引超出范围: {currentPathPointIndex}/{currentPathCreator.GetPathPointCount()}");
             return;
         }
 
@@ -75,21 +117,75 @@ public class NPCPathManager : MonoBehaviour
         // 确保代理未停止
         if (agent.isStopped)
         {
+            // if (ShowDebugLogs)
+            //     Debug.Log($"[{gameObject.name}] Agent已停止，重启移动");
             agent.isStopped = false;
         }
 
         // 检查当前目标是否有效
         if (agent.pathPending)
         {
+            // if (ShowDebugLogs)
+            //     Debug.Log($"[{gameObject.name}] 路径计算中，等待...");
             return; // 路径计算中，等待
         }
 
+        // 使用容差比较避免浮点精度问题导致的不断重新设置目标
+        float destinationDistanceThreshold = 0.5f; // 目标位置比较的容差
+        bool needSetDestination = Vector3.Distance(agent.destination, targetPosition) > destinationDistanceThreshold;
+        
         // 设置目标（如果需要）
-        if (agent.destination != targetPosition)
+        if (needSetDestination)
         {
-            if (ShowDebugLogs)
-                Debug.Log($"[{gameObject.name}] 设置新目标点: 点{currentPathPointIndex}, 位置: {targetPosition}");
-            agent.SetDestination(targetPosition);
+            // if (ShowDebugLogs)
+            //     Debug.Log($"[{gameObject.name}] 设置新目标点: 点{currentPathPointIndex}, 位置: {targetPosition}, 当前destination距离: {Vector3.Distance(agent.destination, targetPosition):F2}");
+            
+            // 检查agent是否在NavMesh上
+            if (!agent.isOnNavMesh)
+            {
+                // Debug.LogWarning($"[{gameObject.name}] Agent不在NavMesh上，尝试修复位置");
+                NavMeshHit hit;
+                if (NavMesh.SamplePosition(transform.position, out hit, 5f, NavMesh.AllAreas))
+                {
+                    transform.position = hit.position;
+                    // Debug.Log($"[{gameObject.name}] 已将Agent移动到NavMesh上: {hit.position}");
+                }
+                else
+                {
+                    // Debug.LogError($"[{gameObject.name}] 无法找到附近的NavMesh位置");
+                    return;
+                }
+            }
+            
+            // 检查目标位置是否在NavMesh上
+            NavMeshHit targetHit;
+            Vector3 validTarget = targetPosition;
+            if (!NavMesh.SamplePosition(targetPosition, out targetHit, 5f, NavMesh.AllAreas))
+            {
+                // Debug.LogWarning($"[{gameObject.name}] 目标位置不在NavMesh上，寻找最近的有效位置");
+                if (NavMesh.SamplePosition(targetPosition, out targetHit, 10f, NavMesh.AllAreas))
+                {
+                    validTarget = targetHit.position;
+                    // Debug.Log($"[{gameObject.name}] 使用修正的目标位置: {validTarget}");
+                }
+                else
+                {
+                    // Debug.LogError($"[{gameObject.name}] 无法找到有效的目标位置");
+                    return;
+                }
+            }
+            
+            bool setResult = agent.SetDestination(validTarget);
+            // if (ShowDebugLogs)
+            //     Debug.Log($"[{gameObject.name}] SetDestination结果: {setResult}, pathStatus: {agent.pathStatus}");
+            
+            // 如果设置失败，再次尝试
+            if (!setResult || agent.pathStatus == NavMeshPathStatus.PathInvalid)
+            {
+                // Debug.LogWarning($"[{gameObject.name}] 目标设置失败，尝试重新计算路径");
+                agent.SetDestination(validTarget);
+                // Debug.Log($"[{gameObject.name}] 重新设置后 - pathStatus: {agent.pathStatus}");
+            }
         }
 
         // 检查是否到达当前点
@@ -99,23 +195,39 @@ public class NPCPathManager : MonoBehaviour
         {
             // 记录已达到的点
             int reachedPointIndex = currentPathPointIndex;
+            Debug.Log($"[{gameObject.name}] 到达路径点 {reachedPointIndex}"); // 保留关键信息
 
             // 更新最后到达的路径点索引
             lastReachedPointIndex = reachedPointIndex;
 
             // 触发事件
+            // Debug.Log($"[{gameObject.name}] 触发路径点到达事件: 点{reachedPointIndex}");
             OnPathPointReached?.Invoke(reachedPointIndex);
 
             // 处理等待时间
             float waitTime = GetWaitTimeForPathPoint(reachedPointIndex);
+            // Debug.Log($"[{gameObject.name}] 路径点{reachedPointIndex}的等待时间: {waitTime}秒");
+            
             if (waitTime > 0)
             {
+                // Debug.Log($"[{gameObject.name}] 开始等待协程，等待时间: {waitTime}秒");
                 StartCoroutine(WaitAndProceedToNextPoint(waitTime));
                 return;
             }
 
-            // 更新到下一个点
+            // 更新到下一个点 - 移除对ActionExecutor队列的检查
+            // NPCActionExecutor会通过自己的移动控制来处理Action执行期间的停止
+            // Debug.Log($"[{gameObject.name}] 无路径等待时间，立即前进到下一个点");
             AdvanceToNextPathPoint();
+        }
+        else
+        {
+            // 添加移动状态调试信息
+            // if (ShowDebugLogs && Time.frameCount % 60 == 0) // 每秒输出一次
+            // {
+            //     Debug.Log($"[{gameObject.name}] 移动中 - 目标点{currentPathPointIndex}, 距离: {distanceToTarget:F2}, 速度: {agent.velocity.magnitude:F2}, remainingDistance: {agent.remainingDistance:F2}");
+            //     Debug.Log($"[{gameObject.name}] Agent状态 - hasPath: {agent.hasPath}, pathStatus: {agent.pathStatus}, destination: {agent.destination}");
+            // }
         }
     }
 
@@ -123,51 +235,69 @@ public class NPCPathManager : MonoBehaviour
     // 只取第一个匹配的 ActionData 的 waitTime，其它同路径点的 waitTime 会被忽略
     private float GetWaitTimeForPathPoint(int pathPointIndex)
     {
-        float waitTime = 0f;
-        // 优先事件动作
-        if (eventManager != null)
+        // 首先检查路径配置中的停留时间设置
+        PathConfig currentPath = GetCurrentPathConfig();
+        if (currentPath != null)
         {
-            PathEvent completedEvent = eventManager.FindCompletedEventForPathPoint(pathPointIndex);
-            if (completedEvent != null)
+            // 使用路径配置中的停留时间
+            float pathStopTime = currentPath.GetPathPointStopTime(pathPointIndex);
+            if (pathStopTime > 0)
             {
-                foreach (var action in completedEvent.defaultResponse.actions)
+                Debug.Log($"[{gameObject.name}] 路径点{pathPointIndex}配置停留时间: {pathStopTime}秒");
+                return pathStopTime;
+            }
+        }
+        
+        // 然后检查是否有路径特定的等待时间配置（时间控制点）
+        if (currentPath != null && currentPath.timePoints != null)
+        {
+            foreach (var timePoint in currentPath.timePoints)
+            {
+                if (timePoint.pathPointIndex == pathPointIndex)
                 {
-                    if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.stopTime > 0)
+                    // 如果有时间控制点，可能需要等待到指定时间
+                    if (GameState.Instance != null)
                     {
-                        waitTime = action.stopTime;
-                        break;
+                        float currentStoryTime = GameState.Instance.GetStoryTime();
+                        float currentRelativeTime = currentStoryTime - currentPath.pathStartStoryTime;
+                        float requiredTime = timePoint.requiredStoryTime;
+                        
+                        if (requiredTime > currentRelativeTime)
+                        {
+                            // 需要等待到指定时间
+                            float waitTime = requiredTime - currentRelativeTime;
+                            Debug.Log($"[{gameObject.name}] 时间控制等待: {waitTime}秒 (等到故事时间{requiredTime}s)");
+                            return waitTime;
+                        }
                     }
                 }
             }
         }
-        // 其次pathActions
-        if (waitTime <= 0)
-        {
-            PathConfig currentPath = GetCurrentPathConfig();
-            if (currentPath != null)
-            {
-                foreach (var action in currentPath.pathActions)
-                {
-                    if (action.pathPointIndex == pathPointIndex && action.isActionActive && action.stopTime > 0)
-                    {
-                        waitTime = action.stopTime;
-                        break;
-                    }
-                }
-            }
-        }
-        return waitTime;
+        
+        return 0f; // 路径本身不需要等待时间
     }
 
     // 等待并前进到下一个点
     private IEnumerator WaitAndProceedToNextPoint(float waitTime)
     {
         isWaitingAtPoint = true;
-        //Debug.Log($"[{gameObject.name}] 在路径点停留 {waitTime} 秒");
-        controller.StopMovement(true);
+        Debug.Log($"[{gameObject.name}] 开始在路径点停留 {waitTime} 秒");
+        
+        // 直接停止Agent，不通过controller以避免与ActionExecutor冲突
+        if (agent != null)
+        {
+            agent.isStopped = true;
+        }
+        
         yield return new WaitForSeconds(waitTime);
-        controller.StopMovement(false);
-        //Debug.Log($"[{gameObject.name}] 停留结束，继续移动");
+        
+        // 恢复Agent移动
+        if (agent != null)
+        {
+            agent.isStopped = false;
+        }
+        
+        Debug.Log($"[{gameObject.name}] 停留结束，继续移动");
         isWaitingAtPoint = false;
         AdvanceToNextPathPoint();
     }
@@ -176,20 +306,34 @@ public class NPCPathManager : MonoBehaviour
     private void AdvanceToNextPathPoint()
     {
         int reachedPointIndex = currentPathPointIndex;
+        int oldIndex = currentPathPointIndex;
         currentPathPointIndex++;
+
+        Debug.Log($"[{gameObject.name}] 前进到下一个路径点: {oldIndex} -> {currentPathPointIndex}");
 
         // 处理路径循环
         if (currentPathCreator != null && currentPathPointIndex >= currentPathCreator.GetPathPointCount() && currentPathCreator.closedPath)
         {
-            //Debug.Log($"[{gameObject.name}] 路径循环，重置到第一个点");
+            Debug.Log($"[{gameObject.name}] 路径循环，重置到第一个点");
             currentPathPointIndex = 0;
         }
 
-        // 如果是最后一个点，停止移动
+        // 如果是最后一个点，处理路径完成
         if (currentPathCreator != null && currentPathPointIndex >= currentPathCreator.GetPathPointCount() && !currentPathCreator.closedPath)
         {
-            //Debug.Log($"[{gameObject.name}] 到达路径终点");
+            Debug.Log($"[{gameObject.name}] 到达路径终点，处理路径完成");
             agent.isStopped = true;
+            ProcessPathCompletion();
+        }
+        else if (currentPathCreator != null)
+        {
+            // 确保继续移动到下一个点
+            Debug.Log($"[{gameObject.name}] 准备移动到下一个路径点: {currentPathPointIndex}");
+            if (agent.isStopped)
+            {
+                Debug.Log($"[{gameObject.name}] Agent被停止，重新启动");
+                agent.isStopped = false;
+            }
         }
     }
 
@@ -235,10 +379,11 @@ public class NPCPathManager : MonoBehaviour
     // 处理路径完成
     private void ProcessPathCompletion()
     {
+        Debug.Log($"[{gameObject.name}] 开始处理路径完成");
+        
         if (currentPathCreator == null || controller.Data == null)
         {
-            if (ShowDebugLogs)
-                Debug.LogWarning($"[{gameObject.name}] 路径数据不完整，无法确定下一步");
+            Debug.LogWarning($"[{gameObject.name}] 路径数据不完整，无法确定下一步 - PathCreator: {currentPathCreator != null}, Data: {controller.Data != null}");
             controller.StopMovement(true);
             return;
         }
@@ -247,38 +392,43 @@ public class NPCPathManager : MonoBehaviour
         PathConfig currentPathConfig = controller.Data.FindPathById(currentPathCreator.pathID);
         if (currentPathConfig == null)
         {
-            if (ShowDebugLogs)
                 Debug.LogWarning($"[{gameObject.name}] 找不到当前路径的配置: {currentPathCreator.pathID}");
             controller.StopMovement(true);
             return;
         }
 
+        Debug.Log($"[{gameObject.name}] 当前路径配置: {currentPathConfig.pathName}, 下一路径数量: {currentPathConfig.nextPaths.Count}");
+
         // 检查是否有下一条路径
         if (currentPathConfig.nextPaths.Count == 0)
         {
+            Debug.Log($"[{gameObject.name}] 没有下一条路径，停止移动");
             controller.StopMovement(true);
             return;
         }
 
         // 根据分数选择下一条路径
+        Debug.Log($"[{gameObject.name}] 当前分数: {controller.Data.currentScore}，开始选择下一条路径");
         string nextPathID = currentPathConfig.SelectNextPathByScore(controller.Data.currentScore);
+        
         if (string.IsNullOrEmpty(nextPathID))
         {
-            if (ShowDebugLogs)
                 Debug.LogWarning($"[{gameObject.name}] 无法确定下一条路径，停止移动");
             controller.StopMovement(true);
             return;
         }
 
+        Debug.Log($"[{gameObject.name}] 选择的下一条路径ID: {nextPathID}");
+
         // 切换到下一条路径
         MultiPointPathCreator nextPathCreator = PathRegistry.GetPathCreatorByID(nextPathID);
         if (nextPathCreator != null)
         {
+            Debug.Log($"[{gameObject.name}] 成功找到下一条路径，开始切换");
             SwitchToPath(nextPathCreator);
         }
         else
         {
-            if (ShowDebugLogs)
                 Debug.LogWarning($"[{gameObject.name}] 找不到ID为 {nextPathID} 的路径，停止移动");
             controller.StopMovement(true);
         }
@@ -425,9 +575,15 @@ public class NPCPathManager : MonoBehaviour
     /// </summary>
     public void StopMovement()
     {
+        Debug.Log($"[{gameObject.name}] StopMovement() 被调用");
         if (agent != null)
         {
             agent.isStopped = true;
+            Debug.Log($"[{gameObject.name}] Agent已停止移动");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] StopMovement() 调用失败：Agent为空");
         }
     }
 
@@ -436,9 +592,44 @@ public class NPCPathManager : MonoBehaviour
     /// </summary>
     public void ResumeMovement()
     {
+        Debug.Log($"[{gameObject.name}] ResumeMovement() 被调用");
         if (agent != null && !pathProcessingPaused)
         {
             agent.isStopped = false;
+            Debug.Log($"[{gameObject.name}] Agent已恢复移动");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] ResumeMovement() 调用失败：Agent={agent != null}, pathProcessingPaused={pathProcessingPaused}");
+        }
+    }
+
+    // 游戏状态变化处理
+    private void OnGameStateChanged()
+    {
+        GameState.State currentState = GameState.Instance.GetCurrentState();
+        Debug.Log($"[{gameObject.name}] 游戏状态变化: {currentState}, 时间缩放: {Time.timeScale}");
+        
+        // 如果切换到游戏状态，确保agent正常工作
+        if (currentState == GameState.State.Act1 || 
+            currentState == GameState.State.Act2 || 
+            currentState == GameState.State.Act3)
+        {
+            Debug.Log($"[{gameObject.name}] 进入游戏状态，检查移动组件");
+            
+            // 确保 NavMeshAgent 启用
+            if (agent != null && !agent.enabled)
+            {
+                agent.enabled = true;
+                Debug.Log($"[{gameObject.name}] 重新启用NavMeshAgent");
+            }
+            
+            // 如果有路径但被停止了，重新启动
+            if (agent != null && agent.isStopped && currentPathCreator != null)
+            {
+                agent.isStopped = false;
+                Debug.Log($"[{gameObject.name}] 重新启动移动");
+            }
         }
     }
 }
