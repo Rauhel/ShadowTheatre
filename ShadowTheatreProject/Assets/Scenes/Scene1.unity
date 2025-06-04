@@ -1326,6 +1326,71 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &512043946
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 512043947}
+  - component: {fileID: 512043948}
+  m_Layer: 0
+  m_Name: GameState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &512043947
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512043946}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 924969961}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &512043948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 512043946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 554b2074a69bebf45b30f4706a9de92c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentState: 3
+  gameStartTime: 0
+  currentActStartTime: 0
+  currentStoryTime: 0
+  actStoryTimeSettings:
+  - actState: 3
+    storyStartTime: 0
+    storyEndTime: 300
+    storyTimeDescription: 
+    autoSwitchToNextAct: 1
+  - actState: 4
+    storyStartTime: 60
+    storyEndTime: 300
+    storyTimeDescription: 
+    autoSwitchToNextAct: 1
+  - actState: 5
+    storyStartTime: 60
+    storyEndTime: 360
+    storyTimeDescription: 
+    autoSwitchToNextAct: 1
+  stateSceneMap: []
 --- !u!1 &517950472 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7782928370302660375, guid: db5e46c6d1801b349a61075b73fda56c, type: 3}
@@ -1630,6 +1695,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &924969961 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8577423420782024961, guid: a95c90bfcb0168542823682435410ebf, type: 3}
+  m_PrefabInstance: {fileID: 9190154442045931320}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &981789791
 GameObject:
   m_ObjectHideFlags: 0
@@ -2079,7 +2149,7 @@ Transform:
   m_GameObject: {fileID: 1217259979}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.5474735e-13, y: 9.771776, z: 42.60142}
+  m_LocalPosition: {x: -4.5474735e-13, y: 9.771776, z: 42.601574}
   m_LocalScale: {x: 78.17421, y: 19.543552, z: 78.17421}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -4084,7 +4154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentAct: 1
-  showDebugLogs: 1
+  showDebugLogs: 0
 --- !u!114 &1742255566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4126,7 +4196,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerTransform: {fileID: 6129684334828742803}
   requirePlayerInRange: 1
-  enableDebugLogs: 1
+  enableDebugLogs: 0
 --- !u!114 &1742255570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4226,7 +4296,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f49b0de2a5357d04bb66c318ab7860c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enableDebugMode: 1
+  enableDebugMode: 0
   autoFix: 1
   debugInfo: 
 --- !u!114 &1742255575
@@ -4931,7 +5001,7 @@ Transform:
   m_GameObject: {fileID: 2116763512}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.5999987, y: 9.771776, z: 41.70142}
+  m_LocalPosition: {x: 1.5999987, y: 9.771776, z: 41.701572}
   m_LocalScale: {x: 78.17421, y: 19.543552, z: 78.17421}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -10442,7 +10512,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 8577423420782024961, guid: a95c90bfcb0168542823682435410ebf, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 512043947}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a95c90bfcb0168542823682435410ebf, type: 3}
 --- !u!1660057539 &9223372036854775807
