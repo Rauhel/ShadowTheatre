@@ -2079,7 +2079,7 @@ Transform:
   m_GameObject: {fileID: 1217259979}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -4.5474735e-13, y: 9.771776, z: 42.60139}
+  m_LocalPosition: {x: -4.5474735e-13, y: 9.771776, z: 42.60142}
   m_LocalScale: {x: 78.17421, y: 19.543552, z: 78.17421}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -3793,7 +3793,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 11111111111
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8a2f2d7981257974f94d06703c8653e7, type: 2}
   m_sharedMaterial: {fileID: -4605036805828717438, guid: 8a2f2d7981257974f94d06703c8653e7, type: 2}
@@ -3927,6 +3927,7 @@ GameObject:
   - component: {fileID: 1742255572}
   - component: {fileID: 1742255573}
   - component: {fileID: 1742255574}
+  - component: {fileID: 1742255575}
   m_Layer: 0
   m_Name: Wolf
   m_TagString: Untagged
@@ -4228,6 +4229,22 @@ MonoBehaviour:
   enableDebugMode: 1
   autoFix: 1
   debugInfo: 
+--- !u!114 &1742255575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1742255550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38e5f5ff1244976428c933827b7d9700, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeControlEnabled: 1
+  speedMultiplierMin: 0.1
+  speedMultiplierMax: 10
+  teleportThreshold: 60
 --- !u!1 &1795299107
 GameObject:
   m_ObjectHideFlags: 0
@@ -4914,7 +4931,7 @@ Transform:
   m_GameObject: {fileID: 2116763512}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.5999987, y: 9.771776, z: 41.70139}
+  m_LocalPosition: {x: 1.5999987, y: 9.771776, z: 41.70142}
   m_LocalScale: {x: 78.17421, y: 19.543552, z: 78.17421}
   m_ConstrainProportionsScale: 1
   m_Children: []

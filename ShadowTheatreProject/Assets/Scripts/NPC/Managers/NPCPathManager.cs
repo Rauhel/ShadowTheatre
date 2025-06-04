@@ -571,6 +571,16 @@ public class NPCPathManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 设置当前路径点索引（用于时间控制器瞬移）
+    /// </summary>
+    public void SetCurrentPathPointIndex(int pointIndex)
+    {
+        lastReachedPointIndex = pointIndex;
+        currentPathPointIndex = pointIndex + 1; // 下一个要移动到的点
+        Debug.Log($"[{gameObject.name}] 时间控制器设置路径点索引: 当前点={lastReachedPointIndex}, 下一目标点={currentPathPointIndex}");
+    }
+
+    /// <summary>
     /// 停止NPC移动 (用于Action执行期间)
     /// </summary>
     public void StopMovement()

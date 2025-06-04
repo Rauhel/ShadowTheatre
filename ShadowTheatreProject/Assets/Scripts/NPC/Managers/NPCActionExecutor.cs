@@ -249,13 +249,13 @@ public class NPCActionExecutor : MonoBehaviour
     {
         isExecutingAction = true;
         
-        Debug.Log($"[{gameObject.name}] ActionExecutor开始处理action队列，共{actionQueue.Count}个action");
+        // Debug.Log($"[{gameObject.name}] ActionExecutor开始处理action队列，共{actionQueue.Count}个action");
 
         while (actionQueue.Count > 0)
         {
             ActionData action = actionQueue.Dequeue();
             
-            Debug.Log($"[{gameObject.name}] 执行action: 路径点{action.pathPointIndex}, 延迟{action.delay}s, 对话:{!string.IsNullOrEmpty(action.dialogueText)}");
+            Debug.Log($"[{gameObject.name}] 执行新action: 路径点{action.pathPointIndex}, 对话:{!string.IsNullOrEmpty(action.dialogueText)}");
 
             // 等待延迟时间
             if (action.delay > 0)
@@ -263,7 +263,7 @@ public class NPCActionExecutor : MonoBehaviour
                 float waitTime = action.delay - (Time.time - lastActionEndTime);
                 if (waitTime > 0)
                 {
-                    Debug.Log($"[{gameObject.name}] 等待延迟时间: {waitTime}s");
+                    // Debug.Log($"[{gameObject.name}] 等待延迟时间: {waitTime}s");
                     yield return new WaitForSeconds(waitTime);
                 }
             }
@@ -282,7 +282,7 @@ public class NPCActionExecutor : MonoBehaviour
     // 执行单个action
     private IEnumerator ExecuteSingleAction(ActionData action)
     {
-        Debug.Log($"[{gameObject.name}] 开始执行action内容");
+        // Debug.Log($"[{gameObject.name}] 开始执行action内容");
 
         float maxDuration = 0f;
         List<Coroutine> runningCoroutines = new List<Coroutine>();
@@ -292,7 +292,7 @@ public class NPCActionExecutor : MonoBehaviour
         {
             audioSource.PlayOneShot(action.oneShotSFX);
             maxDuration = Mathf.Max(maxDuration, action.oneShotSFX.length);
-            Debug.Log($"[{gameObject.name}] 播放音效，时长: {action.oneShotSFX.length}s");
+            // Debug.Log($"[{gameObject.name}] 播放音效，时长: {action.oneShotSFX.length}s");
         }
 
         // 播放动画
@@ -300,7 +300,7 @@ public class NPCActionExecutor : MonoBehaviour
         {
             float animDuration = PlayAnimationWithLoops(action.animationName, action.animationLoopCount);
             maxDuration = Mathf.Max(maxDuration, animDuration);
-            Debug.Log($"[{gameObject.name}] 播放动画: {action.animationName}, 循环{action.animationLoopCount}次, 总时长: {animDuration}s");
+            // Debug.Log($"[{gameObject.name}] 播放动画: {action.animationName}, 循环{action.animationLoopCount}次, 总时长: {animDuration}s");
         }
 
         // 显示对话
@@ -309,11 +309,11 @@ public class NPCActionExecutor : MonoBehaviour
             Coroutine dialogueCoroutine = StartCoroutine(DisplayDialogueCoroutine(action.dialogueText, action.displayDuration, action.voiceClip));
             runningCoroutines.Add(dialogueCoroutine);
             maxDuration = Mathf.Max(maxDuration, action.displayDuration);
-            Debug.Log($"[{gameObject.name}] 显示对话: {action.dialogueText.Substring(0, Mathf.Min(20, action.dialogueText.Length))}..., 时长: {action.displayDuration}s");
+            // Debug.Log($"[{gameObject.name}] 显示对话: {action.dialogueText.Substring(0, Mathf.Min(20, action.dialogueText.Length))}..., 时长: {action.displayDuration}s");
         }
 
         // 等待最长元素完成
-        Debug.Log($"[{gameObject.name}] 等待action完成，最长时间: {maxDuration}s");
+        // Debug.Log($"[{gameObject.name}] 等待action完成，最长时间: {maxDuration}s");
         yield return new WaitForSeconds(maxDuration);
 
         // 停止所有运行中的协程
