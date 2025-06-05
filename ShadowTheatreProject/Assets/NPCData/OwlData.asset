@@ -17,7 +17,7 @@ MonoBehaviour:
   currentScore: 0
   moveSpeed: 0
   paths:
-  - pathID: path_1
+  - pathID: owl-1
     pathName: 1
     minScore: 0
     maxScore: 100
@@ -217,7 +217,7 @@ MonoBehaviour:
     pathStartStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
-  - pathID: path_2
+  - pathID: owl-2
     pathName: 2
     minScore: 0
     maxScore: 100
@@ -287,7 +287,7 @@ MonoBehaviour:
     pathStartStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
-  - pathID: path_3
+  - pathID: owl-3
     pathName: 3
     minScore: 0
     maxScore: 100
@@ -537,7 +537,7 @@ MonoBehaviour:
     pathStartStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
-  - pathID: path_4
+  - pathID: owl-4
     pathName: 4
     minScore: 0
     maxScore: 100
@@ -747,7 +747,7 @@ MonoBehaviour:
     pathStartStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
-  - pathID: path_5
+  - pathID: owl-5
     pathName: 5
     minScore: 0
     maxScore: 100
@@ -1087,7 +1087,7 @@ MonoBehaviour:
     pathStartStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
-  - pathID: path_6
+  - pathID: owl-6
     pathName: 6
     minScore: 0
     maxScore: 100
@@ -1197,7 +1197,7 @@ MonoBehaviour:
     pathStartStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
-  - pathID: path_7
+  - pathID: owl-7
     pathName: 7
     minScore: 0
     maxScore: 100

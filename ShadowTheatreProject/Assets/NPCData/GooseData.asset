@@ -17,7 +17,7 @@ MonoBehaviour:
   currentScore: 0
   moveSpeed: 1
   paths:
-  - pathID: path_1
+  - pathID: goose-1
     pathName: 1
     minScore: 0
     maxScore: 100
@@ -107,7 +107,7 @@ MonoBehaviour:
     pathStartStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
-  - pathID: path_2
+  - pathID: goose-2
     pathName: 2
     minScore: 0
     maxScore: 100
@@ -187,7 +187,7 @@ MonoBehaviour:
     pathStartStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
-  - pathID: path_3
+  - pathID: goose-3
     pathName: 3
     minScore: 0
     maxScore: 100
@@ -517,7 +517,7 @@ MonoBehaviour:
     pathStartStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
-  - pathID: path_4
+  - pathID: goose-4
     pathName: 4
     minScore: 0
     maxScore: 100
@@ -1095,7 +1095,7 @@ MonoBehaviour:
     pathStartStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
-  - pathID: path_5
+  - pathID: goose-5
     pathName: 5
     minScore: 0
     maxScore: 100
