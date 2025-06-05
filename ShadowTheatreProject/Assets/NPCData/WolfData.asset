@@ -46,6 +46,16 @@ MonoBehaviour:
           stopTime: 0
           pathPointIndex: 0
           isActionActive: 1
+        - dialogueText: 
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          animationLoopCount: 1
+          oneShotSFX: {fileID: 0}
+          delay: 0.5
+          stopTime: 0
+          pathPointIndex: 0
+          isActionActive: 1
       - gestureType: Deer
         scoreEffect: 10
         actions:
