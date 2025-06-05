@@ -327,7 +327,7 @@ public class NPCPathEventEditor
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.PrefixLabel("手影类型");
             
-            string[] shadowTypes = new string[] { "Bird", "Wolf", "Deer", "Sheep", "Goose" };
+            string[] shadowTypes = new string[] { "BIRD", "WOLF", "FROG", "GOOSE", "OWL", "DEFAULT" };
             int selectedIndex = 0;
             
             for (int i = 0; i < shadowTypes.Length; i++)
@@ -368,7 +368,7 @@ public class NPCPathEventEditor
     {
         // 创建新手势响应
         GestureResponse newResponse = new GestureResponse();
-        newResponse.gestureType = "Bird";
+        newResponse.gestureType = "BIRD";
         newResponse.scoreEffect = 10;
         
         // 初始化动作列表

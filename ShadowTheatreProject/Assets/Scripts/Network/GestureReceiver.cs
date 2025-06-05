@@ -380,13 +380,16 @@ public class GestureReceiver : MonoBehaviour
                 // 标记为手势类型消息
                 additionalData["is_gesture_type"] = 1.0f;
 
+                // 将手势类型转换为Unity内部使用的大写格式
+                string normalizedGestureType = NormalizeGestureType(gestureType);
+
                 // 更新手势类型数据（使用新的分离方法）
                 if (inputManager != null)
                 {
-                    inputManager.UpdateGestureType(gestureType, additionalData);
+                    inputManager.UpdateGestureType(normalizedGestureType, additionalData);
                 }
                 
-                UnityEngine.Debug.Log($"[GestureReceiver] 接收到手势类型: {gestureType}");
+                UnityEngine.Debug.Log($"[GestureReceiver] 接收到手势类型: {gestureType} -> {normalizedGestureType}");
             }
             else
             {
@@ -404,8 +407,8 @@ public class GestureReceiver : MonoBehaviour
     /// </summary>
     private bool IsValidGestureType(string gestureType)
     {
-        // 定义有效的手势类型
-        string[] validGestures = { "bird", "goose", "wolf", "fist", "frog", "owl", "Unknown" };
+        // 定义有效的手势类型（支持网络传输的小写格式和Unity内部的大写格式）
+        string[] validGestures = { "bird", "goose", "wolf", "frog", "owl", "default", "BIRD", "GOOSE", "WOLF", "FROG", "OWL", "DEFAULT", "Unknown" };
         
         foreach (string validGesture in validGestures)
         {
@@ -416,6 +419,39 @@ public class GestureReceiver : MonoBehaviour
         }
         
         return false;
+    }
+
+    /// <summary>
+    /// 将手势类型标准化为Unity内部使用的大写格式
+    /// </summary>
+    private string NormalizeGestureType(string gestureType)
+    {
+        if (string.IsNullOrEmpty(gestureType))
+            return "DEFAULT";
+
+        // 转换为大写并处理特殊情况
+        string normalized = gestureType.ToUpper();
+        
+        // 确保使用正确的映射
+        switch (normalized)
+        {
+            case "BIRD":
+                return "BIRD";
+            case "WOLF":
+                return "WOLF";
+            case "FROG":
+                return "FROG";
+            case "GOOSE":
+                return "GOOSE";
+            case "OWL":
+                return "OWL";
+            case "DEFAULT":
+                return "DEFAULT";
+            case "UNKNOWN":
+                return "DEFAULT";  // 未知手势映射为默认
+            default:
+                return "DEFAULT";
+        }
     }
 
     // 清理资源

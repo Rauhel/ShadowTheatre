@@ -188,6 +188,13 @@ public class NPCDataSimpleImportExport : Editor
                     string[] fields = ParseCSVLine(line);
                     if (fields.Length == 0) continue; // 跳过空行
                     
+                    // 调试信息：仅在有手势数据时显示
+                    if (fields.Length >= 3 && IsValidGestureTypeName(fields[2]))
+                    {
+                        UnityEngine.Debug.Log($"[SimpleImportExport] 行 {i}: '{line}'");
+                        UnityEngine.Debug.Log($"[SimpleImportExport] 解析字段数: {fields.Length}, 内容: [{string.Join("|", fields)}]");
+                    }
+                    
                     // 补全字段数组到简化版表头长度
                     if (fields.Length < SimpleHeaderRow.Length)
                     {
@@ -283,12 +290,26 @@ public class NPCDataSimpleImportExport : Editor
                     action.stopTime = 0f; // 改为stopTime
                     action.isActionActive = true;
                     
+                    // 调试信息：显示动作类型识别
+                    UnityEngine.Debug.Log($"[SimpleImportExport] 识别的动作类型: '{actionType}', 事件ID: '{fields[1]}', 路径: '{fields[0]}'");
+                    
                     // 处理不同类型的动作
                     if (actionType == "PATH_ACTION")
                     {
                         pathConfigs[pathID].pathActions.Add(action);
                     }
-                    else if (actionType == "DEFAULT" || actionType == "GESTURE")
+                    // 检查动作类型是否实际上是手势类型名称
+                    bool isGestureType = IsValidGestureTypeName(actionType);
+                    string originalActionType = actionType; // 保存原始动作类型
+                    
+                    if (isGestureType)
+                    {
+                        // 当动作类型字段实际包含手势类型名称时
+                        UnityEngine.Debug.Log($"[SimpleImportExport] 检测到手势类型在动作类型字段: '{actionType}'");
+                        actionType = "GESTURE";  // 重新设置为GESTURE类型
+                    }
+                    
+                    if (actionType == "DEFAULT" || actionType == "GESTURE")
                     {
                         // 自动生成事件ID如果为空
                         if (string.IsNullOrWhiteSpace(eventID))
@@ -319,35 +340,67 @@ public class NPCDataSimpleImportExport : Editor
                         
                         PathEvent currentEvent = pathEvents[pathID][eventID];
                         
-                        // 默认响应
-                        if (actionType == "DEFAULT")
+                        // 检查是否是手势类型数据
+                        if (actionType == "GESTURE" || isGestureType)
                         {
-                            currentEvent.defaultResponse.actions.Add(action);
-                            currentEvent.defaultResponse.scoreEffect = 0f;  // 默认分数影响
-                        }
-                        // 手势响应
-                        else if (actionType == "GESTURE")
-                        {
-                            string gestureType = fields[6];
-                            if (string.IsNullOrWhiteSpace(gestureType))
-                                gestureType = "未指定";
+                            string originalGestureType;
                             
-                            // 查找或创建手势响应
-                            GestureResponse gestureResponse = currentEvent.gestureResponses
-                                .FirstOrDefault(r => r.gestureType == gestureType);
-                                    
-                            if (gestureResponse == null)
+                            // 如果手势类型在动作类型字段中（因为我们之前检测到了）
+                            if (isGestureType)
                             {
-                                gestureResponse = new GestureResponse
-                                {
-                                    gestureType = gestureType,
-                                    actions = new List<ActionData>()
-                                };
-                                currentEvent.gestureResponses.Add(gestureResponse);
+                                originalGestureType = originalActionType; // 使用保存的原始动作类型
+                                UnityEngine.Debug.Log($"[SimpleImportExport] 从动作类型字段获取手势类型: '{originalGestureType}'");
+                            }
+                            else
+                            {
+                                originalGestureType = fields[6]; // 从专门的手势类型字段获取
+                                if (string.IsNullOrWhiteSpace(originalGestureType))
+                                    originalGestureType = "DEFAULT";
                             }
                             
-                            gestureResponse.actions.Add(action);
-                            gestureResponse.scoreEffect = 0f;  // 默认分数影响
+                            string gestureType = NormalizeGestureTypeForImport(originalGestureType);
+                            
+                            if (originalGestureType != gestureType)
+                            {
+                                UnityEngine.Debug.Log($"[SimpleImportExport] 手势类型转换: '{originalGestureType}' -> '{gestureType}'");
+                            }
+                            
+                            // 区分处理：DEFAULT类型作为默认响应，其他作为手势响应
+                            if (gestureType == "DEFAULT")
+                            {
+                                // DEFAULT类型添加到事件的默认响应中
+                                currentEvent.defaultResponse.actions.Add(action);
+                                currentEvent.defaultResponse.scoreEffect = 0f;
+                                UnityEngine.Debug.Log($"[SimpleImportExport] 添加DEFAULT动作到默认响应");
+                            }
+                            else
+                            {
+                                // 其他手势类型添加到手势响应中
+                                GestureResponse gestureResponse = currentEvent.gestureResponses
+                                    .FirstOrDefault(r => r.gestureType == gestureType);
+                                        
+                                if (gestureResponse == null)
+                                {
+                                    gestureResponse = new GestureResponse
+                                    {
+                                        gestureType = gestureType,
+                                        actions = new List<ActionData>()
+                                    };
+                                    currentEvent.gestureResponses.Add(gestureResponse);
+                                    UnityEngine.Debug.Log($"[SimpleImportExport] 创建新的手势响应: {gestureType}");
+                                }
+                                
+                                gestureResponse.actions.Add(action);
+                                gestureResponse.scoreEffect = 0f;
+                                UnityEngine.Debug.Log($"[SimpleImportExport] 添加动作到手势响应: {gestureType}");
+                            }
+                        }
+                        // 明确的DEFAULT动作类型
+                        else if (actionType == "DEFAULT")
+                        {
+                            currentEvent.defaultResponse.actions.Add(action);
+                            currentEvent.defaultResponse.scoreEffect = 0f;
+                            UnityEngine.Debug.Log($"[SimpleImportExport] 添加明确的DEFAULT动作到默认响应");
                         }
                     }
                 }
@@ -360,7 +413,16 @@ public class NPCDataSimpleImportExport : Editor
 
                 EditorUtility.SetDirty(data);
                 AssetDatabase.SaveAssets();
-                EditorUtility.DisplayDialog("导入成功", "成功从简化CSV导入NPC数据", "确定");
+                
+                // 统计导入结果
+                int totalPaths = pathConfigs.Count;
+                int totalEvents = pathConfigs.Values.Sum(p => p.events.Count);
+                int totalGestureResponses = pathConfigs.Values
+                    .SelectMany(p => p.events)
+                    .Sum(e => e.gestureResponses.Count);
+                
+                string summary = $"简化版导入完成!\n路径数: {totalPaths}\n事件数: {totalEvents}\n手势响应数: {totalGestureResponses}";
+                EditorUtility.DisplayDialog("导入成功", summary, "确定");
                 
                 // 更新导入导出路径
                 data.importExportPath = filePath;
@@ -460,7 +522,7 @@ public class NPCDataSimpleImportExport : Editor
         template.AppendLine("路径1,PATH_ACTION,PATH_ACTION,1,\"这是路径点1的对话\",Idle,");
         template.AppendLine(",,,,\"这是路径点2的对话\",,");
         template.AppendLine(",事件A,DEFAULT,3,\"默认响应对话\",,");
-        template.AppendLine(",,GESTURE,4,\"对手势的响应\",Happy,Bird");
+        template.AppendLine(",,GESTURE,4,\"对手势的响应\",Happy,BIRD");
         template.AppendLine("路径2,PATH_ACTION,PATH_ACTION,1,\"第二条路径的对话\",,");
         
         try
@@ -551,6 +613,69 @@ public class NPCDataSimpleImportExport : Editor
         char[] invalidChars = Path.GetInvalidFileNameChars();
         string sanitized = new string(name.Select(c => invalidChars.Contains(c) ? '_' : c).ToArray());
         return sanitized;
+    }
+
+    // 检查字符串是否是有效的手势类型名称
+    private static bool IsValidGestureTypeName(string typeName)
+    {
+        if (string.IsNullOrWhiteSpace(typeName))
+            return false;
+            
+        string normalized = typeName.ToUpper().Trim();
+        
+        switch (normalized)
+        {
+            case "BIRD":
+            case "WOLF":
+            case "FROG":
+            case "GOOSE":
+            case "OWL":
+            case "DEFAULT":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    // 标准化导入的手势类型
+    private static string NormalizeGestureTypeForImport(string gestureType)
+    {
+        if (string.IsNullOrWhiteSpace(gestureType) || gestureType == "未指定")
+            return "DEFAULT";
+
+        // 转换为大写并处理旧的命名映射
+        string normalized = gestureType.ToUpper().Trim();
+        
+        // 处理旧的手势类型映射
+        switch (normalized)
+        {
+            case "BIRD":
+                return "BIRD";
+            case "WOLF":
+                return "WOLF";
+            case "FROG":
+                return "FROG";
+            case "GOOSE":
+                return "GOOSE";
+            case "OWL":
+                return "OWL";
+            case "DEFAULT":
+                return "DEFAULT";
+            // 处理旧的命名格式
+            case "DEER":
+                return "DEFAULT";  // 旧的DEER映射为DEFAULT
+            case "SHEEP":
+                return "DEFAULT"; // 旧的SHEEP映射为DEFAULT
+            case "FIST":
+                return "DEFAULT"; // 旧的FIST映射为DEFAULT
+            case "未指定":
+                return "DEFAULT";
+            case "UNKNOWN":
+                return "DEFAULT";
+            default:
+                UnityEngine.Debug.LogWarning($"[SimpleImportExport] 未知的手势类型: {gestureType}，将使用DEFAULT");
+                return "DEFAULT";
+        }
     }
 }
 #endif
