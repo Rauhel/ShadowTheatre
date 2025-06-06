@@ -17,7 +17,7 @@ MonoBehaviour:
   currentScore: 0
   moveSpeed: 1
   paths:
-  - pathID: path_1
+  - pathID: wolf-1
     pathName: 1
     minScore: 0
     maxScore: 100
@@ -165,9 +165,13 @@ MonoBehaviour:
       pathPointIndex: 14
       isActionActive: 1
     pathStartStoryTime: 0
-    timePoints: []
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: path_2
+  - pathID: wolf-2
     pathName: 2
     minScore: 0
     maxScore: 100
@@ -244,10 +248,18 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 21
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 60
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 2
+      requiredStoryTime: 5
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: path_3
+  - pathID: wolf-3
     pathName: 3
     minScore: 0
     maxScore: 100
@@ -344,10 +356,14 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 30
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 80
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: path_4
+  - pathID: wolf-4
     pathName: 4
     minScore: 0
     maxScore: 100
@@ -735,10 +751,18 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 40
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 110
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 4
+      requiredStoryTime: 25
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: path_5
+  - pathID: wolf-5
     pathName: 5
     minScore: 0
     maxScore: 100
@@ -1003,10 +1027,14 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 74
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 150
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: path_6
+  - pathID: wolf-6
     pathName: 6
     minScore: 0
     maxScore: 100
@@ -1191,10 +1219,14 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 98
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 170
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: path_7
+  - pathID: wolf-7
     pathName: 7
     minScore: 0
     maxScore: 100
@@ -1359,10 +1391,14 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 113
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 190
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: path_8
+  - pathID: wolf-8
     pathName: 8
     minScore: 0
     maxScore: 100
@@ -1394,10 +1430,14 @@ MonoBehaviour:
           isActionActive: 1
     nextPaths: []
     pathActions: []
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 210
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: path_9
+  - pathID: frog-9
     pathName: 9
     minScore: 0
     maxScore: 100
@@ -1407,7 +1447,7 @@ MonoBehaviour:
     - dialogueText: "\u7EC8\u4E8E\u85CF\u4E0D\u4F4F\u4E86\uFF1F"
       displayDuration: 2
       voiceClip: {fileID: 0}
-      animationName: 10
+      animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
       delay: 0
@@ -1544,10 +1584,14 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 135
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 240
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: path_10
+  - pathID: wolf-10
     pathName: 10
     minScore: 0
     maxScore: 100
@@ -1557,7 +1601,7 @@ MonoBehaviour:
     - dialogueText: "\u6211\u6559\u60A8\u63E1\u5251\u7684\u638C\u578B\u6A21\u5B50\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
-      animationName: 9
+      animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
       delay: 0
@@ -1614,10 +1658,14 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 141
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 270
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: path_11
+  - pathID: wolf-11
     pathName: 11
     minScore: 0
     maxScore: 100
@@ -1714,8 +1762,16 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 150
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 300
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 4
+      requiredStoryTime: 20
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: wolf-12
     pathName: 12
@@ -2164,8 +2220,12 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 194
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 240
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   pathConnections: []
   pathDecisions: []

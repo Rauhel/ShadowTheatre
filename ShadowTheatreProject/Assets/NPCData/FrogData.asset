@@ -135,7 +135,11 @@ MonoBehaviour:
       pathPointIndex: 11
       isActionActive: 1
     pathStartStoryTime: 0
-    timePoints: []
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-2
     pathName: 2
@@ -304,8 +308,16 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 27
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 60
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 8
+      requiredStoryTime: 5
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-3
     pathName: 3
@@ -434,8 +446,12 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 39
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 80
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-4
     pathName: 4
@@ -714,8 +730,16 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 66
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 100
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 7
+      requiredStoryTime: 30
+      stopTime: 5
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-5
     pathName: 5
@@ -1023,8 +1047,16 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 87
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 136
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 13
+      requiredStoryTime: 14
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-6
     pathName: 6
@@ -1461,8 +1493,16 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 97
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 180
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 9
+      requiredStoryTime: 20
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-8
     pathName: 8
@@ -1581,10 +1621,18 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 146
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 240
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 10
+      requiredStoryTime: 60
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
-  - pathID: frog-9
+  - pathID: frog-8
     pathName: 9
     minScore: 0
     maxScore: 100
@@ -2701,8 +2749,16 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 257
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 240
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 10
+      requiredStoryTime: 60
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   pathConnections: []
   pathDecisions: []

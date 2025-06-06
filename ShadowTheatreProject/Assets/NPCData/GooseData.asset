@@ -105,7 +105,11 @@ MonoBehaviour:
       pathPointIndex: 8
       isActionActive: 1
     pathStartStoryTime: 0
-    timePoints: []
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: goose-2
     pathName: 2
@@ -184,8 +188,12 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 15
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 60
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: goose-3
     pathName: 3
@@ -514,7 +522,7 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 47
       isActionActive: 1
-    pathStartStoryTime: 0
+    pathStartStoryTime: 80
     timePoints: []
     pathPointStopConfigs: []
   - pathID: goose-4
@@ -1092,7 +1100,7 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 75
       isActionActive: 1
-    pathStartStoryTime: 0
+    pathStartStoryTime: 100
     timePoints: []
     pathPointStopConfigs: []
   - pathID: goose-5
@@ -1530,8 +1538,16 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 118
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 120
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 20
+      requiredStoryTime: 120
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   pathConnections: []
   pathDecisions: []
