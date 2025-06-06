@@ -550,33 +550,54 @@ public class NPCDataImportExport : Editor
                             // 分数影响
                             if (fields.Length > 14 && float.TryParse(fields[14], out float scoreEffect))
                                 currentEvent.defaultResponse.scoreEffect = scoreEffect;
-                            // 默认分数影响为0，不需要设置
+                            UnityEngine.Debug.Log($"[ImportExport] 添加DEFAULT动作到默认响应");
                         }
                         // 手势响应
                         else if (actionType == "GESTURE")
                         {
-                            string gestureType = fields.Length > 13 ? fields[13] : "未指定";
+                            string originalGestureType = fields.Length > 13 ? fields[13] : "DEFAULT";
+                            string gestureType = NormalizeGestureTypeForImport(originalGestureType);
                             
-                            // 查找或创建手势响应
-                            GestureResponse gestureResponse = currentEvent.gestureResponses
-                                .FirstOrDefault(r => r.gestureType == gestureType);
-                                    
-                            if (gestureResponse == null)
+                            if (originalGestureType != gestureType)
                             {
-                                gestureResponse = new GestureResponse
-                                {
-                                    gestureType = gestureType,
-                                    actions = new List<ActionData>()
-                                };
-                                currentEvent.gestureResponses.Add(gestureResponse);
+                                UnityEngine.Debug.Log($"[ImportExport] 手势类型转换: '{originalGestureType}' -> '{gestureType}'");
                             }
                             
-                            gestureResponse.actions.Add(action);
-                            
-                            // 分数影响
-                            if (fields.Length > 14 && float.TryParse(fields[14], out float scoreEffect))
-                                gestureResponse.scoreEffect = scoreEffect;
-                            // 默认分数影响为0，不需要设置
+                            // 区分处理：DEFAULT类型作为默认响应，其他作为手势响应
+                            if (gestureType == "DEFAULT")
+                            {
+                                // DEFAULT类型添加到事件的默认响应中
+                                currentEvent.defaultResponse.actions.Add(action);
+                                
+                                // 分数影响
+                                if (fields.Length > 14 && float.TryParse(fields[14], out float scoreEffect))
+                                    currentEvent.defaultResponse.scoreEffect = scoreEffect;
+                                UnityEngine.Debug.Log($"[ImportExport] GESTURE中的DEFAULT添加到默认响应");
+                            }
+                            else
+                            {
+                                // 其他手势类型添加到手势响应中
+                                GestureResponse gestureResponse = currentEvent.gestureResponses
+                                    .FirstOrDefault(r => r.gestureType == gestureType);
+                                        
+                                if (gestureResponse == null)
+                                {
+                                    gestureResponse = new GestureResponse
+                                    {
+                                        gestureType = gestureType,
+                                        actions = new List<ActionData>()
+                                    };
+                                    currentEvent.gestureResponses.Add(gestureResponse);
+                                    UnityEngine.Debug.Log($"[ImportExport] 创建新的手势响应: {gestureType}");
+                                }
+                                
+                                gestureResponse.actions.Add(action);
+                                
+                                // 分数影响
+                                if (fields.Length > 14 && float.TryParse(fields[14], out float scoreEffect))
+                                    gestureResponse.scoreEffect = scoreEffect;
+                                UnityEngine.Debug.Log($"[ImportExport] 添加动作到手势响应: {gestureType}");
+                            }
                         }
                     }
                 }
@@ -589,7 +610,16 @@ public class NPCDataImportExport : Editor
 
                 EditorUtility.SetDirty(data);
                 AssetDatabase.SaveAssets();
-                EditorUtility.DisplayDialog("导入成功", "成功从CSV导入NPC数据", "确定");
+                
+                // 统计导入结果
+                int totalPaths = pathConfigs.Count;
+                int totalEvents = pathConfigs.Values.Sum(p => p.events.Count);
+                int totalGestureResponses = pathConfigs.Values
+                    .SelectMany(p => p.events)
+                    .Sum(e => e.gestureResponses.Count);
+                
+                string summary = $"导入完成!\n路径数: {totalPaths}\n事件数: {totalEvents}\n手势响应数: {totalGestureResponses}";
+                EditorUtility.DisplayDialog("导入成功", summary, "确定");
                 
                 // 更新导入导出路径
                 data.importExportPath = filePath;
@@ -698,7 +728,7 @@ public class NPCDataImportExport : Editor
         // 添加示例行
         template.AppendLine("path_1,第一条路径,0,100,PATH_ACTION,PATH_ACTION,0,\"这是一句示例对话\",Idle,FALSE,2.0,0.5,0.0,,,TRUE,TRUE,,");
         template.AppendLine("path_1,第一条路径,0,100,event_1,DEFAULT,0,\"默认响应的对话\",Talk,FALSE,2.0,0.5,1.0,,10,TRUE,TRUE,5,7");
-        template.AppendLine("path_1,第一条路径,0,100,event_1,GESTURE,0,\"对鸟手势的回应\",Happy,TRUE,2.0,0.5,0.0,Bird,20,TRUE,TRUE,5,7");
+        template.AppendLine("path_1,第一条路径,0,100,event_1,GESTURE,0,\"对鸟手势的回应\",Happy,TRUE,2.0,0.5,0.0,BIRD,20,TRUE,TRUE,5,7");
         
         try
         {
@@ -827,6 +857,47 @@ public class NPCDataImportExport : Editor
         char[] invalidChars = Path.GetInvalidFileNameChars();
         string sanitized = new string(name.Select(c => invalidChars.Contains(c) ? '_' : c).ToArray());
         return sanitized;
+    }
+
+    // 标准化导入的手势类型
+    private static string NormalizeGestureTypeForImport(string gestureType)
+    {
+        if (string.IsNullOrWhiteSpace(gestureType) || gestureType == "未指定")
+            return "DEFAULT";
+
+        // 转换为大写并处理旧的命名映射
+        string normalized = gestureType.ToUpper().Trim();
+        
+        // 处理旧的手势类型映射
+        switch (normalized)
+        {
+            case "BIRD":
+                return "BIRD";
+            case "WOLF":
+                return "WOLF";
+            case "FROG":
+                return "FROG";
+            case "GOOSE":
+                return "GOOSE";
+            case "OWL":
+                return "OWL";
+            case "DEFAULT":
+                return "DEFAULT";
+            // 处理旧的命名格式
+            case "DEER":
+                return "DEFAULT";  // 旧的DEER映射为DEFAULT
+            case "SHEEP":
+                return "DEFAULT"; // 旧的SHEEP映射为DEFAULT
+            case "FIST":
+                return "DEFAULT"; // 旧的FIST映射为DEFAULT
+            case "未指定":
+                return "DEFAULT";
+            case "UNKNOWN":
+                return "DEFAULT";
+            default:
+                UnityEngine.Debug.LogWarning($"[ImportExport] 未知的手势类型: {gestureType}，将使用DEFAULT");
+                return "DEFAULT";
+        }
     }
 }
 #endif

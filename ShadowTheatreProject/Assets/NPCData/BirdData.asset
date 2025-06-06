@@ -21,7 +21,45 @@ MonoBehaviour:
     pathName: "\u65B0\u8DEF\u5F84"
     minScore: 0
     maxScore: 100
-    events: []
+    events:
+    - eventID: "Event_\u65B0\u8DEF\u5F84_1"
+      startPointIndex: 0
+      endPointIndex: 0
+      playerInteractionRadius: 3
+      showInteractionRange: 1
+      gestureHoldTime: 1
+      maxRecognitionDistance: 8
+      enabledInAct1: 1
+      enabledInAct2: 1
+      enabledInAct3: 1
+      gestureResponses:
+      - gestureType: BIRD
+        scoreEffect: 10
+        actions:
+        - dialogueText: "\u624B\u52BF\u53CD\u5E94\u6587\u672C"
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          animationLoopCount: 1
+          oneShotSFX: {fileID: 0}
+          delay: 0
+          stopTime: 0
+          pathPointIndex: 0
+          isActionActive: 1
+      defaultResponse:
+        gestureType: 
+        scoreEffect: 0
+        actions:
+        - dialogueText: "\u9ED8\u8BA4\u53CD\u5E94\u6587\u672C"
+          displayDuration: 2
+          voiceClip: {fileID: 0}
+          animationName: 
+          animationLoopCount: 1
+          oneShotSFX: {fileID: 0}
+          delay: 0
+          stopTime: 0
+          pathPointIndex: 0
+          isActionActive: 1
     nextPaths:
     - nextPathID: 
       minScore: 0
@@ -29,6 +67,9 @@ MonoBehaviour:
       requiredScore: 0
       description: "\u5206\u652F 1"
     pathActions: []
+    pathStartStoryTime: 0
+    timePoints: []
+    pathPointStopConfigs: []
   pathConnections: []
   pathDecisions: []
-  importExportPath: D:/College/Game/ShadowTheatre/ShadowTheatreProject/Assets/NPCData/Bird_data.csv
+  importExportPath: /Volumes/RoosterSSD/Projects/2025/ShadowTheatre/ShadowTheatreProject/Assets/NPCData/Bird_data_simple.csv
