@@ -25,8 +25,8 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Hover Detection")]
     [SerializeField] private bool enableHoverStop = true;
-    [SerializeField] private Vector2 hoverMinThreshold = new Vector2(0.4f, 0.4f);
-    [SerializeField] private Vector2 hoverMaxThreshold = new Vector2(0.6f, 0.6f);
+    [SerializeField] private Vector2 hoverMinThreshold = new Vector2(0.4f, 0.6f);
+    [SerializeField] private Vector2 hoverMaxThreshold = new Vector2(0.6f, 0.8f);
     [SerializeField] private Color hoverDebugColor = new Color(1f, 0.5f, 0f, 0.5f); // 橙色
 
     [Header("Debug Settings")]
@@ -279,11 +279,27 @@ public class PlayerMovement : MonoBehaviour
         if (mainCamera == null) return Vector3.zero;
 
         Ray ray = mainCamera.ScreenPointToRay(mouseScreenPos);
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+        
+        // 使用与InputManager相同的地面平面设置
+        float groundHeight = inputManager != null ? inputManager.GetGroundPlaneHeight() : 0f;
+        float zOffset = inputManager != null ? inputManager.GetRaycastZOffset() : 0f;
+        
+        Plane groundPlane = new Plane(Vector3.up, new Vector3(0, groundHeight, 0));
         
         if (groundPlane.Raycast(ray, out float distance))
         {
-            return ray.GetPoint(distance);
+            Vector3 hitPoint = ray.GetPoint(distance);
+            hitPoint.z += zOffset; // 应用Z轴偏移
+            return hitPoint;
+        }
+        
+        // 备用方案：使用固定Y值
+        float t = (groundHeight - ray.origin.y) / ray.direction.y;
+        if (t > 0)
+        {
+            Vector3 hitPoint = ray.origin + ray.direction * t;
+            hitPoint.z += zOffset;
+            return hitPoint;
         }
         
         return Vector3.zero;
@@ -524,11 +540,18 @@ public class PlayerMovement : MonoBehaviour
         if (mainCamera == null) return Vector3.zero;
 
         Ray ray = mainCamera.ScreenPointToRay(new Vector3(screenPoint.x, screenPoint.y, 0));
-        Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+        
+        // 使用与InputManager相同的地面平面设置
+        float groundHeight = inputManager != null ? inputManager.GetGroundPlaneHeight() : 0f;
+        float zOffset = inputManager != null ? inputManager.GetRaycastZOffset() : 0f;
+        
+        Plane groundPlane = new Plane(Vector3.up, new Vector3(0, groundHeight, 0));
         
         if (groundPlane.Raycast(ray, out float distance))
         {
-            return ray.GetPoint(distance);
+            Vector3 hitPoint = ray.GetPoint(distance);
+            hitPoint.z += zOffset;
+            return hitPoint;
         }
 
         return Vector3.zero;
@@ -607,5 +630,40 @@ public class PlayerMovement : MonoBehaviour
         }
         
         Debug.Log("[PlayerMovement] 已禁用所有调试信息");
+    }
+
+    [ContextMenu("测试映射一致性")]
+    public void TestMappingConsistency()
+    {
+        if (inputManager == null)
+        {
+            Debug.LogError("[PlayerMovement] InputManager未找到，无法测试");
+            return;
+        }
+
+        Debug.Log("=== 映射一致性测试 ===");
+        
+        // 显示InputManager设置
+        inputManager.ShowMappingSettings();
+        
+        // 测试几个关键点的映射
+        Vector3[] testScreenPoints = {
+            new Vector3(0, 0, 0),                    // 左下角
+            new Vector3(Screen.width/2, Screen.height/2, 0), // 中央
+            new Vector3(Screen.width, Screen.height, 0),     // 右上角
+            new Vector3(Screen.width*0.2f, Screen.height*0.2f, 0), // 20%点
+            new Vector3(Screen.width*0.8f, Screen.height*0.8f, 0), // 80%点
+        };
+
+        string[] pointNames = { "左下角", "中央", "右上角", "20%点", "80%点" };
+
+        for (int i = 0; i < testScreenPoints.Length; i++)
+        {
+            Vector3 mouseWorld = GetWorldPositionFromMouse(testScreenPoints[i]);
+            Debug.Log($"{pointNames[i]} - 屏幕{testScreenPoints[i]} → 鼠标世界坐标{mouseWorld}");
+        }
+        
+        Debug.Log("注意：手势映射需要实际手势数据才能测试");
+        Debug.Log("==================");
     }
 }

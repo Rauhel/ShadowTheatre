@@ -13,6 +13,8 @@ public class InputManager : MonoBehaviour
     [SerializeField] private bool invertXAxis = false;
     [SerializeField] private Vector2 positionOffset = Vector2.zero;
     [SerializeField] private Vector2 positionScale = Vector2.one;
+    [Tooltip("是否限制手势范围到屏幕中央（0.2-0.8），false=使用全屏范围（0-1）")]
+    [SerializeField] private bool useRestrictedRange = false;
     
     [Header("世界坐标转换配置")]
     [SerializeField] private float pointerGroundHeight = 0f;
@@ -346,7 +348,7 @@ public class InputManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 标准化手势位置数据，映射到屏幕的0.2-0.8范围内
+    /// 标准化手势位置数据，可选择映射到全屏或限制范围
     /// </summary>
     private Vector2 NormalizeGesturePosition(Vector2 gesturePos)
     {
@@ -360,15 +362,25 @@ public class InputManager : MonoBehaviour
         if (invertXAxis) scaledPos.x = 1 - scaledPos.x;
         scaledPos.y = 1 - scaledPos.y;
 
-        // 步骤3: 应用缩放到0.2-0.8范围
-        // 将0-1范围映射到0.2-0.8范围（缩放0.6倍然后加上0.2的偏移）
-        Vector2 centralizedPos = new Vector2(
-            scaledPos.x * 0.6f + 0.2f,
-            scaledPos.y * 0.6f + 0.2f
-        );
+        // 步骤3: 根据设置决定是否限制范围
+        Vector2 rangedPos;
+        if (useRestrictedRange)
+        {
+            // 应用缩放到0.2-0.8范围（原有逻辑）
+            // 将0-1范围映射到0.2-0.8范围（缩放0.6倍然后加上0.2的偏移）
+            rangedPos = new Vector2(
+                scaledPos.x * 0.6f + 0.2f,
+                scaledPos.y * 0.6f + 0.2f
+            );
+        }
+        else
+        {
+            // 使用全屏范围（0-1），与鼠标输入一致
+            rangedPos = scaledPos;
+        }
 
         // 步骤4: 应用额外偏移（通过Inspector设置）
-        return centralizedPos + positionOffset;
+        return rangedPos + positionOffset;
     }
 
     // 获取当前手势数据
@@ -414,6 +426,18 @@ public class InputManager : MonoBehaviour
         groundPlane = new Plane(Vector3.up, new Vector3(0, height, 0));
     }
 
+    // 新增：获取地面平面高度
+    public float GetGroundPlaneHeight()
+    {
+        return pointerGroundHeight;
+    }
+
+    // 新增：获取Z轴偏移量
+    public float GetRaycastZOffset()
+    {
+        return raycastZOffset;
+    }
+
     // 新增：强制切换输入模式（调试用）
     public void ForceInputMode(InputMode mode)
     {
@@ -434,6 +458,28 @@ public class InputManager : MonoBehaviour
     {
         enableDebugLogs = enabled;
         Debug.Log($"[InputManager] 调试日志已{(enabled ? "启用" : "禁用")}");
+    }
+
+    // 新增：显示当前映射设置信息
+    [ContextMenu("显示映射设置")]
+    public void ShowMappingSettings()
+    {
+        Debug.Log("=== InputManager 映射设置 ===");
+        Debug.Log($"使用限制范围: {useRestrictedRange} {(useRestrictedRange ? "(0.2-0.8)" : "(0-1全屏)")}");
+        Debug.Log($"X轴反转: {invertXAxis}");
+        Debug.Log($"位置缩放: {positionScale}");
+        Debug.Log($"位置偏移: {positionOffset}");
+        Debug.Log($"地面平面高度: {pointerGroundHeight}");
+        Debug.Log($"Z轴偏移: {raycastZOffset}");
+        Debug.Log($"手部检测超时: {handDetectionTimeout}秒");
+        Debug.Log("==========================");
+    }
+
+    // 新增：设置是否使用限制范围
+    public void SetUseRestrictedRange(bool restricted)
+    {
+        useRestrictedRange = restricted;
+        Debug.Log($"[InputManager] 手势范围设置为: {(restricted ? "限制范围(0.2-0.8)" : "全屏范围(0-1)")}");
     }
 
     // 通知手势监听器
