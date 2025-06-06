@@ -1,0 +1,308 @@
+﻿路径ID,路径名称,分数下限,分数上限,事件ID,动作类型,路径点索引,对话内容,动画名称,循环动画,显示时间,延迟时间,停留时间,手势类型,分数影响,是否活跃,事件起始点,事件结束点
+# NPC_ID,4
+# NPC_NAME,wolf
+# CURRENT_SCORE,0
+# PATH,frog-1,1
+# PATH_START_TIME,frog-1,0
+# TIME_POINT,frog-1,0,0,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,1,天哪我受不了了！,,1,2,0,0,,,True,,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,2,不要再提什么守护神了，,,1,2,0,0,,,True,,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,3,祂要真存在，,,1,2,0,0,,,True,,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,4,早该看见我们像驴子拉磨般兜圈子了！,,1,2,0,0,,,True,,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,5,我说……！,,1,2,0,0,,,True,,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,6,啊呀！您这铁皮罐头...,,1,2,0,0,,,True,,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,7,够了...你们眼里只有公主。,,1,2,0,0,,,True,,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,8,嘻嘻...那祂该变成内侍大人呀？,,1,2,0,0,,,True,,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,9,毕竟您捅人心脏的手艺...,,1,2,0,0,,,True,,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,10,比神更利落呢~,,1,2,0,0,,,True,,
+frog-1,1,0,100,PATH_ACTION,PATH_ACTION,11,……。,,1,2,0,0,,,True,,
+# PATH,frog-2,2
+# PATH_START_TIME,frog-2,60
+# TIME_POINT,frog-2,0,0,
+# TIME_POINT,frog-2,8,5,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,12,守护神？哈！,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,13,若祂真存在——,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,14,怎会让您这老忠犬啃馊骨头三十年？,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,15,绞呀~,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,16,您这铁片可比公主的冷眼暖和多了！,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,17,话说...,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,18,您深夜摸她棺椁的手...,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,19,是在祈祷还是丈量掐脖子的位置？,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,20,蛆...虫？,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,21,是啊...我早该吞了那碗馊饭！,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,22,而不是奢求您当年捞我出来时——,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,23,掌心的老茧是为我而磨！,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,24,多完美的脊骨沟壑啊...,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,25,若把匕首卡进第三节骨缝...,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,26,您倒地时会不会终于...,,1,2,0,0,,,True,,
+frog-2,2,0,100,PATH_ACTION,PATH_ACTION,27,用正眼瞧我一次？,,1,2,0,0,,,True,,
+# PATH,frog-3,3
+# PATH_START_TIME,frog-3,80
+# TIME_POINT,frog-3,0,0,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,28,嘘...影子在教我怎么走路呢~,,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,29,左七步停顿，右三步按剑...,,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,30,笨鸟！别暴露猎人的位置啊！,,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,31,汗味混着铁锈...,,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,32,和地牢送饭勺一个味！,,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,33,您凭什么嫌弃我？！,,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,34,等您断气时...,,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,35,我要把这泥塞进您喉管——,,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,36,"好听听""高贵""被玷污的呛咳！",,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,37,祭司说杀人会永困瞬间...,,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,38,可若这一瞬能烙进您瞳孔——,,1,2,0,0,,,True,,
+frog-3,3,0,100,PATH_ACTION,PATH_ACTION,39,便是我的永恒了！,,1,2,0,0,,,True,,
+# PATH,frog-4,4
+# PATH_START_TIME,frog-4,100
+# TIME_POINT,frog-4,0,0,
+# TIME_POINT,frog-4,7,30,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,40,您盔甲熏香…竟掺了公主鸟笼的松脂味？！,,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,41,该死…手怎么僵了？,,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,42,都怪祭司那老秃鹫在看着我！,,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,43,多完美的时机！,,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,44,全毁在您这身腌入味的丧服上！,,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,45,都怪您太肮脏！,,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,46,汗臭腌入骨髓的看门狗…,,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,47,杀您是替王国清垃圾！,,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,48,等着吧…,,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,49,下次定给您这忠犬的骨灰盒,,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,50,"刻个""殉主标兵""的匾额！",,1,2,0,0,,,True,,
+frog-4,4,0,100,PATH_ACTION,PATH_ACTION,51,嘻嘻~,,1,2,0,0,,,True,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,,,,,,
+# PATH,frog-5,5
+# PATH_START_TIME,frog-5,136
+# TIME_POINT,frog-5,0,0,
+# TIME_POINT,frog-5,13,14,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,67,亲爱的观众~,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,68,今日上演《忠犬的椎骨会唱歌》！,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,69,剧情梗概：,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,70,蛆虫帮铁皮罐头开了个...,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,71,通风口！,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,72,滴答~滴答~,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,73,您说地牢馊饭养不活小青蛙？,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,74,可它教会我——,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,75,佐料够狠，剩饭也能放倒獒犬！,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,76,第三节...对啦！,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,77,当年您这里抵着我发抖的肋骨——,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,78,"嘻嘻~现在换我帮您""矫正"" 姿势！",,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,79,道具检查~,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,80,旧披风？用来堵惨叫刚刚好！,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,81,毒酒？谢幕的庆功宴呢！,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,82,至于您...,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,83,我唯一的观众兼主演...,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,84,可要活到掌声雷动那刻呀！,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,85,等您倒下时——,,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,86,"""小混蛋...""",,1,2,0,0,,,True,,
+frog-5,5,0,100,PATH_ACTION,PATH_ACTION,87,"""我在呢！这就送您永远暖和的抱抱！""",,1,2,0,0,,,True,,
+# EVENT,frog-5,FROG5
+frog-5,5,0,100,FROG5,GESTURE,88,观众席空荡荡呢…,,1,2,0,0,FROG,0,True,88,90
+frog-5,5,0,100,FROG5,GESTURE,89,杀完您之后…,,1,2,0,0,FROG,0,True,88,90
+frog-5,5,0,100,FROG5,GESTURE,90,谁来看我下一场戏？,,1,2,0,0,FROG,0,True,88,90
+frog-5,5,0,100,FROG5,GESTURE,91,不划算啊…,,1,2,0,0,FROG,0,True,88,90
+frog-5,5,0,100,FROG5,GESTURE,92,用余生噩梦换三秒快感？,,1,2,0,0,FROG,0,True,88,90
+frog-5,5,0,100,FROG5,GESTURE,93,可若不杀您…,,1,2,0,0,FROG,0,True,88,90
+frog-5,5,0,100,FROG5,GESTURE,94,我拿什么证明活过？！,,1,2,0,0,FROG,0,True,88,90
+# PATH,frog-6,6
+# PATH_START_TIME,frog-6,180
+# TIME_POINT,frog-6,0,0,
+# TIME_POINT,frog-6,9,20,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,52,乖手手~,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,53,您这么喜欢公主，,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,54,这个她亲手雕刻送给你的雕像，,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,55,相比您很珍视吧？,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,56,只不过后来它被我偷偷拿走了，,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,57,现在它该…,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,58,物归原主啦！,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,59,"等您弯腰捡这""御赐之物""时——",,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,60,月光会替我吻透您后心！,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,61,一、二…噗嗤！,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,62,您听~连风都笑出鸽哨声了~,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,63,我就守在这里，,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,64,呵呵，,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,65,守着，,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,66,杀了你~,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,95,一步…两步…,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,96,我的心跳和您的脚步重叠了~,,1,2,0,0,,,True,,
+frog-6,6,0,100,PATH_ACTION,PATH_ACTION,97,三！——,,1,2,0,0,,,True,,
+# EVENT,frog-6,FROG6
+frog-6,6,0,100,FROG6,DEFAULT,98,小混蛋…,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,99,刺尖捅穿声带！,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,100,"她喉管发出""咕噜""声…",,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,101,多像地牢馊饭冒泡！,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,102,呃啊…,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,103,咸的？！,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,104,您该是锈味啊…,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,105,像掰栅栏救我那日——,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,106,您割破手掌滴进我嘴的血…,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,107,明明更腥甜！,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,108,暖吗？,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,109,这次我表现的是不是很好~,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,110,呼……,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,111,终于…,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,112,您的味道里没有公主了！,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,113,那么，您抚摸公主的双手，,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,DEFAULT,114,就暂时归我所有啦！,,1,2,0,0,,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,115,垫着！,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,116,这破洞灌风…您咳嗽半月了！,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,117,别…别病死…,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,118,七岁想绣个您…,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,119,"可""忠""字太难绣！",,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,120,"瞧！烂肉里长的""忠""…",,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,121,总比您刻进骨髓的工整！,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,122,疼吗？,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,123,学您…包…包扎！,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,124,我只会搞砸…,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,125,像当年打翻您给的饭盆！,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,126,您记得？！,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,127,可公主晕倒那晚…,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,128,"您守在她的鸟笼说""永别""——",,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,129,我高烧快死时…,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,130,听见的是地牢水滴声！,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,131,…臭死了。,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,132,但比地牢暖。,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,133,喏…,,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,134,"修不好您的""忠""字铠甲…",,1,2,0,0,WOLF,0,True,98,100
+frog-6,6,0,100,FROG6,GESTURE,135,勒紧伤口总行吧？嘻嘻~,,1,2,0,0,WOLF,0,True,98,100
+# PATH,frog-8,8
+# PATH_START_TIME,frog-8,240
+# TIME_POINT,frog-8,0,0,
+# TIME_POINT,frog-8,10,60,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,136,看啊祭司！,,1,2,0,0,,,True,,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,137,这木纹里渍透我五百场假笑！,,1,2,0,0,,,True,,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,138,曾靠它讨半块面包、半句夸赞…,,1,2,0,0,,,True,,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,139,现在坦白：我想要——,,1,2,0,0,,,True,,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,140,公主棺椁边那枝野菊，,,1,2,0,0,,,True,,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,141,想要您法杖顶端的月光石，,,1,2,0,0,,,True,,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,142,最想要…,,1,2,0,0,,,True,,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,143,内侍左肩甲下第三道疤的温度！,,1,2,0,0,,,True,,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,144,不再说“嘻嘻~杀着玩呀”，,,1,2,0,0,,,True,,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,145,我要说“给我一寸真心跳动的光”！,,1,2,0,0,,,True,,
+frog-8,8,0,100,PATH_ACTION,PATH_ACTION,146,瞧，它最后笑得多真心实意！,,1,2,0,0,,,True,,
+# PATH,frog-8,9
+# PATH_START_TIME,frog-8,240
+# TIME_POINT,frog-8,0,0,
+# TIME_POINT,frog-8,10,60,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,147,这玩意儿…,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,148,勒断我偷点心的手、撒谎的舌！,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,149,每次想要什么——,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,150,就靠痛提醒“你不配”…,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,151,现在我要配得上！,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,152,想要就去挣！,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,153,用伤换内侍一句“不错”？蠢！,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,154,我要她活着骂我“小混蛋”——,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,155,要您咒我“亵神者永堕地狱”——,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,156,更要这痛…,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,157,从此只为心跳加速而存在！,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,158,再见了，自虐的神谕！,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,159,看！连地狱都在教我…,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,160,如何用欲望喂养新生！,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,161,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,162,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,163,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,164,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,165,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,166,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,167,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,168,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,169,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,170,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,171,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,172,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,173,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,174,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,175,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,176,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,177,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,178,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,179,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,180,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,181,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,182,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,183,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,184,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,185,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,186,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,187,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,188,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,189,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,190,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,191,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,192,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,193,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,194,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,195,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,196,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,197,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,198,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,199,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,200,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,201,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,202,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,203,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,204,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,205,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,206,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,207,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,208,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,209,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,210,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,211,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,212,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,213,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,214,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,215,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,216,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,217,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,218,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,219,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,220,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,221,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,222,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,223,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,224,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,225,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,226,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,227,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,228,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,229,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,230,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,231,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,232,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,233,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,234,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,235,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,236,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,237,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,238,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,239,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,240,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,241,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,242,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,243,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,244,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,245,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,246,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,247,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,248,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,249,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,250,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,251,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,252,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,253,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,254,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,255,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,256,,,1,2,0,0,,,True,,
+frog-8,9,0,100,PATH_ACTION,PATH_ACTION,257,,,1,2,0,0,,,True,,

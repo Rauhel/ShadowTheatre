@@ -47,7 +47,7 @@ MonoBehaviour:
       oneShotSFX: {fileID: 0}
       delay: 0
       stopTime: 0
-      pathPointIndex: 2
+      pathPointIndex: 1
       isActionActive: 1
     - dialogueText: "\u770B\u6211\u4EEC\u7684\u773C\u795E\u548C\u770B\u5BAB\u5899\u7684\u6C61\u6E0D\u6CA1\u4E24\u6837\uFF01"
       displayDuration: 2
@@ -1069,8 +1069,8 @@ MonoBehaviour:
     maxScore: 100
     events:
     - eventID: WOLF6
-      startPointIndex: 99
-      endPointIndex: 101
+      startPointIndex: 7
+      endPointIndex: 8
       playerInteractionRadius: 3
       showInteractionRange: 1
       gestureHoldTime: 1
@@ -1134,7 +1134,7 @@ MonoBehaviour:
           oneShotSFX: {fileID: 0}
           delay: 0
           stopTime: 0
-          pathPointIndex: 103
+          pathPointIndex: 9
           isActionActive: 1
         - dialogueText: "\u91D1\u7389\u5176\u5916\u7684\u5783\u573E\uFF01"
           displayDuration: 2
@@ -1181,7 +1181,7 @@ MonoBehaviour:
       oneShotSFX: {fileID: 0}
       delay: 0
       stopTime: 0
-      pathPointIndex: 91
+      pathPointIndex: 6
       isActionActive: 1
     - dialogueText: "\u6211\u4E0D\u4E5F\u662F\u60A8\u7528\u5B8C\u5373\u4E22\u7684\u767D\u624B\u5957\uFF1F"
       displayDuration: 2
@@ -1259,7 +1259,10 @@ MonoBehaviour:
       requiredStoryTime: 0
       stopTime: 0
       description: 
-    pathPointStopConfigs: []
+    pathPointStopConfigs:
+    - pathPointIndex: 7
+      stopTime: 10
+      description: 
   - pathID: wolf-7
     pathName: 7
     minScore: 0

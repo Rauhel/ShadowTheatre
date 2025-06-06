@@ -1376,7 +1376,12 @@ MonoBehaviour:
           stopTime: 0
           pathPointIndex: 143
           isActionActive: 1
-    nextPaths: []
+    nextPaths:
+    - nextPathID: goose-6
+      minScore: 0
+      maxScore: 20
+      requiredScore: 0
+      description: HOME
     pathActions:
     - dialogueText: "\u5148\u8D24\u4EEC..."
       displayDuration: 2
@@ -1548,6 +1553,16 @@ MonoBehaviour:
       requiredStoryTime: 120
       stopTime: 0
       description: 
+    pathPointStopConfigs: []
+  - pathID: goose-6
+    pathName: 6
+    minScore: 0
+    maxScore: 20
+    events: []
+    nextPaths: []
+    pathActions: []
+    pathStartStoryTime: 241
+    timePoints: []
     pathPointStopConfigs: []
   pathConnections: []
   pathDecisions: []
