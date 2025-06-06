@@ -47,6 +47,11 @@ MonoBehaviour:
   invertXAxis: 0
   positionOffset: {x: 0, y: 0}
   positionScale: {x: 1, y: 1}
+  useRestrictedRange: 0
+  pointerGroundHeight: 0
+  raycastZOffset: -5
+  enableDebugLogs: 0
+  handDetectionTimeout: 0.5
 --- !u!1 &3442343396903393991
 GameObject:
   m_ObjectHideFlags: 0
@@ -83,6 +88,7 @@ Transform:
   - {fileID: 7780413583930026800}
   - {fileID: 4174513136455415474}
   - {fileID: 6304490875884686186}
+  - {fileID: 7997110499197260361}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2901985126254507752
@@ -145,6 +151,73 @@ MonoBehaviour:
   gesturePort: 8000
   autoConnect: 1
   messageDelimiter: '|'
+  debugMode: 1
+  showDebugInstructions: 1
+--- !u!1 &7718284028827593302
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7997110499197260361}
+  - component: {fileID: 7778116001473210425}
+  m_Layer: 0
+  m_Name: GameState
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7997110499197260361
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7718284028827593302}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8577423420782024961}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7778116001473210425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7718284028827593302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 554b2074a69bebf45b30f4706a9de92c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentState: 3
+  gameStartTime: 0
+  currentActStartTime: 0
+  currentStoryTime: 0
+  actStoryTimeSettings:
+  - actState: 3
+    storyStartTime: 0
+    storyEndTime: 300
+    storyTimeDescription: 
+    autoSwitchToNextAct: 1
+  - actState: 4
+    storyStartTime: 60
+    storyEndTime: 300
+    storyTimeDescription: 
+    autoSwitchToNextAct: 1
+  - actState: 5
+    storyStartTime: 60
+    storyEndTime: 360
+    storyTimeDescription: 
+    autoSwitchToNextAct: 1
+  stateSceneMap: []
 --- !u!1 &8204295620331614008
 GameObject:
   m_ObjectHideFlags: 0
@@ -189,12 +262,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 715b133927d97794c8b4eeb55c6c36b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainMenuPanel: {fileID: 0}
   startGamePanel: {fileID: 0}
   pauseMenuPanel: {fileID: 0}
   hudPanel: {fileID: 0}
-  gestureControlButton: {fileID: 0}
-  quitButton: {fileID: 0}
   continueButton: {fileID: 0}
   pauseQuitButton: {fileID: 0}
   gameTimerText: {fileID: 0}
@@ -202,6 +272,7 @@ MonoBehaviour:
   startGameFadeDuration: 3
   promptPanel: {fileID: 0}
   promptText: {fileID: 0}
+  npcStatusUIManager: {fileID: 0}
 --- !u!1 &8300229838346280157
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,9 +376,9 @@ MonoBehaviour:
   gestureProgressBar: {fileID: 0}
   countdownText: {fileID: 0}
   promptText: {fileID: 0}
-  debugMode: 1
+  debugMode: 0
   debugProgressText: {fileID: 0}
-  showDebugInfo: 1
+  showDebugInfo: 0
   pauseWhenOutOfRange: 1
 --- !u!1 &9200918915148389324
 GameObject:
@@ -362,5 +433,13 @@ MonoBehaviour:
   fadeInTime: 0.3
   fadeOutTime: 0.5
   gestureIcons:
-  - gestureType: 
+  - gestureType: "\u5154"
+    icon: {fileID: 0}
+  - gestureType: "\u72FC"
+    icon: {fileID: 0}
+  - gestureType: Bird
+    icon: {fileID: 0}
+  - gestureType: Deer
+    icon: {fileID: 0}
+  - gestureType: Goose
     icon: {fileID: 0}
