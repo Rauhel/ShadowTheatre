@@ -22,7 +22,12 @@ MonoBehaviour:
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: wolf-2
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u8981\u6211\u8BF4\uFF0C\u8FD9\u6837\u5012\u6B63\u597D\u3002"
       displayDuration: 2
@@ -170,13 +175,22 @@ MonoBehaviour:
       requiredStoryTime: 0
       stopTime: 0
       description: 
+    - pathPointIndex: 4
+      requiredStoryTime: 60
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: wolf-2
     pathName: 2
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: wolf-3
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u201C\u5730\u7262\u7684\u9752\u86D9\u4E5F\u914D\u8BAE\u8BBA\u661F\u7A7A\uFF1F"
       displayDuration: 2
@@ -264,7 +278,12 @@ MonoBehaviour:
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: wolf-4
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u2026\u2026\u201C\u6700\u73CD\u8D35\u7684\u4E1C\u897F\u201D\uFF1F"
       displayDuration: 2
@@ -649,7 +668,12 @@ MonoBehaviour:
           stopTime: 0
           pathPointIndex: 66
           isActionActive: 1
-    nextPaths: []
+    nextPaths:
+    - nextPathID: wolf-5
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u70DB\u53F0\u662F\u5149\u7684\u8BDE\u751F\u5730\u3002"
       displayDuration: 2
@@ -945,7 +969,12 @@ MonoBehaviour:
           stopTime: 0
           pathPointIndex: 90
           isActionActive: 1
-    nextPaths: []
+    nextPaths:
+    - nextPathID: wolf-6
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u7AE5\u620F\u7684\u8BC1\u7269\uFF1F"
       displayDuration: 2
@@ -1137,7 +1166,12 @@ MonoBehaviour:
           stopTime: 0
           pathPointIndex: 106
           isActionActive: 1
-    nextPaths: []
+    nextPaths:
+    - nextPathID: wolf-7
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u63A5\u89C1\u4F7F\u81E3\u65F6\u6234\u5B83\uFF0C\u6563\u573A\u5C31\u4E22\u5F03\u2026"
       displayDuration: 2
@@ -1319,7 +1353,12 @@ MonoBehaviour:
           stopTime: 0
           pathPointIndex: 120
           isActionActive: 1
-    nextPaths: []
+    nextPaths:
+    - nextPathID: wolf-8
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u4E3A\u6551\u60A8\u6253\u7FFB\u7684\u8D21\u54C1\u2026"
       displayDuration: 2
@@ -1428,7 +1467,17 @@ MonoBehaviour:
           stopTime: 0
           pathPointIndex: 121
           isActionActive: 1
-    nextPaths: []
+    nextPaths:
+    - nextPathID: wolf-9
+      minScore: 0
+      maxScore: 20
+      requiredScore: 0
+      description: "\u6D3B\u4E86"
+    - nextPathID: wolf-12
+      minScore: 20
+      maxScore: 40
+      requiredScore: 20
+      description: "4\u4E86"
     pathActions: []
     pathStartStoryTime: 210
     timePoints:
@@ -1442,7 +1491,12 @@ MonoBehaviour:
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: wolf-10
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u7EC8\u4E8E\u85CF\u4E0D\u4F4F\u4E86\uFF1F"
       displayDuration: 2
@@ -1596,7 +1650,12 @@ MonoBehaviour:
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: wolf-11
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u6211\u6559\u60A8\u63E1\u5251\u7684\u638C\u578B\u6A21\u5B50\u2026"
       displayDuration: 2
