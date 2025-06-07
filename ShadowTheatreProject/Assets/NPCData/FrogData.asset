@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a424961163921442a9ac32973e90cd6, type: 3}
   m_Name: FrogData
   m_EditorClassIdentifier: 
-  npcID: 4
-  npcName: wolf
+  npcID: 2
+  npcName: frog
   currentScore: 0
   moveSpeed: 1
   paths:
@@ -22,7 +22,12 @@ MonoBehaviour:
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: frog-2
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u5929\u54EA\u6211\u53D7\u4E0D\u4E86\u4E86\uFF01"
       displayDuration: 2
@@ -135,14 +140,24 @@ MonoBehaviour:
       pathPointIndex: 11
       isActionActive: 1
     pathStartStoryTime: 0
-    timePoints: []
+    pathEndStoryTime: 0
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-2
     pathName: 2
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: frog-3
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u5B88\u62A4\u795E\uFF1F\u54C8\uFF01"
       displayDuration: 2
@@ -304,15 +319,29 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 27
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 60
+    pathEndStoryTime: 0
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 8
+      requiredStoryTime: 5
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-3
     pathName: 3
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: frog-4
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u5618...\u5F71\u5B50\u5728\u6559\u6211\u600E\u4E48\u8D70\u8DEF\u5462~"
       displayDuration: 2
@@ -434,15 +463,25 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 39
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 80
+    pathEndStoryTime: 0
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-4
     pathName: 4
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: frog-5
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u60A8\u76D4\u7532\u718F\u9999\u2026\u7ADF\u63BA\u4E86\u516C\u4E3B\u9E1F\u7B3C\u7684\u677E\u8102\u5473\uFF1F\uFF01"
       displayDuration: 2
@@ -564,158 +603,167 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 51
       isActionActive: 1
-    - dialogueText: "\u4E56\u624B\u624B~"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 52
       isActionActive: 1
-    - dialogueText: "\u60A8\u8FD9\u4E48\u559C\u6B22\u516C\u4E3B\uFF0C"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 53
       isActionActive: 1
-    - dialogueText: "\u8FD9\u4E2A\u5979\u4EB2\u624B\u96D5\u523B\u9001\u7ED9\u4F60\u7684\u96D5\u50CF\uFF0C"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 54
       isActionActive: 1
-    - dialogueText: "\u76F8\u6BD4\u60A8\u5F88\u73CD\u89C6\u5427\uFF1F"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 55
       isActionActive: 1
-    - dialogueText: "\u53EA\u4E0D\u8FC7\u540E\u6765\u5B83\u88AB\u6211\u5077\u5077\u62FF\u8D70\u4E86\uFF0C"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 56
       isActionActive: 1
-    - dialogueText: "\u73B0\u5728\u5B83\u8BE5\u2026"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 57
       isActionActive: 1
-    - dialogueText: "\u7269\u5F52\u539F\u4E3B\u5566\uFF01"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 58
       isActionActive: 1
-    - dialogueText: "\u7B49\u60A8\u5F2F\u8170\u6361\u8FD9\"\u5FA1\u8D50\u4E4B\u7269\"\u65F6\u2014\u2014"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 59
       isActionActive: 1
-    - dialogueText: "\u6708\u5149\u4F1A\u66FF\u6211\u543B\u900F\u60A8\u540E\u5FC3\uFF01"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 60
       isActionActive: 1
-    - dialogueText: "\u4E00\u3001\u4E8C\u2026\u5657\u55E4\uFF01"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 61
       isActionActive: 1
-    - dialogueText: "\u60A8\u542C~\u8FDE\u98CE\u90FD\u7B11\u51FA\u9E3D\u54E8\u58F0\u4E86~"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 62
       isActionActive: 1
-    - dialogueText: "\u6211\u5C31\u5B88\u5728\u8FD9\u91CC\uFF0C"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 63
       isActionActive: 1
-    - dialogueText: "\u5475\u5475\uFF0C"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 64
       isActionActive: 1
-    - dialogueText: "\u5B88\u7740\uFF0C"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 65
       isActionActive: 1
-    - dialogueText: "\u6740\u4E86\u4F60~"
+    - dialogueText: 
       displayDuration: 2
       voiceClip: {fileID: 0}
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 66
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 100
+    pathEndStoryTime: 0
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 7
+      requiredStoryTime: 30
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-5
     pathName: 5
@@ -724,7 +772,7 @@ MonoBehaviour:
     events:
     - eventID: FROG5
       startPointIndex: 88
-      endPointIndex: 90
+      endPointIndex: 0
       playerInteractionRadius: 3
       showInteractionRange: 1
       gestureHoldTime: 1
@@ -810,7 +858,12 @@ MonoBehaviour:
         gestureType: 
         scoreEffect: 0
         actions: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: frog-6
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u4EB2\u7231\u7684\u89C2\u4F17~"
       displayDuration: 2
@@ -1023,8 +1076,17 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 87
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 136
+    pathEndStoryTime: 0
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 13
+      requiredStoryTime: 14
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-6
     pathName: 6
@@ -1033,7 +1095,7 @@ MonoBehaviour:
     events:
     - eventID: FROG6
       startPointIndex: 98
-      endPointIndex: 100
+      endPointIndex: 0
       playerInteractionRadius: 3
       showInteractionRange: 1
       gestureHoldTime: 1
@@ -1429,8 +1491,168 @@ MonoBehaviour:
           stopTime: 0
           pathPointIndex: 114
           isActionActive: 1
-    nextPaths: []
+    nextPaths:
+    - nextPathID: frog-8
+      minScore: 0
+      maxScore: 20
+      requiredScore: 0
+      description: "\u5206\u652F 1"
+    - nextPathID: frog-9
+      minScore: 20
+      maxScore: 40
+      requiredScore: 20
+      description: "\u5206\u652F 2"
     pathActions:
+    - dialogueText: "\u4E56\u624B\u624B~"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 52
+      isActionActive: 1
+    - dialogueText: "\u60A8\u8FD9\u4E48\u559C\u6B22\u516C\u4E3B\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 53
+      isActionActive: 1
+    - dialogueText: "\u8FD9\u4E2A\u5979\u4EB2\u624B\u96D5\u523B\u9001\u7ED9\u4F60\u7684\u96D5\u50CF\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 54
+      isActionActive: 1
+    - dialogueText: "\u76F8\u6BD4\u60A8\u5F88\u73CD\u89C6\u5427\uFF1F"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 55
+      isActionActive: 1
+    - dialogueText: "\u53EA\u4E0D\u8FC7\u540E\u6765\u5B83\u88AB\u6211\u5077\u5077\u62FF\u8D70\u4E86\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 56
+      isActionActive: 1
+    - dialogueText: "\u73B0\u5728\u5B83\u8BE5\u2026"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 57
+      isActionActive: 1
+    - dialogueText: "\u7269\u5F52\u539F\u4E3B\u5566\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 58
+      isActionActive: 1
+    - dialogueText: "\u7B49\u60A8\u5F2F\u8170\u6361\u8FD9\"\u5FA1\u8D50\u4E4B\u7269\"\u65F6\u2014\u2014"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 59
+      isActionActive: 1
+    - dialogueText: "\u6708\u5149\u4F1A\u66FF\u6211\u543B\u900F\u60A8\u540E\u5FC3\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 60
+      isActionActive: 1
+    - dialogueText: "\u4E00\u3001\u4E8C\u2026\u5657\u55E4\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 61
+      isActionActive: 1
+    - dialogueText: "\u60A8\u542C~\u8FDE\u98CE\u90FD\u7B11\u51FA\u9E3D\u54E8\u58F0\u4E86~"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 62
+      isActionActive: 1
+    - dialogueText: "\u6211\u5C31\u5B88\u5728\u8FD9\u91CC\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 63
+      isActionActive: 1
+    - dialogueText: "\u5475\u5475\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 64
+      isActionActive: 1
+    - dialogueText: "\u5B88\u7740\uFF0C"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 65
+      isActionActive: 1
+    - dialogueText: "\u6740\u4E86\u4F60~"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 66
+      isActionActive: 1
     - dialogueText: "\u4E00\u6B65\u2026\u4E24\u6B65\u2026"
       displayDuration: 2
       voiceClip: {fileID: 0}
@@ -1461,8 +1683,17 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 97
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 180
+    pathEndStoryTime: 0
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 9
+      requiredStoryTime: 20
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-8
     pathName: 8
@@ -1581,8 +1812,25 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 146
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 240
+    pathEndStoryTime: 0
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 6
+      requiredStoryTime: 60
+      stopTime: 0
+      description: 
+    - pathPointIndex: 6
+      requiredStoryTime: 60
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: frog-9
     pathName: 9
@@ -1739,16 +1987,6 @@ MonoBehaviour:
       oneShotSFX: {fileID: 0}
       delay: 0
       stopTime: 0
-      pathPointIndex: 161
-      isActionActive: 1
-    - dialogueText: 
-      displayDuration: 2
-      voiceClip: {fileID: 0}
-      animationName: 
-      animationLoopCount: 1
-      oneShotSFX: {fileID: 0}
-      delay: 0
-      stopTime: 0
       pathPointIndex: 162
       isActionActive: 1
     - dialogueText: 
@@ -1757,7 +1995,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 163
       isActionActive: 1
@@ -1767,7 +2005,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 164
       isActionActive: 1
@@ -1777,7 +2015,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 165
       isActionActive: 1
@@ -1787,7 +2025,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 166
       isActionActive: 1
@@ -1797,7 +2035,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 167
       isActionActive: 1
@@ -1807,7 +2045,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 168
       isActionActive: 1
@@ -1817,7 +2055,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 169
       isActionActive: 1
@@ -1827,7 +2065,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 170
       isActionActive: 1
@@ -1837,7 +2075,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 171
       isActionActive: 1
@@ -1847,7 +2085,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 172
       isActionActive: 1
@@ -1857,7 +2095,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 173
       isActionActive: 1
@@ -1867,7 +2105,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 174
       isActionActive: 1
@@ -1877,7 +2115,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 175
       isActionActive: 1
@@ -1887,7 +2125,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 176
       isActionActive: 1
@@ -1897,7 +2135,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 177
       isActionActive: 1
@@ -1907,7 +2145,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 178
       isActionActive: 1
@@ -1917,7 +2155,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 179
       isActionActive: 1
@@ -1927,7 +2165,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 180
       isActionActive: 1
@@ -1937,7 +2175,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 181
       isActionActive: 1
@@ -1947,7 +2185,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 182
       isActionActive: 1
@@ -1957,7 +2195,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 183
       isActionActive: 1
@@ -1967,7 +2205,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 184
       isActionActive: 1
@@ -1977,7 +2215,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 185
       isActionActive: 1
@@ -1987,7 +2225,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 186
       isActionActive: 1
@@ -1997,7 +2235,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 187
       isActionActive: 1
@@ -2007,7 +2245,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 188
       isActionActive: 1
@@ -2017,7 +2255,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 189
       isActionActive: 1
@@ -2027,7 +2265,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 190
       isActionActive: 1
@@ -2037,7 +2275,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 191
       isActionActive: 1
@@ -2047,7 +2285,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 192
       isActionActive: 1
@@ -2057,7 +2295,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 193
       isActionActive: 1
@@ -2067,7 +2305,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 194
       isActionActive: 1
@@ -2077,7 +2315,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 195
       isActionActive: 1
@@ -2087,7 +2325,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 196
       isActionActive: 1
@@ -2097,7 +2335,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 197
       isActionActive: 1
@@ -2107,7 +2345,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 198
       isActionActive: 1
@@ -2117,7 +2355,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 199
       isActionActive: 1
@@ -2127,7 +2365,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 200
       isActionActive: 1
@@ -2137,7 +2375,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 201
       isActionActive: 1
@@ -2147,7 +2385,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 202
       isActionActive: 1
@@ -2157,7 +2395,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 203
       isActionActive: 1
@@ -2167,7 +2405,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 204
       isActionActive: 1
@@ -2177,7 +2415,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 205
       isActionActive: 1
@@ -2187,7 +2425,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 206
       isActionActive: 1
@@ -2197,7 +2435,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 207
       isActionActive: 1
@@ -2207,7 +2445,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 208
       isActionActive: 1
@@ -2217,7 +2455,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 209
       isActionActive: 1
@@ -2227,7 +2465,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 210
       isActionActive: 1
@@ -2237,7 +2475,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 211
       isActionActive: 1
@@ -2247,7 +2485,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 212
       isActionActive: 1
@@ -2257,7 +2495,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 213
       isActionActive: 1
@@ -2267,7 +2505,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 214
       isActionActive: 1
@@ -2277,7 +2515,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 215
       isActionActive: 1
@@ -2287,7 +2525,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 216
       isActionActive: 1
@@ -2297,7 +2535,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 217
       isActionActive: 1
@@ -2307,7 +2545,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 218
       isActionActive: 1
@@ -2317,7 +2555,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 219
       isActionActive: 1
@@ -2327,7 +2565,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 220
       isActionActive: 1
@@ -2337,7 +2575,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 221
       isActionActive: 1
@@ -2347,7 +2585,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 222
       isActionActive: 1
@@ -2357,7 +2595,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 223
       isActionActive: 1
@@ -2367,7 +2605,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 224
       isActionActive: 1
@@ -2377,7 +2615,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 225
       isActionActive: 1
@@ -2387,7 +2625,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 226
       isActionActive: 1
@@ -2397,7 +2635,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 227
       isActionActive: 1
@@ -2407,7 +2645,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 228
       isActionActive: 1
@@ -2417,7 +2655,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 229
       isActionActive: 1
@@ -2427,7 +2665,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 230
       isActionActive: 1
@@ -2437,7 +2675,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 231
       isActionActive: 1
@@ -2447,7 +2685,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 232
       isActionActive: 1
@@ -2457,7 +2695,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 233
       isActionActive: 1
@@ -2467,7 +2705,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 234
       isActionActive: 1
@@ -2477,7 +2715,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 235
       isActionActive: 1
@@ -2487,7 +2725,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 236
       isActionActive: 1
@@ -2497,7 +2735,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 237
       isActionActive: 1
@@ -2507,7 +2745,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 238
       isActionActive: 1
@@ -2517,7 +2755,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 239
       isActionActive: 1
@@ -2527,7 +2765,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 240
       isActionActive: 1
@@ -2537,7 +2775,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 241
       isActionActive: 1
@@ -2547,7 +2785,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 242
       isActionActive: 1
@@ -2557,7 +2795,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 243
       isActionActive: 1
@@ -2567,7 +2805,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 244
       isActionActive: 1
@@ -2577,7 +2815,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 245
       isActionActive: 1
@@ -2587,7 +2825,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 246
       isActionActive: 1
@@ -2597,7 +2835,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 247
       isActionActive: 1
@@ -2607,7 +2845,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 248
       isActionActive: 1
@@ -2617,7 +2855,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 249
       isActionActive: 1
@@ -2627,7 +2865,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 250
       isActionActive: 1
@@ -2637,7 +2875,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 251
       isActionActive: 1
@@ -2647,7 +2885,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 252
       isActionActive: 1
@@ -2657,7 +2895,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 253
       isActionActive: 1
@@ -2667,7 +2905,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 254
       isActionActive: 1
@@ -2677,7 +2915,7 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 255
       isActionActive: 1
@@ -2687,23 +2925,14 @@ MonoBehaviour:
       animationName: 
       animationLoopCount: 1
       oneShotSFX: {fileID: 0}
-      delay: 0
+      delay: 0.5
       stopTime: 0
       pathPointIndex: 256
       isActionActive: 1
-    - dialogueText: 
-      displayDuration: 2
-      voiceClip: {fileID: 0}
-      animationName: 
-      animationLoopCount: 1
-      oneShotSFX: {fileID: 0}
-      delay: 0
-      stopTime: 0
-      pathPointIndex: 257
-      isActionActive: 1
     pathStartStoryTime: 0
+    pathEndStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
   pathConnections: []
   pathDecisions: []
-  importExportPath: /Volumes/RoosterSSD/Projects/2025/ShadowTheatre/ShadowTheatreProject/Assets/NPCData/Frog_data.csv
+  importExportPath: /Volumes/RoosterSSD/Projects/2025/ShadowTheatre/ShadowTheatreProject/Assets/NPCData/frog_full.csv

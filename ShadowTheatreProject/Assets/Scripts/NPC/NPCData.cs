@@ -104,6 +104,9 @@ public class PathConfig
     [Tooltip("NPC应该何时到达此路径起始点的故事时间")]
     public float pathStartStoryTime = 0f;
     
+    [Tooltip("NPC应该何时离开此路径的故事时间（0=自动使用下一个路径的开始时间，>0=手动指定结束时间）")]
+    public float pathEndStoryTime = 0f;
+    
     [Tooltip("此路径上的关键时间控制点")]
     public List<PathTimePoint> timePoints = new List<PathTimePoint>();
 
@@ -185,6 +188,93 @@ public class PathConfig
         }
         
         return 0f; // 默认不停留
+    }
+    
+    /// <summary>
+    /// 检查路径是否可以结束（考虑时间因素）
+    /// </summary>
+    /// <param name="currentRelativeTime">当前相对于路径开始的时间</param>
+    /// <param name="npcData">NPC数据，用于查找下一个路径的开始时间</param>
+    /// <param name="currentScore">当前分数，用于确定下一个路径</param>
+    /// <returns>true表示可以结束路径</returns>
+    public bool CanEndPath(float currentRelativeTime, NPCData npcData = null, float currentScore = 0f)
+    {
+        // 获取实际的路径结束时间（这是绝对时间）
+        float actualEndTime = GetActualEndTime(npcData, currentScore);
+        
+        // 如果没有有效的结束时间，表示无限制，可以立即结束
+        if (actualEndTime <= 0f)
+        {
+            return true;
+        }
+        
+        // 修复：需要转换为相对时间进行比较
+        // actualEndTime是绝对时间，需要转换为相对时间
+        float actualEndRelativeTime = actualEndTime - pathStartStoryTime;
+        
+        // 如果当前时间已经达到或超过路径结束时间，可以结束
+        return currentRelativeTime >= actualEndRelativeTime;
+    }
+    
+    /// <summary>
+    /// 获取路径剩余的等待时间
+    /// </summary>
+    /// <param name="currentRelativeTime">当前相对于路径开始的时间</param>
+    /// <param name="npcData">NPC数据，用于查找下一个路径的开始时间</param>
+    /// <param name="currentScore">当前分数，用于确定下一个路径</param>
+    /// <returns>需要等待的时间（秒），0表示无需等待</returns>
+    public float GetRemainingWaitTime(float currentRelativeTime, NPCData npcData = null, float currentScore = 0f)
+    {
+        // 获取实际的路径结束时间（这是绝对时间）
+        float actualEndTime = GetActualEndTime(npcData, currentScore);
+        
+        // 如果没有有效的结束时间，无需等待
+        if (actualEndTime <= 0f)
+        {
+            return 0f;
+        }
+        
+        // 修复：需要转换为相对时间进行比较
+        // actualEndTime是绝对时间，需要转换为相对时间
+        float actualEndRelativeTime = actualEndTime - pathStartStoryTime;
+        
+        // 计算还需要等待的时间
+        float remainingTime = actualEndRelativeTime - currentRelativeTime;
+        return Mathf.Max(0f, remainingTime);
+    }
+    
+    /// <summary>
+    /// 获取实际的路径结束时间
+    /// 优先使用手动设置的pathEndStoryTime，如果为0则使用下一个路径的开始时间
+    /// </summary>
+    /// <param name="npcData">NPC数据，用于查找下一个路径</param>
+    /// <param name="currentScore">当前分数，用于确定下一个路径</param>
+    /// <returns>实际的路径结束时间</returns>
+    public float GetActualEndTime(NPCData npcData = null, float currentScore = 0f)
+    {
+        // 如果手动设置了结束时间且大于0，优先使用手动设置的时间
+        if (pathEndStoryTime > 0f)
+        {
+            return pathEndStoryTime;
+        }
+        
+        // 否则尝试获取下一个路径的开始时间
+        if (npcData != null)
+        {
+            string nextPathID = SelectNextPathByScore(currentScore);
+            if (!string.IsNullOrEmpty(nextPathID))
+            {
+                PathConfig nextPath = npcData.FindPathById(nextPathID);
+                if (nextPath != null)
+                {
+                    // 返回下一个路径的开始时间作为当前路径的结束时间
+                    return nextPath.pathStartStoryTime;
+                }
+            }
+        }
+        
+        // 如果都没有找到，返回0表示无限制
+        return 0f;
     }
 }
 
@@ -286,12 +376,19 @@ public class PathTimePoint
     [Tooltip("时间点描述")]
     public string description = "";
     
+    /// <summary>
+    /// 标记这是否是一个虚拟的路径终点目标（非配置文件中的真实时间控制点）
+    /// </summary>
+    [NonSerialized]
+    public bool isVirtualEndTarget = false;
+    
     // 编辑器显示用
     public string GetDisplayText()
     {
         return $"点{pathPointIndex} - {requiredStoryTime:F1}s" + 
                (stopTime > 0 ? $" (停留{stopTime:F1}s)" : "") +
-               (string.IsNullOrEmpty(description) ? "" : $" ({description})");
+               (string.IsNullOrEmpty(description) ? "" : $" ({description})") +
+               (isVirtualEndTarget ? " [虚拟终点]" : "");
     }
 }
 

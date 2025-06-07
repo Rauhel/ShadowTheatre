@@ -306,12 +306,20 @@ public class NPCPathManager : MonoBehaviour
             currentPathPointIndex = 0;
         }
 
-        // 如果是最后一个点，处理路径完成
+        // 🔄 路径切换现在完全由TimeController的时间控制处理，不再依赖物理位置检测
+        // 如果到达了路径的最后一个物理点，继续等待时间控制系统的指令
         if (currentPathCreator != null && currentPathPointIndex >= currentPathCreator.GetPathPointCount() && !currentPathCreator.closedPath)
         {
-            Debug.Log($"[{gameObject.name}] 到达路径终点，处理路径完成");
-            agent.isStopped = true;
-            ProcessPathCompletion();
+            Debug.Log($"[{gameObject.name}] 🎯 到达路径物理终点，等待时间控制系统处理路径切换");
+            
+            // 停止Agent移动，等待TimeController的时间控制触发路径切换
+            if (agent != null)
+            {
+                agent.isStopped = true;
+            }
+            
+            // 不再主动处理路径完成，完全交给TimeController处理
+            Debug.Log($"[{gameObject.name}] ⏰ 路径切换现在由时间控制系统负责");
         }
         else if (currentPathCreator != null)
         {
@@ -385,7 +393,7 @@ public class NPCPathManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"[{gameObject.name}] 当前路径配置: {currentPathConfig.pathName}, 下一路径数量: {currentPathConfig.nextPaths.Count}");
+        Debug.Log($"[{gameObject.name}] 当前路径配置: {currentPathConfig.pathName} (ID: {currentPathConfig.pathID}), 下一路径数量: {currentPathConfig.nextPaths.Count}");
 
         // 检查是否有下一条路径
         if (currentPathConfig.nextPaths.Count == 0)
@@ -395,24 +403,55 @@ public class NPCPathManager : MonoBehaviour
             return;
         }
 
-        // 根据分数选择下一条路径
-        Debug.Log($"[{gameObject.name}] 当前分数: {controller.Data.currentScore}，开始选择下一条路径");
-        string nextPathID = currentPathConfig.SelectNextPathByScore(controller.Data.currentScore);
+        // 根据分数选择下一条路径 - 添加详细的调试信息
+        float currentScore = controller.Data.currentScore;
+        Debug.Log($"[{gameObject.name}] 当前分数: {currentScore}，开始选择下一条路径");
+        
+        // 详细显示所有可选路径分支
+        Debug.Log($"[{gameObject.name}] 可选路径分支:");
+        for (int i = 0; i < currentPathConfig.nextPaths.Count; i++)
+        {
+            var branch = currentPathConfig.nextPaths[i];
+            bool scoreMatch = branch.IsScoreInRange(currentScore);
+            Debug.Log($"[{gameObject.name}]   分支{i}: 路径ID={branch.nextPathID}, 分数区间=[{branch.minScore}, {branch.maxScore}), 当前分数匹配={scoreMatch}");
+        }
+        
+        string nextPathID = currentPathConfig.SelectNextPathByScore(currentScore);
         
         if (string.IsNullOrEmpty(nextPathID))
         {
-                Debug.LogWarning($"[{gameObject.name}] 无法确定下一条路径，停止移动");
+            Debug.LogError($"[{gameObject.name}] ❌ 路径选择失败：SelectNextPathByScore返回空路径ID！");
+            Debug.LogError($"[{gameObject.name}] 📋 这通常是因为路径分支配置错误，请检查路径配置中的nextPathID设置");
+            Debug.LogError($"[{gameObject.name}] 🔧 建议：检查当前路径({currentPathConfig.pathName})的分支配置，确保所有分支都设置了有效的nextPathID");
             controller.StopMovement(true);
             return;
         }
 
         Debug.Log($"[{gameObject.name}] 选择的下一条路径ID: {nextPathID}");
+        
+        // 🔍 关键检查：防止选择到自己
+        if (nextPathID == currentPathCreator.pathID)
+        {
+            Debug.LogError($"[{gameObject.name}] ❌ 检测到循环路径选择！下一路径ID({nextPathID})与当前路径ID({currentPathCreator.pathID})相同，这会导致无限循环！");
+            Debug.LogError($"[{gameObject.name}] 📋 路径分支配置错误，请检查路径配置中的分支设置");
+            controller.StopMovement(true);
+            return;
+        }
+        
+        // 🔍 检查路径ID是否为空字符串（这是常见的配置错误）
+        if (nextPathID.Trim() == "")
+        {
+            Debug.LogError($"[{gameObject.name}] ❌ 检测到空路径ID！选中的分支路径ID为空字符串");
+            Debug.LogError($"[{gameObject.name}] 📋 这是路径分支配置错误，请在Inspector中设置正确的nextPathID");
+            controller.StopMovement(true);
+            return;
+        }
 
         // 切换到下一条路径
         MultiPointPathCreator nextPathCreator = PathRegistry.GetPathCreatorByID(nextPathID);
         if (nextPathCreator != null)
         {
-            Debug.Log($"[{gameObject.name}] 成功找到下一条路径，开始切换");
+            Debug.Log($"[{gameObject.name}] 成功找到下一条路径，开始切换: {nextPathCreator.name}");
             SwitchToPath(nextPathCreator);
         }
         else
@@ -440,6 +479,8 @@ public class NPCPathManager : MonoBehaviour
             return;
         }
 
+        Debug.Log($"[{gameObject.name}] 切换到新路径: {newPathCreator.pathID}");
+
         // 设置新路径
         currentPathCreator = newPathCreator;
         currentPathPoints = newPathCreator.pathPointsParent;
@@ -447,8 +488,28 @@ public class NPCPathManager : MonoBehaviour
         lastReachedPointIndex = -1;
         stuckTime = 0;
 
+        // 关键修复：更新当前路径配置
+        CurrentPathConfig = controller.Data?.FindPathById(newPathCreator.pathID);
+        if (CurrentPathConfig != null)
+        {
+            Debug.Log($"[{gameObject.name}] 路径配置已更新: {CurrentPathConfig.pathName}, 起始时间: {CurrentPathConfig.pathStartStoryTime}s");
+        }
+        else
+        {
+            Debug.LogWarning($"[{gameObject.name}] 无法找到路径配置: {newPathCreator.pathID}");
+        }
+
         // 通知事件管理器
         eventManager.SetCurrentPath(newPathCreator.pathID, currentPathPoints);
+
+        // 关键修复：通知时间控制器路径已切换，需要重新初始化
+        NPCTimeController timeController = GetComponent<NPCTimeController>();
+        if (timeController != null)
+        {
+            Debug.Log($"[{gameObject.name}] 通知时间控制器路径切换，重新初始化时间控制");
+            // 使用协程延迟通知，确保路径切换完全完成后再初始化时间控制
+            StartCoroutine(NotifyTimeControllerPathSwitched());
+        }
 
         // 确保 NavMeshAgent 已设置
         if (agent == null)
@@ -482,6 +543,35 @@ public class NPCPathManager : MonoBehaviour
             if (ShowDebugLogs)
                 Debug.LogError($"[{gameObject.name}] 无法获取 NavMeshAgent 组件，导航失败");
         }
+    }
+
+    /// <summary>
+    /// 延迟通知时间控制器路径已切换
+    /// </summary>
+    private System.Collections.IEnumerator NotifyTimeControllerPathSwitched()
+    {
+        // 等待一小段时间，确保路径切换完全完成
+        yield return new WaitForSeconds(0.1f);
+        
+        NPCTimeController timeController = GetComponent<NPCTimeController>();
+        if (timeController != null)
+        {
+            Debug.Log($"[{gameObject.name}] 执行时间控制器路径切换初始化");
+            
+            // 重新初始化时间控制系统
+            timeController.OnPathSwitched();
+        }
+    }
+    
+    /// <summary>
+    /// [已废弃] 检查路径结束条件 - 现在由TimeController负责时间控制
+    /// </summary>
+    [System.Obsolete("路径切换现在完全由TimeController的时间控制系统处理")]
+    private bool CheckPathEndConditions()
+    {
+        // 保留方法以避免编译错误，但标记为废弃
+        Debug.LogWarning($"[{gameObject.name}] ⚠️ CheckPathEndConditions已废弃，路径切换由TimeController处理");
+        return true;
     }
 
     // 根据路径ID切换
@@ -569,6 +659,23 @@ public class NPCPathManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 由时间控制器触发的路径完成（跳过物理位置检查）
+    /// </summary>
+    public void ForceCompletePathFromTimeController()
+    {
+        Debug.Log($"[{gameObject.name}] 🔄 时间控制器触发路径完成，跳过物理位置检查");
+        
+        // 停止当前移动
+        if (agent != null)
+        {
+            agent.isStopped = true;
+        }
+        
+        // 直接处理路径完成
+        ProcessPathCompletion();
+    }
+    
+    /// <summary>
     /// 停止NPC移动 (用于Action执行期间)
     /// </summary>
     public void StopMovement()
@@ -630,4 +737,171 @@ public class NPCPathManager : MonoBehaviour
             }
         }
     }
+    
+    #region 调试和测试方法
+    
+    /// <summary>
+    /// [已废弃] 手动检查路径结束条件 - 现在由TimeController负责
+    /// </summary>
+    [ContextMenu("检查路径结束条件 [已废弃]")]
+    public void TestCheckPathEndConditions()
+    {
+        Debug.LogWarning($"[{gameObject.name}] ⚠️ 路径结束条件检查已废弃，现在由TimeController的时间控制系统处理路径切换");
+        Debug.LogWarning($"[{gameObject.name}] 💡 请使用TimeController的相关调试菜单来查看时间控制状态");
+    }
+    
+    /// <summary>
+    /// 强制结束当前路径（测试用）
+    /// </summary>
+    [ContextMenu("强制结束当前路径")]
+    public void TestForceEndCurrentPath()
+    {
+        if (!Application.isPlaying)
+        {
+            Debug.LogWarning($"[{gameObject.name}] 强制结束路径只能在游戏运行时使用");
+            return;
+        }
+        
+        Debug.Log($"[{gameObject.name}] 手动强制结束当前路径");
+        ProcessPathCompletion();
+    }
+    
+    /// <summary>
+    /// 显示路径时间连续性信息（调试用）
+    /// </summary>
+    [ContextMenu("显示路径时间连续性")]
+    public void ShowPathTimeContinuity()
+    {
+        if (!Application.isPlaying)
+        {
+            Debug.LogWarning($"[{gameObject.name}] 路径时间连续性查看只能在游戏运行时使用");
+            return;
+        }
+        
+        PathConfig currentPathConfig = GetCurrentPathConfig();
+        if (currentPathConfig == null)
+        {
+            Debug.Log($"[{gameObject.name}] 当前路径配置为空");
+            return;
+        }
+        
+        NPCData npcData = controller?.Data;
+        float currentScore = npcData?.currentScore ?? 0f;
+        
+        Debug.Log($"[{gameObject.name}] === 路径时间连续性信息 ===");
+        Debug.Log($"当前路径: {currentPathConfig.pathName}");
+        Debug.Log($"路径开始时间: {currentPathConfig.pathStartStoryTime:F1}s");
+        Debug.Log($"手动设置结束时间: {(currentPathConfig.pathEndStoryTime > 0 ? currentPathConfig.pathEndStoryTime.ToString("F1") + "s" : "未设置(0)")}");
+        
+        float actualEndTime = currentPathConfig.GetActualEndTime(npcData, currentScore);
+        Debug.Log($"实际结束时间: {(actualEndTime > 0 ? actualEndTime.ToString("F1") + "s" : "无限制")}");
+        
+        // 显示下一个路径信息
+        string nextPathID = currentPathConfig.SelectNextPathByScore(currentScore);
+        if (!string.IsNullOrEmpty(nextPathID) && npcData != null)
+        {
+            PathConfig nextPath = npcData.FindPathById(nextPathID);
+            if (nextPath != null)
+            {
+                Debug.Log($"下一个路径: {nextPath.pathName}");
+                Debug.Log($"下一个路径开始时间: {nextPath.pathStartStoryTime:F1}s");
+                
+                if (actualEndTime > 0 && nextPath.pathStartStoryTime > 0)
+                {
+                    float gap = nextPath.pathStartStoryTime - actualEndTime;
+                    if (Mathf.Abs(gap) < 0.1f)
+                    {
+                        Debug.Log($"✅ 时间连续性良好（间隔: {gap:F1}s）");
+                    }
+                    else if (gap > 0)
+                    {
+                        Debug.Log($"⚠️ 路径间有时间间隔: {gap:F1}s");
+                    }
+                    else
+                    {
+                        Debug.Log($"❌ 路径时间重叠: {-gap:F1}s");
+                    }
+                }
+            }
+        }
+        else
+        {
+            Debug.Log($"下一个路径: 无（路径结束）");
+        }
+    }
+    
+    /// <summary>
+    /// 诊断当前路径选择问题（调试用）
+    /// </summary>
+    [ContextMenu("诊断路径选择问题")]
+    public void DiagnosePathSelection()
+    {
+        if (!Application.isPlaying)
+        {
+            Debug.LogWarning($"[{gameObject.name}] 路径选择诊断只能在游戏运行时使用");
+            return;
+        }
+        
+        if (currentPathCreator == null || controller.Data == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 缺少关键组件: PathCreator={currentPathCreator != null}, Data={controller.Data != null}");
+            return;
+        }
+        
+        PathConfig currentPathConfig = controller.Data.FindPathById(currentPathCreator.pathID);
+        if (currentPathConfig == null)
+        {
+            Debug.LogError($"[{gameObject.name}] 找不到当前路径配置: {currentPathCreator.pathID}");
+            return;
+        }
+        
+        float currentScore = controller.Data.currentScore;
+        
+        Debug.Log($"[{gameObject.name}] === 路径选择诊断 ===");
+        Debug.Log($"当前路径: {currentPathConfig.pathName} (ID: {currentPathConfig.pathID})");
+        Debug.Log($"当前分数: {currentScore}");
+        Debug.Log($"可选分支数量: {currentPathConfig.nextPaths.Count}");
+        
+        if (currentPathConfig.nextPaths.Count == 0)
+        {
+            Debug.Log($"✅ 这是终点路径，无下一路径");
+            return;
+        }
+        
+        // 详细分析每个分支
+        for (int i = 0; i < currentPathConfig.nextPaths.Count; i++)
+        {
+            var branch = currentPathConfig.nextPaths[i];
+            bool scoreMatch = branch.IsScoreInRange(currentScore);
+            Debug.Log($"分支 {i}: 路径ID={branch.nextPathID}, 分数区间=[{branch.minScore}, {branch.maxScore}), 匹配={scoreMatch}");
+            
+            // 检查是否会导致循环
+            if (branch.nextPathID == currentPathCreator.pathID)
+            {
+                Debug.LogError($"⚠️ 分支 {i} 会导致循环路径选择！");
+            }
+            
+            // 检查路径是否存在
+            MultiPointPathCreator targetPath = PathRegistry.GetPathCreatorByID(branch.nextPathID);
+            if (targetPath == null)
+            {
+                Debug.LogError($"⚠️ 分支 {i} 的目标路径不存在: {branch.nextPathID}");
+            }
+            else
+            {
+                Debug.Log($"   目标路径: {targetPath.name}");
+            }
+        }
+        
+        // 显示选择结果
+        string selectedPathID = currentPathConfig.SelectNextPathByScore(currentScore);
+        Debug.Log($"选择结果: {selectedPathID}");
+        
+        if (selectedPathID == currentPathCreator.pathID)
+        {
+            Debug.LogError($"❌ 路径选择结果导致循环！这是问题的根源！");
+        }
+    }
+    
+    #endregion
 }

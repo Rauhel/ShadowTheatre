@@ -9,9 +9,9 @@ onBoardingDoNotAskAgain = true
 showPackageIndexes = false
 showStatusBar = false
 scopes = {
-	"last_search.66F56946" = "navigation"
+	"last_search.66F56946" = "URP"
 	"OpenInspectorPreview.66F56946" = "0"
-	"currentGroup.66F56946" = "all"
+	"currentGroup.66F56946" = "settings"
 }
 providers = {
 	log = {
@@ -63,6 +63,7 @@ providers = {
 objectSelectors = {
 }
 recentSearches = [
+	"U"
 ]
 searchItemFavorites = [
 ]

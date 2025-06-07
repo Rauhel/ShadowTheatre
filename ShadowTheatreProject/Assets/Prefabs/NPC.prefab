@@ -473,9 +473,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeControlEnabled: 1
-  speedMultiplierMin: 0.1
-  speedMultiplierMax: 10
+  speedMultiplierMin: 0.001
+  speedMultiplierMax: 50
   teleportThreshold: 60
+  debugLogLevel: 1
 --- !u!1 &8690728884963148146
 GameObject:
   m_ObjectHideFlags: 0

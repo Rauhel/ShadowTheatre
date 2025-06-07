@@ -480,15 +480,15 @@ public class NPCActionExecutor : MonoBehaviour
 
             if (sfxIndex >= 0)
             {
-                // 如果已经存在，直接播放
-                SoundManager.Instance.PlayOneShotSFX(sfxIndex, gameObject, 1.0f);
+                // 如果已经存在，直接播放（移除了GameObject参数，现在只使用2个参数）
+                SoundManager.Instance.PlayOneShotSFX(sfxIndex, 1.0f);
             }
             else
             {
-                // 如果不存在，添加到列表并播放
+                // 如果不存在，添加到列表并播放（移除了GameObject参数，现在只使用2个参数）
                 SoundManager.Instance.MySFXList.Add(voiceClip);
                 sfxIndex = SoundManager.Instance.MySFXList.Count - 1;
-                SoundManager.Instance.PlayOneShotSFX(sfxIndex, gameObject, 1.0f);
+                SoundManager.Instance.PlayOneShotSFX(sfxIndex, 1.0f);
             }
         }
         else if (voiceClip != null)

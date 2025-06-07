@@ -34,7 +34,12 @@ public class GameState : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
 
-            // 修改时间缩放逻辑 - 只在MainMenu和GameStart状态暂停时间
+            // 时间缩放功能已禁用 - 统一使用正常时间缩放以解决音频问题
+            Time.timeScale = 1f;
+            Debug.Log($"GameState Awake: 时间缩放设置为1（音频修复）");
+            
+            /*
+            // 原始时间缩放逻辑（已禁用）
             if (currentState == State.MainMenu || currentState == State.GameStart)
             {
                 // 使用时间缩放为很小的值而不是0，以便UI动画仍能播放
@@ -45,6 +50,7 @@ public class GameState : MonoBehaviour
                 // 其他状态（包括Act1）使用正常时间缩放
                 Time.timeScale = 1f;
             }
+            */
         }
         else if (instance != this)
         {
@@ -220,7 +226,13 @@ public class GameState : MonoBehaviour
         EventCenter.Instance.Publish(EventNames.STATE_ENTERED + currentState.ToString());
         EventCenter.Instance.Publish(EventNames.STATE_CHANGED);
 
-        // Handle time scale for different states
+        // Handle time scale for different states - 暂时禁用时间缩放功能以解决音频问题
+        // 所有状态都保持正常时间缩放
+        Time.timeScale = 1f;
+        Debug.Log($"状态 {currentState}，时间缩放保持为1（音频修复）");
+        
+        /*
+        // 原始时间缩放逻辑（已禁用）
         if (currentState == State.GamePaused)
         {
             Time.timeScale = 0f;
@@ -239,6 +251,7 @@ public class GameState : MonoBehaviour
             Time.timeScale = 1f;
             Debug.Log("游戏进行状态，时间缩放设置为1");
         }
+        */
 
         // Load the appropriate scene if mapped
         if (stateToSceneMap.ContainsKey(newState) && !string.IsNullOrEmpty(stateToSceneMap[newState]))

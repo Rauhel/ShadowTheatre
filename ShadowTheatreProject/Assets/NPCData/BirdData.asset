@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a424961163921442a9ac32973e90cd6, type: 3}
   m_Name: BirdData
   m_EditorClassIdentifier: 
-  npcID: 0
+  npcID: 5
   npcName: Bird
   currentScore: 0
   moveSpeed: 0
@@ -68,6 +68,7 @@ MonoBehaviour:
       description: "\u5206\u652F 1"
     pathActions: []
     pathStartStoryTime: 0
+    pathEndStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
   pathConnections: []

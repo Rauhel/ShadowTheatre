@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a424961163921442a9ac32973e90cd6, type: 3}
   m_Name: GooseData
   m_EditorClassIdentifier: 
-  npcID: 2
+  npcID: 3
   npcName: goose
   currentScore: 0
   moveSpeed: 1
@@ -22,7 +22,12 @@ MonoBehaviour:
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: goose-2
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u5C0A\u656C\u7684\u796D\u53F8\uFF0C"
       displayDuration: 2
@@ -105,14 +110,24 @@ MonoBehaviour:
       pathPointIndex: 8
       isActionActive: 1
     pathStartStoryTime: 0
-    timePoints: []
+    pathEndStoryTime: 0
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: goose-2
     pathName: 2
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: goose-3
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u73CD\u8D35\uFF1F\u54C8\uFF01"
       displayDuration: 2
@@ -184,15 +199,25 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 15
       isActionActive: 1
-    pathStartStoryTime: 0
-    timePoints: []
+    pathStartStoryTime: 60
+    pathEndStoryTime: 0
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
     pathPointStopConfigs: []
   - pathID: goose-3
     pathName: 3
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths: []
+    nextPaths:
+    - nextPathID: goose-4
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u8BD7\u884C\u5728\u6211\u4F53\u5185\u66B4\u52A8..."
       displayDuration: 2
@@ -514,7 +539,8 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 47
       isActionActive: 1
-    pathStartStoryTime: 0
+    pathStartStoryTime: 80
+    pathEndStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
   - pathID: goose-4
@@ -810,7 +836,12 @@ MonoBehaviour:
           stopTime: 0
           pathPointIndex: 102
           isActionActive: 1
-    nextPaths: []
+    nextPaths:
+    - nextPathID: goose-5
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: "\u5206\u652F 1"
     pathActions:
     - dialogueText: "\u7B2C\u4E09\u6B21\uFF1F\u6216\u7B2C\u4E09\u5343\u6B21\uFF1F"
       displayDuration: 2
@@ -1092,7 +1123,8 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 75
       isActionActive: 1
-    pathStartStoryTime: 0
+    pathStartStoryTime: 100
+    pathEndStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
   - pathID: goose-5
@@ -1368,7 +1400,12 @@ MonoBehaviour:
           stopTime: 0
           pathPointIndex: 143
           isActionActive: 1
-    nextPaths: []
+    nextPaths:
+    - nextPathID: goose-6
+      minScore: 0
+      maxScore: 100
+      requiredScore: 0
+      description: HOME
     pathActions:
     - dialogueText: "\u5148\u8D24\u4EEC..."
       displayDuration: 2
@@ -1530,7 +1567,27 @@ MonoBehaviour:
       stopTime: 0
       pathPointIndex: 118
       isActionActive: 1
-    pathStartStoryTime: 0
+    pathStartStoryTime: 120
+    pathEndStoryTime: 0
+    timePoints:
+    - pathPointIndex: 0
+      requiredStoryTime: 0
+      stopTime: 0
+      description: 
+    - pathPointIndex: 20
+      requiredStoryTime: 120
+      stopTime: 0
+      description: 
+    pathPointStopConfigs: []
+  - pathID: goose-6
+    pathName: 6
+    minScore: 0
+    maxScore: 100
+    events: []
+    nextPaths: []
+    pathActions: []
+    pathStartStoryTime: 241
+    pathEndStoryTime: 0
     timePoints: []
     pathPointStopConfigs: []
   pathConnections: []
