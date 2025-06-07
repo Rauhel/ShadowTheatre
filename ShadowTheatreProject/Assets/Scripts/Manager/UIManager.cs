@@ -13,6 +13,7 @@ public class UIManager : MonoBehaviour
     [Header("暂停菜单按钮")]
     public Button continueButton;         // 继续按钮
     public Button pauseQuitButton;        // 暂停界面的退出按钮
+    public Button reloadSceneButton;      // 重新加载场景按钮
 
     [Header("文本")]
     public TextMeshProUGUI gameTimerText; // 游戏时间文本
@@ -58,6 +59,7 @@ public class UIManager : MonoBehaviour
         // 设置按钮监听器 - 删除主菜单相关按钮
         if (continueButton) continueButton.onClick.AddListener(OnContinueClicked);
         if (pauseQuitButton) pauseQuitButton.onClick.AddListener(OnQuitClicked);
+        if (reloadSceneButton) reloadSceneButton.onClick.AddListener(OnReloadSceneClicked);
 
         // 订阅全局事件
         EventCenter.Instance.Subscribe(GameState.EventNames.STATE_ENTERED + GameState.State.Act1, OnGameFirstActStarted);
@@ -120,16 +122,59 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    // 点击继续按钮
-    private void OnContinueClicked()
+    // 点击继续按钮 - 改为公共方法
+    public void OnContinueClicked()
     {
         TogglePauseMenu();
     }
 
-    // 点击退出按钮
-    private void OnQuitClicked()
+    // 点击退出按钮 - 改为公共方法
+    public void OnQuitClicked()
     {
         QuitGame();
+    }
+
+    // 点击重新加载场景按钮 - 新增公共方法
+    public void OnReloadSceneClicked()
+    {
+        ReloadCurrentScene();
+    }
+
+    // 重新加载当前场景
+    public void ReloadCurrentScene()
+    {
+        // 确保时间缩放恢复正常
+        Time.timeScale = 1f;
+        
+        // 在重新加载场景前，清理网络连接以避免端口占用问题
+        CleanupNetworkConnections();
+        
+        // 重新加载当前场景
+        UnityEngine.SceneManagement.SceneManager.LoadScene(
+            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
+        );
+        
+        Debug.Log("重新加载场景: " + UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+    }
+
+    // 清理网络连接
+    private void CleanupNetworkConnections()
+    {
+        // 查找并断开所有GestureReceiver的连接
+        GestureReceiver[] gestureReceivers = FindObjectsOfType<GestureReceiver>();
+        foreach (GestureReceiver receiver in gestureReceivers)
+        {
+            if (receiver != null)
+            {
+                Debug.Log($"正在断开GestureReceiver连接: {receiver.gameObject.name}");
+                receiver.DisconnectAll();
+            }
+        }
+        
+        // 等待一小段时间确保连接完全断开
+        System.Threading.Thread.Sleep(100);
+        
+        Debug.Log("网络连接清理完成");
     }
 
     // 退出游戏

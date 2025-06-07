@@ -45,6 +45,10 @@ public class NPCTimeController : MonoBehaviour
     private float lastUpdateTime = 0f; // 记录上次Update的时间
     private float lastPathSwitchTime = 0f; // 记录上次路径切换的时间
     
+    // 私有委托引用，用于正确的事件订阅和取消订阅
+    private System.Action storyTimeUpdatedHandler;
+    private System.Action actTimeStartedHandler;
+    
     #region 调试日志方法
     
     /// <summary>
@@ -52,9 +56,12 @@ public class NPCTimeController : MonoBehaviour
     /// </summary>
     private void LogDetailed(string message)
     {
+        // 添加null检查，防止已销毁对象访问
+        if (this == null || gameObject == null) return;
+        
         if (debugLogLevel >= DebugLogLevel.Detailed)
         {
-            Debug.Log($"[{gameObject.name}] {message}");
+            Debug.Log($"[{gameObject.name} TimeController] {message}");
         }
     }
     
@@ -63,9 +70,12 @@ public class NPCTimeController : MonoBehaviour
     /// </summary>
     private void LogMonitor(string message)
     {
+        // 添加null检查，防止已销毁对象访问
+        if (this == null || gameObject == null) return;
+        
         if (debugLogLevel >= DebugLogLevel.Monitor)
         {
-            Debug.Log($"[{gameObject.name}] {message}");
+            Debug.Log($"[{gameObject.name} TimeController] {message}");
         }
     }
     
@@ -74,7 +84,13 @@ public class NPCTimeController : MonoBehaviour
     /// </summary>
     private void LogWarning(string message)
     {
-        Debug.LogWarning($"[{gameObject.name}] {message}");
+        // 添加null检查，防止已销毁对象访问
+        if (this == null || gameObject == null) return;
+        
+        if (debugLogLevel >= DebugLogLevel.Silent)
+        {
+            Debug.LogWarning($"[{gameObject.name} TimeController] {message}");
+        }
     }
     
     /// <summary>
@@ -82,7 +98,10 @@ public class NPCTimeController : MonoBehaviour
     /// </summary>
     private void LogError(string message)
     {
-        Debug.LogError($"[{gameObject.name}] {message}");
+        // 添加null检查，防止已销毁对象访问
+        if (this == null || gameObject == null) return;
+        
+        Debug.LogError($"[{gameObject.name} TimeController] {message}");
     }
     
     #endregion
@@ -99,11 +118,15 @@ public class NPCTimeController : MonoBehaviour
     
     void Start()
     {
+        // 创建委托实例
+        storyTimeUpdatedHandler = OnStoryTimeUpdated;
+        actTimeStartedHandler = OnActTimeStarted;
+        
         // 订阅故事时间更新事件
         if (EventCenter.Instance != null)
         {
-            EventCenter.Instance.Subscribe(GameState.EventNames.STORY_TIME_UPDATED, () => OnStoryTimeUpdated());
-            EventCenter.Instance.Subscribe(GameState.EventNames.ACT_TIME_STARTED, () => OnActTimeStarted());
+            EventCenter.Instance.Subscribe(GameState.EventNames.STORY_TIME_UPDATED, storyTimeUpdatedHandler);
+            EventCenter.Instance.Subscribe(GameState.EventNames.ACT_TIME_STARTED, actTimeStartedHandler);
         }
         
         // 订阅路径点到达事件
@@ -160,10 +183,33 @@ public class NPCTimeController : MonoBehaviour
     void OnDisable()
     {
         // 取消事件订阅
+        if (EventCenter.Instance != null && storyTimeUpdatedHandler != null && actTimeStartedHandler != null)
+        {
+            EventCenter.Instance.Unsubscribe(GameState.EventNames.STORY_TIME_UPDATED, storyTimeUpdatedHandler);
+            EventCenter.Instance.Unsubscribe(GameState.EventNames.ACT_TIME_STARTED, actTimeStartedHandler);
+        }
+        
+        if (pathManager != null)
+        {
+            pathManager.OnPathPointReached -= OnPathPointReached;
+        }
+    }
+    
+    void OnDestroy()
+    {
+        // 确保事件订阅被彻底清理（防止OnDisable未被调用的情况）
         if (EventCenter.Instance != null)
         {
-            EventCenter.Instance.Unsubscribe(GameState.EventNames.STORY_TIME_UPDATED, () => OnStoryTimeUpdated());
-            EventCenter.Instance.Unsubscribe(GameState.EventNames.ACT_TIME_STARTED, () => OnActTimeStarted());
+            if (storyTimeUpdatedHandler != null)
+            {
+                EventCenter.Instance.Unsubscribe(GameState.EventNames.STORY_TIME_UPDATED, storyTimeUpdatedHandler);
+                storyTimeUpdatedHandler = null;
+            }
+            if (actTimeStartedHandler != null)
+            {
+                EventCenter.Instance.Unsubscribe(GameState.EventNames.ACT_TIME_STARTED, actTimeStartedHandler);
+                actTimeStartedHandler = null;
+            }
         }
         
         if (pathManager != null)
@@ -174,6 +220,9 @@ public class NPCTimeController : MonoBehaviour
     
     private void OnStoryTimeUpdated()
     {
+        // 添加null检查，防止已销毁对象访问
+        if (this == null || gameObject == null) return;
+        
         if (timeControlEnabled && hasInitialized)
         {
             UpdateSpeedBasedOnTime();
@@ -182,6 +231,9 @@ public class NPCTimeController : MonoBehaviour
     
     private void OnActTimeStarted()
     {
+        // 添加null检查，防止已销毁对象访问
+        if (this == null || gameObject == null) return;
+        
         Debug.Log($"[{gameObject.name}] 收到幕开始事件，准备重新初始化时间控制");
         
         // 使用协程延迟执行，避免在状态切换过程中执行瞬移
@@ -834,6 +886,34 @@ public class NPCTimeController : MonoBehaviour
         float currentStoryTime = GameState.Instance.GetStoryTime();
         PathConfig currentPath = pathManager.GetCurrentPathConfig();
         
+        // 额外保护：确保currentPath不为空
+        if (currentPath == null)
+        {
+            LogWarning($"⚠️ UpdateSpeedBasedOnTime: currentPath为空，尝试重新初始化");
+            
+            // 尝试重新初始化路径
+            if (pathManager != null && controller != null && controller.Data != null)
+            {
+                // 检查是否有可用的路径配置
+                if (controller.Data.paths != null && controller.Data.paths.Count > 0)
+                {
+                    LogMonitor($"发现{controller.Data.paths.Count}个可用路径配置，尝试重新初始化时间控制");
+                    InitializeTimeControl();
+                    return; // 等待下一帧重新处理
+                }
+                else
+                {
+                    LogWarning($"NPC数据中没有可用的路径配置，保持当前状态等待");
+                    return; // 保持当前状态，不修改速度
+                }
+            }
+            else
+            {
+                LogError($"pathManager为null，无法获取路径信息");
+                return; // 保持当前状态
+            }
+        }
+        
         // 额外保护：确保currentTargetTimePoint不为空
         if (currentTargetTimePoint == null)
         {
@@ -929,6 +1009,28 @@ public class NPCTimeController : MonoBehaviour
         
         // 计算剩余时间
         PathConfig currentPath = pathManager.GetCurrentPathConfig();
+        
+        // 保护：确保currentPath不为空
+        if (currentPath == null)
+        {
+            LogWarning($"⚠️ CalculateRequiredSpeed: currentPath为空，尝试获取有效路径");
+            
+            // 尝试重新获取路径
+            if (pathManager != null && controller != null && controller.Data != null)
+            {
+                var availablePaths = controller.Data.paths;
+                if (availablePaths != null && availablePaths.Count > 0)
+                {
+                    LogMonitor($"发现{availablePaths.Count}个可用路径，当前可能正在切换中");
+                    // 保持极慢速度，等待路径切换完成
+                    return 0.1f;
+                }
+            }
+            
+            LogWarning($"没有可用路径配置，保持极慢速度等待");
+            return 0.1f; // 不是原始速度，而是极慢速度等待
+        }
+        
         float currentStoryTime = GameState.Instance.GetStoryTime();
         float currentRelativeTime = currentStoryTime - currentPath.pathStartStoryTime;
         float remainingTime = currentTargetTimePoint.requiredStoryTime - currentRelativeTime;
