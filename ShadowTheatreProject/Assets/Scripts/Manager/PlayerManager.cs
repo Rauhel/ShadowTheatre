@@ -76,18 +76,39 @@ public class PlayerManager : MonoBehaviour
 
     private void Start()
     {
+        Debug.Log($"[PlayerManager] === Start开始 ===");
+        
         // 获取InputManager引用
+        Debug.Log($"[PlayerManager] 尝试获取InputManager实例...");
         inputManager = InputManager.Instance;
+        
         if (inputManager != null)
         {
-            Debug.Log("PlayerManager: 订阅InputManager.OnGestureTypeReceived事件");
+            Debug.Log($"[PlayerManager] ✓ 成功获取InputManager实例: {inputManager.name}");
+            Debug.Log($"[PlayerManager] 准备订阅OnGestureTypeReceived事件...");
+            
             // 订阅手势类型事件
             inputManager.OnGestureTypeReceived += HandleGestureType;
+            
+            Debug.Log($"[PlayerManager] ✓ 事件订阅成功");
         }
         else
         {
-            Debug.LogError("无法获取InputManager实例!");
+            Debug.LogError($"[PlayerManager] ✗ 无法获取InputManager实例!");
+            
+            // 尝试查找InputManager
+            var inputManagerInScene = FindObjectOfType<InputManager>();
+            if (inputManagerInScene != null)
+            {
+                Debug.Log($"[PlayerManager] 在场景中找到InputManager: {inputManagerInScene.name}");
+            }
+            else
+            {
+                Debug.LogError($"[PlayerManager] 场景中也找不到InputManager组件！");
+            }
         }
+        
+        Debug.Log($"[PlayerManager] === Start结束 ===");
     }
 
     private void Update()
@@ -101,15 +122,21 @@ public class PlayerManager : MonoBehaviour
     /// </summary>
     private void HandleGestureType(string gestureType, float confidence)
     {
-        Debug.Log($"PlayerManager: 收到手势类型 {gestureType}, 置信度: {confidence}");
+        Debug.Log($"[PlayerManager] === HandleGestureType调用 === 手势: {gestureType}, 置信度: {confidence}");
+        
         // 将手势类型映射到阴影类型
         ShadowType shadowType = MapGestureTypeToShadowType(gestureType);
+        Debug.Log($"[PlayerManager] 映射结果: {gestureType} -> {shadowType}");
 
         // 如果是有效的阴影类型，则更新
         if (shadowType != ShadowType.None)
         {
-            Debug.Log($"PlayerManager: 映射手势类型 {gestureType} 到阴影类型 {shadowType}");
+            Debug.Log($"[PlayerManager] 有效阴影类型，准备更新: {shadowType}");
             UpdateShadowType(shadowType, confidence);
+        }
+        else
+        {
+            Debug.LogWarning($"[PlayerManager] 无效阴影类型，跳过更新: {gestureType} -> {shadowType}");
         }
     }
 
@@ -118,20 +145,29 @@ public class PlayerManager : MonoBehaviour
     /// </summary>
     private ShadowType MapGestureTypeToShadowType(string gestureType)
     {
+        Debug.Log($"[PlayerManager] === MapGestureTypeToShadowType === 输入: '{gestureType}'");
+        
         // 转换为小写进行比较，确保大小写不敏感
         string lowerType = gestureType.ToLower();
+        Debug.Log($"[PlayerManager] 转换为小写: '{lowerType}'");
 
         // 从配置的映射中查找匹配项
-        foreach (var mapping in gestureMappings)
+        Debug.Log($"[PlayerManager] 检查映射配置，总数: {gestureMappings.Count}");
+        
+        for (int i = 0; i < gestureMappings.Count; i++)
         {
+            var mapping = gestureMappings[i];
+            Debug.Log($"[PlayerManager] 映射 {i+1}: '{mapping.gestureType}' -> {mapping.shadowType}");
+            
             if (mapping.gestureType.ToLower() == lowerType)
             {
+                Debug.Log($"[PlayerManager] ✓ 找到匹配映射: '{gestureType}' -> {mapping.shadowType}");
                 return mapping.shadowType;
             }
         }
 
         // 如果没有找到匹配项
-        Debug.LogWarning($"未知的手势类型: {gestureType}，使用None");
+        Debug.LogWarning($"[PlayerManager] ✗ 未找到匹配的手势映射: '{gestureType}'，使用None");
         return ShadowType.None;
     }
 
@@ -141,55 +177,128 @@ public class PlayerManager : MonoBehaviour
     private void CheckKeyboardInput()
     {
         if (Input.GetKeyDown(birdKey))
+        {
+            Debug.Log($"[PlayerManager] 键盘输入: Bird ({birdKey})");
             UpdateShadowType(ShadowType.Bird);
+        }
         else if (Input.GetKeyDown(wolfKey))
+        {
+            Debug.Log($"[PlayerManager] 键盘输入: Wolf ({wolfKey})");
             UpdateShadowType(ShadowType.Wolf);
+        }
         else if (Input.GetKeyDown(fistKey))
+        {
+            Debug.Log($"[PlayerManager] 键盘输入: Fist ({fistKey})");
             UpdateShadowType(ShadowType.Fist);
+        }
         else if (Input.GetKeyDown(gooseKey))
+        {
+            Debug.Log($"[PlayerManager] 键盘输入: Goose ({gooseKey})");
             UpdateShadowType(ShadowType.Goose);
+        }
         else if (Input.GetKeyDown(frogKey))
+        {
+            Debug.Log($"[PlayerManager] 键盘输入: Frog ({frogKey})");
             UpdateShadowType(ShadowType.Frog);
+        }
         else if (Input.GetKeyDown(owlKey))
+        {
+            Debug.Log($"[PlayerManager] 键盘输入: Owl ({owlKey})");
             UpdateShadowType(ShadowType.Owl);
+        }
     }
 
     /// <summary>
     /// 更新阴影类型
     /// </summary>
-    public void UpdateShadowType(ShadowType shadowType, float confidence = 1.0f)
+    public void UpdateShadowType(ShadowType shadowType, float confidence = 1.0f, bool forceUpdate = false)
     {
-        // 如果类型相同，不需要更新
-        if (currentShadowType == shadowType) return;
+        Debug.Log($"[PlayerManager] === UpdateShadowType调用 === 类型: {shadowType}, 置信度: {confidence}, 强制更新: {forceUpdate}");
+        Debug.Log($"[PlayerManager] 当前阴影类型: {currentShadowType}");
+        
+        // 如果类型相同且不是强制更新，不需要更新
+        if (currentShadowType == shadowType && !forceUpdate)
+        {
+            Debug.Log($"[PlayerManager] 阴影类型相同，跳过更新: {shadowType}");
+            return;
+        }
 
         // 更新阴影类型
+        var previousType = currentShadowType;
         currentShadowType = shadowType;
+        Debug.Log($"[PlayerManager] 阴影类型已更新: {previousType} -> {currentShadowType}");
 
         // 输出日志
         Debug.Log($"[PlayerManager] 阴影类型已更新: {shadowType}, 置信度: {confidence:F3}");
 
         try
         {
+            Debug.Log($"[PlayerManager] 开始广播事件...");
+            
             // 触发阴影类型变更事件
+            Debug.Log($"[PlayerManager] 触发OnShadowTypeChanged事件");
             OnShadowTypeChanged?.Invoke(shadowType);
 
             // 通过事件中心广播变化
-            EventCenter.Instance.Publish("ShadowTypeChanged");
-
-            // 发布特定阴影类型事件
-            if (shadowType != ShadowType.None)
+            if (EventCenter.Instance != null)
             {
-                EventCenter.Instance.Publish($"{shadowType}Detected");
-                Debug.Log($"[PlayerManager] 发布{shadowType}阴影事件");
+                Debug.Log($"[PlayerManager] 发布ShadowTypeChanged事件到EventCenter");
+                EventCenter.Instance.Publish("ShadowTypeChanged");
+
+                // 发布特定阴影类型事件
+                if (shadowType != ShadowType.None)
+                {
+                    string eventName = $"{shadowType}Detected";
+                    Debug.Log($"[PlayerManager] 发布特定阴影事件: {eventName}");
+                    EventCenter.Instance.Publish(eventName);
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[PlayerManager] EventCenter.Instance为空，无法发布事件");
             }
 
             // 这里可以添加更改玩家外观或行为的代码
+            Debug.Log($"[PlayerManager] 准备应用阴影类型到玩家...");
             ApplyShadowTypeToPlayer(shadowType);
+            
+            Debug.Log($"[PlayerManager] === UpdateShadowType完成 ===");
         }
         catch (Exception e)
         {
-            Debug.LogError($"处理阴影类型变更时出错: {e.Message}");
+            Debug.LogError($"[PlayerManager] 处理阴影类型变更时出错: {e.Message}");
+            Debug.LogError($"[PlayerManager] 错误堆栈: {e.StackTrace}");
         }
+    }
+
+    /// <summary>
+    /// 强制更新阴影类型（忽略相同状态检查）
+    /// </summary>
+    public void ForceUpdateShadowType(ShadowType shadowType, float confidence = 1.0f)
+    {
+        Debug.Log($"[PlayerManager] 强制更新阴影类型: {shadowType}");
+        UpdateShadowType(shadowType, confidence, true);
+    }
+
+    /// <summary>
+    /// 重置PlayerManager状态为None
+    /// </summary>
+    [ContextMenu("重置阴影类型为None")]
+    public void ResetShadowType()
+    {
+        Debug.Log($"[PlayerManager] 重置阴影类型为None");
+        currentShadowType = ShadowType.None;
+        ApplyShadowTypeToPlayer(ShadowType.None);
+    }
+
+    /// <summary>
+    /// 强制刷新当前阴影类型到外观系统
+    /// </summary>
+    [ContextMenu("强制刷新当前阴影类型")]
+    public void RefreshCurrentShadowType()
+    {
+        Debug.Log($"[PlayerManager] 强制刷新当前阴影类型: {currentShadowType}");
+        ApplyShadowTypeToPlayer(currentShadowType);
     }
 
     /// <summary>
@@ -197,14 +306,39 @@ public class PlayerManager : MonoBehaviour
     /// </summary>
     private void ApplyShadowTypeToPlayer(ShadowType shadowType)
     {
-        if (currentPlayer == null) return;
+        Debug.Log($"[PlayerManager] === ApplyShadowTypeToPlayer开始 === 类型: {shadowType}");
+        
+        if (currentPlayer == null)
+        {
+            Debug.LogWarning($"[PlayerManager] ✗ currentPlayer为空，无法应用阴影类型");
+            return;
+        }
+
+        Debug.Log($"[PlayerManager] ✓ currentPlayer存在: {currentPlayer.name}");
 
         // 获取玩家上的相关组件并更新
         PlayerAppearance appearance = currentPlayer.GetComponent<PlayerAppearance>();
+        
         if (appearance != null)
         {
+            Debug.Log($"[PlayerManager] ✓ 找到PlayerAppearance组件，准备调用ChangeShadowType");
             appearance.ChangeShadowType(shadowType);
+            Debug.Log($"[PlayerManager] ✓ 已调用PlayerAppearance.ChangeShadowType({shadowType})");
         }
+        else
+        {
+            Debug.LogError($"[PlayerManager] ✗ 在玩家对象上找不到PlayerAppearance组件！");
+            
+            // 调试信息：显示玩家对象上的所有组件
+            var allComponents = currentPlayer.GetComponents<MonoBehaviour>();
+            Debug.Log($"[PlayerManager] 玩家对象上的所有MonoBehaviour组件 (共{allComponents.Length}个):");
+            for (int i = 0; i < allComponents.Length; i++)
+            {
+                Debug.Log($"[PlayerManager] 组件 {i+1}: {allComponents[i].GetType().Name}");
+            }
+        }
+        
+        Debug.Log($"[PlayerManager] === ApplyShadowTypeToPlayer结束 ===");
     }
 
     /// <summary>

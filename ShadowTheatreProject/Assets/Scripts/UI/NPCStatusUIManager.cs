@@ -13,7 +13,6 @@ public class NPCStatusUIManager : MonoBehaviour
     [SerializeField] private List<NPCStatusIcon> statusIcons = new List<NPCStatusIcon>(); // 对应的5个状态图标
     
     [Header("动画设置")]
-    [SerializeField] private float colorTransitionDuration = 0.3f;  // 颜色过渡时间
     [SerializeField] private float scaleOnProcessingEvent = 1.2f;   // 正在处理事件时的缩放
     
     [Header("调试")]
@@ -61,7 +60,7 @@ public class NPCStatusUIManager : MonoBehaviour
                 
                 // 初始化图标
                 NPCStatusData statusData = npc.GetStatusData();
-                icon.Initialize(statusData, colorTransitionDuration, scaleOnProcessingEvent);
+                icon.Initialize(statusData, 0.3f, scaleOnProcessingEvent);
                 
                 if (showDebugInfo)
                 {
@@ -116,16 +115,7 @@ public class NPCStatusUIManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// 设置特定NPC的自定义颜色
-    /// </summary>
-    public void SetCustomColorScheme(string npcId, Color normalColor, Color processingColor)
-    {
-        if (npcIconMap.ContainsKey(npcId))
-        {
-            npcIconMap[npcId].SetCustomColors(normalColor, processingColor);
-        }
-    }
+
     
     /// <summary>
     /// 获取映射的NPC数量
@@ -147,7 +137,7 @@ public class NPCStatusUIManager : MonoBehaviour
             
             // 初始化图标
             NPCStatusData statusData = npc.GetStatusData();
-            icon.Initialize(statusData, colorTransitionDuration, scaleOnProcessingEvent);
+            icon.Initialize(statusData, 0.3f, scaleOnProcessingEvent);
             
             if (showDebugInfo)
             {

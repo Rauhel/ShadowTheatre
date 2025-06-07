@@ -273,19 +273,7 @@ public class UIManager : MonoBehaviour
         }
     }
     
-    /// <summary>
-    /// 设置NPC状态图标的自定义颜色（供外部调用的接口）
-    /// </summary>
-    /// <param name="npcId">NPC ID</param>
-    /// <param name="normalColor">正常状态颜色</param>
-    /// <param name="processingColor">正在处理事件时的颜色</param>
-    public void SetNPCStatusColors(string npcId, Color normalColor, Color processingColor)
-    {
-        if (npcStatusUIManager != null)
-        {
-            npcStatusUIManager.SetCustomColorScheme(npcId, normalColor, processingColor);
-        }
-    }
+
     
     /// <summary>
     /// 获取NPC状态UI管理器（供外部访问）

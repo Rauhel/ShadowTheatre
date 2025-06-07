@@ -4,13 +4,12 @@ using System.Collections;
 using TMPro;
 
 /// <summary>
-/// NPC状态图标：单个NPC的状态显示组件
+/// NPC状态图标：单个NPC的状态显示组件（简化版 - 无背景颜色）
 /// </summary>
 public class NPCStatusIcon : MonoBehaviour
 {
     [Header("UI组件")]
     [SerializeField] private Image iconImage;           // NPC图标
-    [SerializeField] private Image backgroundImage;     // 背景图像
     [SerializeField] private GameObject eventIndicator; // 事件指示器
     
     [Header("动画组件")]
@@ -18,15 +17,12 @@ public class NPCStatusIcon : MonoBehaviour
     
     [Header("默认设置")]
     [SerializeField] private Sprite defaultIcon;        // 默认图标
-    [SerializeField] private Color defaultBackgroundColor = Color.white;
     
     // 状态数据
     private NPCStatusData currentStatusData;
-    private float colorTransitionDuration = 0.3f;
     private float processingEventScale = 1.2f;
     
     // 动画相关
-    private Coroutine colorTransitionCoroutine;
     private Coroutine scaleAnimationCoroutine;
     private Vector3 originalScale;
     
@@ -55,17 +51,25 @@ public class NPCStatusIcon : MonoBehaviour
     /// </summary>
     public void Initialize(NPCStatusData statusData, float transitionDuration = 0.3f, float eventScale = 1.2f)
     {
+        Debug.Log($"[NPCStatusIcon] === 开始初始化 === NPC: {statusData.npcId}");
+        
+        // 检查组件状态
+        Debug.Log($"[NPCStatusIcon] 组件检查:");
+        Debug.Log($"  - iconImage: {(iconImage != null ? iconImage.name : "null")}");
+        Debug.Log($"  - defaultIcon: {(defaultIcon != null ? defaultIcon.name : "null")}");
+        Debug.Log($"  - statusData.npcIcon: {(statusData.npcIcon != null ? statusData.npcIcon.name : "null")}");
+        
         // 创建状态数据的副本，避免引用问题
         currentStatusData = new NPCStatusData(statusData);
         
-        colorTransitionDuration = transitionDuration;
         processingEventScale = eventScale;
         
         // 设置基本信息
+        Debug.Log($"[NPCStatusIcon] 开始设置图标，statusData.npcIcon: {(statusData.npcIcon != null ? statusData.npcIcon.name : "null")}");
         SetIcon(statusData.npcIcon);
-        UpdateVisualState(currentStatusData, false); // 初始化时不使用动画
+        UpdateVisualState(currentStatusData);
         
-        Debug.Log($"[NPCStatusIcon] 初始化完成: {currentStatusData.npcId}, 处理事件: {currentStatusData.isProcessingEvent}");
+        Debug.Log($"[NPCStatusIcon] ✅ 初始化完成: {currentStatusData.npcId}, 处理事件: {currentStatusData.isProcessingEvent}");
     }
     
     /// <summary>
@@ -94,11 +98,16 @@ public class NPCStatusIcon : MonoBehaviour
             // 更新当前状态数据（创建副本）
             currentStatusData.isProcessingEvent = newStatusData.isProcessingEvent;
             currentStatusData.npcIcon = newStatusData.npcIcon;
-            currentStatusData.normalColor = newStatusData.normalColor;
-            currentStatusData.processingEventColor = newStatusData.processingEventColor;
+            
+            // 更新图标（如果图标发生变化）
+            if (oldStatusData.npcIcon != newStatusData.npcIcon)
+            {
+                Debug.Log($"[NPCStatusIcon] 图标发生变化，更新图标: {(newStatusData.npcIcon != null ? newStatusData.npcIcon.name : "null")}");
+                SetIcon(newStatusData.npcIcon);
+            }
             
             // 更新UI元素
-            UpdateVisualState(currentStatusData, true); // 使用动画
+            UpdateVisualState(currentStatusData);
             
             // 如果事件状态发生变化，触发特殊动画
             if (oldStatusData.isProcessingEvent != currentStatusData.isProcessingEvent)
@@ -118,7 +127,8 @@ public class NPCStatusIcon : MonoBehaviour
     /// </summary>
     private bool HasStatusChanged(NPCStatusData oldData, NPCStatusData newData)
     {
-        return oldData.isProcessingEvent != newData.isProcessingEvent;
+        return oldData.isProcessingEvent != newData.isProcessingEvent ||
+               oldData.npcIcon != newData.npcIcon;
     }
     
     /// <summary>
@@ -128,31 +138,45 @@ public class NPCStatusIcon : MonoBehaviour
     {
         if (iconImage != null)
         {
-            iconImage.sprite = icon != null ? icon : defaultIcon;
+            // 优先使用传入的icon，如果为空则使用defaultIcon，如果还为空则保持当前sprite
+            Sprite targetIcon = icon != null ? icon : (defaultIcon != null ? defaultIcon : iconImage.sprite);
+            
+            Debug.Log($"[NPCStatusIcon] 设置图标详情:");
+            Debug.Log($"  - 传入icon: {(icon != null ? icon.name : "null")}");
+            Debug.Log($"  - defaultIcon: {(defaultIcon != null ? defaultIcon.name : "null")}");
+            Debug.Log($"  - 当前sprite: {(iconImage.sprite != null ? iconImage.sprite.name : "null")}");
+            Debug.Log($"  - 最终targetIcon: {(targetIcon != null ? targetIcon.name : "null")}");
+            
+            // 只有在targetIcon不为空时才设置
+            if (targetIcon != null)
+            {
+                iconImage.sprite = targetIcon;
+                Debug.Log($"[NPCStatusIcon] ✅ 成功设置图标: {targetIcon.name}");
+            }
+            else
+            {
+                Debug.LogWarning($"[NPCStatusIcon] ⚠️ 所有图标都为空，保持当前显示");
+            }
+            
+            // 确保Image组件启用
+            iconImage.enabled = true;
+        }
+        else
+        {
+            Debug.LogError($"[NPCStatusIcon] ❌ iconImage组件为空，无法设置图标");
         }
     }
     
     /// <summary>
-    /// 更新视觉状态
+    /// 更新视觉状态（简化版 - 只处理indicator和动画）
     /// </summary>
-    private void UpdateVisualState(NPCStatusData statusData, bool useAnimation = true)
+    private void UpdateVisualState(NPCStatusData statusData)
     {
-        Color targetColor = statusData.GetCurrentColor();
-        
-        // 更新背景颜色
-        if (useAnimation)
-        {
-            StartColorTransition(targetColor);
-        }
-        else
-        {
-            SetBackgroundColor(targetColor);
-        }
-        
         // 更新事件指示器
         if (eventIndicator != null)
         {
             eventIndicator.SetActive(statusData.isProcessingEvent);
+            Debug.Log($"[NPCStatusIcon] 事件指示器状态: {statusData.isProcessingEvent}");
         }
         
         // 如果有动画器，触发相应的动画状态
@@ -161,79 +185,14 @@ public class NPCStatusIcon : MonoBehaviour
             if (statusData.isProcessingEvent)
             {
                 iconAnimator.SetTrigger("ProcessingEvent");
+                Debug.Log($"[NPCStatusIcon] 触发ProcessingEvent动画");
             }
             else
             {
                 iconAnimator.SetTrigger("Normal");
+                Debug.Log($"[NPCStatusIcon] 触发Normal动画");
             }
         }
-    }
-    
-    /// <summary>
-    /// 开始颜色过渡动画
-    /// </summary>
-    private void StartColorTransition(Color targetColor)
-    {
-        if (colorTransitionCoroutine != null)
-        {
-            StopCoroutine(colorTransitionCoroutine);
-        }
-        
-        colorTransitionCoroutine = StartCoroutine(ColorTransitionCoroutine(targetColor));
-    }
-    
-    /// <summary>
-    /// 颜色过渡协程
-    /// </summary>
-    private IEnumerator ColorTransitionCoroutine(Color targetColor)
-    {
-        Color startColor = GetBackgroundColor();
-        float elapsedTime = 0f;
-        
-        while (elapsedTime < colorTransitionDuration)
-        {
-            elapsedTime += Time.deltaTime;
-            float t = elapsedTime / colorTransitionDuration;
-            
-            Color currentColor = Color.Lerp(startColor, targetColor, t);
-            SetBackgroundColor(currentColor);
-            
-            yield return null;
-        }
-        
-        SetBackgroundColor(targetColor);
-        colorTransitionCoroutine = null;
-    }
-    
-    /// <summary>
-    /// 设置背景颜色
-    /// </summary>
-    private void SetBackgroundColor(Color color)
-    {
-        if (backgroundImage != null)
-        {
-            backgroundImage.color = color;
-        }
-        else if (iconImage != null)
-        {
-            iconImage.color = color;
-        }
-    }
-    
-    /// <summary>
-    /// 获取当前背景颜色
-    /// </summary>
-    private Color GetBackgroundColor()
-    {
-        if (backgroundImage != null)
-        {
-            return backgroundImage.color;
-        }
-        else if (iconImage != null)
-        {
-            return iconImage.color;
-        }
-        return defaultBackgroundColor;
     }
     
     /// <summary>
@@ -294,21 +253,6 @@ public class NPCStatusIcon : MonoBehaviour
         targetTransform.localScale = targetScale;
         Debug.Log($"[NPCStatusIcon] 缩放动画完成: {targetTransform.localScale}");
         scaleAnimationCoroutine = null;
-    }
-    
-    /// <summary>
-    /// 设置自定义颜色方案（供外部调用）
-    /// </summary>
-    public void SetCustomColors(Color normalColor, Color processingColor)
-    {
-        if (currentStatusData != null)
-        {
-            currentStatusData.normalColor = normalColor;
-            currentStatusData.processingEventColor = processingColor;
-            
-            // 立即更新视觉状态
-            UpdateVisualState(currentStatusData, true);
-        }
     }
     
     /// <summary>

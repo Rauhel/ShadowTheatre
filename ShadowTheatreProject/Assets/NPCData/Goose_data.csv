@@ -1,144 +1,175 @@
-﻿路径名称,事件ID,动作类型,路径点索引,对话内容,动画名称,手势类型
-1,PATH_ACTION,PATH_ACTION,1,尊敬的祭司，,,
-1,PATH_ACTION,PATH_ACTION,,我曾经相信我们的守护神一定会保佑祂的王国，,,
-1,PATH_ACTION,PATH_ACTION,,因此我也愿意相信你的话，守护神的代言人。,,
-1,PATH_ACTION,PATH_ACTION,,然而过去了这么多循环——,,
-1,PATH_ACTION,PATH_ACTION,,假设我们当下的这个循环并不是第一个，,,
-1,,,,我也不得不质疑您的话语了。,,
-1,,,,我很希望我能够相信祂的存在，,,
-1,,,,但事实是我很难相信祂能够改变现状。,,
-2,PATH_ACTION,PATH_ACTION,,珍贵？哈！,,
-2,,,,我的血液里流淌月光——,,
-,,,,但是我连自己的阴影都无法照亮！,,
-,,,,若生命是王冠上的宝石...,,
-,,,,我宁愿把它摔成献祭的骨渣！,,
-,,,,毕竟动物才苟且贪生...,,
-,,,,而诗人早把魂魄典当给虚空的回声！,,
-3,PATH_ACTION,PATH_ACTION,,诗行在我体内暴动...,,
-,,,,每个韵脚都流淌在我指尖，,,
-,,,,逼迫我迅速将它们写下！,,
-,,,,"我多想剖开胸膛，",,
-,,,,让未书写的十四行诗袒露在空中！,,
-,,,,可他们却说：,,
-,,,,“安静！你的隐喻挡了弩炮轨道！”,,
-,,,,多可笑...,,
-,,,,我竟把语言炼成自我禁锢的裹尸布！,,
-,,,,裹住渴求掌声的喉舌，,,
-,,,,裹住想抓住所有耳朵的贪婪骨掌——,,
-,,,,现在这双手...,,
-,,,,连为绝望鼓掌都发不出回响！,,
-,,,,“诗人”...,,
-,,,,我七岁在宫墙刻下“我要万物倾听”，,,
-,,,,如今每道笔画都长出铁蒺藜！,,
-,,,,最痛的是星光路过耳畔时——,,
-,,,,竟不屑为未诞生的诗驻足半秒！,,
-,,,,“当群星被迫签署缄默条约...”,,
-,,,,——住手！你这向虚空献祭的疯子！,,
-,,,,可若停笔...,,
-,,,,我拿什么证明不是墓穴的陪葬回音？,,
-,,,,吞下吧...发光的砒霜！,,
-,,,,好把终生不敢吼出的诘问——,,
-,,,,“存在可配成为诗行标点？”,,
-,,,,烙进每滴骨髓...,,
-,,,,直至焚烧成无人收阅的灰烬遗嘱！,,
-,,,,……有谁曾经正眼看过我的诗作？,,
-,,,,没有……,,
-,,,,没有人！,,
-,,,,燃烧吧！,,
-,,,,带着御前诗人的金绶带灰飞烟灭！,,
-4,PATH_ACTION,PATH_ACTION,,第三次？或第三千次？,,
-,,,,每次我都将诗稿喂给相同的火焰...,,
-,,,,是否做我想做终将走向毁灭？,,
-,,,,像剪掉舌头的乌鸦效仿夜莺——,,
-,,,,那歌声再动听，,,
-,,,,也不过是喉管血沫的咕哝！,,
-,,,,歌颂公主双手的十四行诗...,,
-,,,,又如何能打开封锁的鸟笼！,,
-,,,,哈...多精致的废物啊！,,
-,,,,毕生心血？,,
-,,,,不过是一团意味不明的废稿——,,
-,,,,填满了鹅毛笔月光下朦胧的阴影！,,
-,,,,看啊——,,
-,,,,“永恒”烧剩半条腿，,,
-,,,,“荣耀”蜷成问号...,,
-,,,,多像我的命途：,,
-,,,,华丽辞藻裱糊的破棺材！,,
-,,,,当守墓人都嫌悼词冗长，,,
-,,,,当碑文蛆虫啃噬韵脚嗤笑“酸腐”——,,
-,,,,诗人啊...,,
-,,,,你连当装饰品的资格都是赝品！,,
-,,,,瞧见了吗虚空？,,
-,,,,这满手文字的灰烬...,,
-,,,,便是我存在过的全部砝码——,,
-,,,,轻得压不弯半片月光！,,
-,,,,公主啊，像我这样的人应该如何救您？,,
-,,,,我连这余烬都捧不起...,,
-,,,,拿什么对抗囚禁您的铁笼？,,
-,GOOSE4,GESTURE,,月夜窗台的水痕...,,BIRD
-,GOOSE4,GESTURE,,是您悄悄听我朗诵时手心的余温吗？,,BIRD
-,GOOSE4,GESTURE,,诗集扉页的折角...,,BIRD
-,GOOSE4,GESTURE,,是您蜷在帷幔后反复摩挲的证据吗？,,BIRD
-,GOOSE4,GESTURE,,是了！,,BIRD
-,GOOSE4,GESTURE,,您从未宣告“我在听”，,,BIRD
-,GOOSE4,GESTURE,,只悄悄用晨露攀升时,,BIRD
-,GOOSE4,GESTURE,,摆正我踢翻的墨瓶——,,BIRD
-,GOOSE4,GESTURE,,像风修改云絮却不邀功！,,BIRD
-,GOOSE4,GESTURE,,纵我的诗劈不开铁栏...,,BIRD
-,GOOSE4,GESTURE,,也要把词句锻成撬锁的钩针！,,BIRD
-,GOOSE4,GESTURE,,纵喉舌早被虚空调教得温顺...,,BIRD
-,GOOSE4,GESTURE,,这次我不颂赞歌也不写史诗，,,BIRD
-,GOOSE4,GESTURE,,只是尽我所能，,,BIRD
-,GOOSE4,GESTURE,,找到我那最珍视的东西，,,BIRD
-,GOOSE4,GESTURE,,即使我现在毫无思路！,,BIRD
-,GOOSE4,GESTURE,,请等着我吧，陛下...,,BIRD
-,GOOSE4,GESTURE,,我毕生练习用词藻编织羽衣，,,DEFAULT
-,GOOSE4,GESTURE,,却连您鸟笼的一根铁刺都拗不断！,,DEFAULT
-,GOOSE4,GESTURE,,瞧，所谓伟大诗篇的力量，,,DEFAULT
-,GOOSE4,GESTURE,,我全部的能耐——,,DEFAULT
-,GOOSE4,GESTURE,,不过是给人平添笑话！,,DEFAULT
-,GOOSE4,GESTURE,,我什么都做不到！,,DEFAULT
-,GOOSE4,GESTURE,,呵呵，多公平——,,DEFAULT
-,GOOSE4,GESTURE,,当听众是尸体，不朽便成了最恶毒的诅咒！,,DEFAULT
-,GOOSE4,GESTURE,,飘吧！带着我剜心雕琢的韵脚...,,DEFAULT
-,GOOSE4,GESTURE,,去喂食墓碑下饥渴的蛆虫！,,DEFAULT
-5,PATH_ACTION,PATH_ACTION,,先贤们...,,
-,,,,你们把用双手铸造了王国地基的沥青，,,
-,,,,如今可听见蝼蚁在头骨里开盛宴？,,
-,,,,这捧墓土比我的诗册更沉重——,,
-,,,,至少它诚实埋葬了幻梦的尸骸！,,
-,,,,您也曾在雨夜抓挠石棺内壁吗？,,
-,,,,像我用指甲在稿纸刻“不朽”——,,
-,,,,啊！《影之国十四行》...您是我的启蒙者！,,
-,,,,可为何您墓志铭写着：,,
-,,,,“此处长眠的傻瓜，,,
-,,,,把心雕成王室地砖的装饰金边’？”,,
-,,,,“带捧墓土佐酒吧...,,
-,,,,好尝尝您当年咽下的，,,
-,,,,是怀才不遇的苦胆还是自命清高的砒霜？,,
-,,,,原来我们早是幽灵——,,
-,PATH_ACTION,PATH_ACTION,,活人谁写诗给墓碑看！,,
-,GOOSE5,GESTURE,,可即便如此他们都做出了伟大的成就，,,GOOSE
-,GOOSE5,GESTURE,,这一点不可否认。,,GOOSE
-,GOOSE5,GESTURE,,腐叶下是什么？,,GOOSE
-,GOOSE5,GESTURE,,啊...《朝露与公主的九百首》！,,GOOSE
-,GOOSE5,GESTURE,,由七岁的我写作。,,GOOSE
-,GOOSE5,GESTURE,,看啊，当年的我竟写道：,,GOOSE
-,GOOSE5,GESTURE,,“露珠折射整个王国——,,GOOSE
-,GOOSE5,GESTURE,,我的诗是让光驻足的手掌”！,,GOOSE
-,GOOSE5,GESTURE,,是啊，我要为自己而活！,,GOOSE
-,GOOSE5,GESTURE,,我要活下去拯救其他人！,,GOOSE
-,GOOSE5,GESTURE,,即使其他人已经放弃了！,,GOOSE
-,GOOSE5,GESTURE,,我想这一抔黄土就很合适。,,GOOSE
-,GOOSE5,GESTURE,,承载着先贤的成败兴荣，,,GOOSE
-,GOOSE5,GESTURE,,我将继续传颂王国的史诗。,,GOOSE
-,GOOSE5,GESTURE,,多狂妄的真理：,,DEFAULT
-,GOOSE5,GESTURE,,伟大作品不是万人传唱的圣歌，,,DEFAULT
-,GOOSE5,GESTURE,,是蚯蚓在腐土里篆刻的地脉韵脚！,,DEFAULT
-,GOOSE5,GESTURE,,终于...,,DEFAULT
-,GOOSE5,GESTURE,,我的骨将与你们共舞永恒的虚无！,,DEFAULT
-,GOOSE5,GESTURE,,多妙！诗人最杰出的作品竟是,,DEFAULT
-,GOOSE5,GESTURE,,这具速朽的肉体注解——,,DEFAULT
-,GOOSE5,GESTURE,,“此处躺倒的，,,DEFAULT
-,GOOSE5,GESTURE,,是影之王国最冗长的败笔！”,,DEFAULT
-,,,,,,
-,,,,,,
+﻿路径ID,路径名称,分数下限,分数上限,事件ID,动作类型,路径点索引,对话内容,动画名称,循环动画,显示时间,延迟时间,停留时间,手势类型,分数影响,是否活跃,事件起始点,事件结束点
+# NPC_ID,3,,,,,,,,,,,,,,,,
+# NPC_NAME,goose,,,,,,,,,,,,,,,,
+# CURRENT_SCORE,0,,,,,,,,,,,,,,,,
+# PATH,goose-1,1,,,,,,,,,,,,,,,
+# PATH_START_TIME,goose-1,0,,,,,,,,,,,,,,,
+# TIME_POINT,goose-1,0,0,,,,,,,,,,,,,,
+goose-1,1,0,100,PATH_ACTION,PATH_ACTION,0,尊敬的祭司，,,1,2,0,0,,,TRUE,,
+goose-1,1,0,100,PATH_ACTION,PATH_ACTION,0,我曾经相信我们的守护神一定会保佑祂的王国，,,1,2,0,0,,,TRUE,,
+goose-1,1,0,100,PATH_ACTION,PATH_ACTION,0,因此我也愿意相信你的话，守护神的代言人。,,1,2,0,0,,,TRUE,,
+goose-1,1,0,100,PATH_ACTION,PATH_ACTION,0,然而过去了这么多循环——,,1,2,0,0,,,TRUE,,
+goose-1,1,0,100,PATH_ACTION,PATH_ACTION,0,假设我们当下的这个循环并不是第一个，,,1,2,0,0,,,TRUE,,
+goose-1,1,0,100,PATH_ACTION,PATH_ACTION,0,我也不得不质疑您的话语了。,,1,2,0,0,,,TRUE,,
+goose-1,1,0,100,PATH_ACTION,PATH_ACTION,0,我很希望我能够相信祂的存在，,,1,2,0,0,,,TRUE,,
+goose-1,1,0,100,PATH_ACTION,PATH_ACTION,0,但事实是我很难相信祂能够改变现状。,,1,2,0,0,,,TRUE,,
+# BRANCHES,goose-1,,,,,0,,,,,,,,,,,
+# BRANCH,goose-1,goose-2,0,100,分支 1,0,,,,,,,,,,,
+# PATH,goose-2,2,,,,0,,,,,,,,,,,
+# PATH_START_TIME,goose-2,60,,,,0,,,,,,,,,,,
+# TIME_POINT,goose-2,0,0,,,0,,,,,,,,,,,
+goose-2,2,0,100,PATH_ACTION,PATH_ACTION,0,珍贵？哈！,,1,2,0,0,,,TRUE,,
+goose-2,2,0,100,PATH_ACTION,PATH_ACTION,0,我的血液里流淌月光——,,1,2,0,0,,,TRUE,,
+goose-2,2,0,100,PATH_ACTION,PATH_ACTION,0,但是我连自己的阴影都无法照亮！,,1,2,0,0,,,TRUE,,
+goose-2,2,0,100,PATH_ACTION,PATH_ACTION,0,若生命是王冠上的宝石...,,1,2,0,0,,,TRUE,,
+goose-2,2,0,100,PATH_ACTION,PATH_ACTION,0,我宁愿把它摔成献祭的骨渣！,,1,2,0,0,,,TRUE,,
+goose-2,2,0,100,PATH_ACTION,PATH_ACTION,0,毕竟动物才苟且贪生...,,1,2,0,0,,,TRUE,,
+goose-2,2,0,100,PATH_ACTION,PATH_ACTION,0,而诗人早把魂魄典当给虚空的回声！,,1,2,0,0,,,TRUE,,
+# BRANCHES,goose-2,,,,,0,,,,,,,,,,,
+# BRANCH,goose-2,goose-3,0,100,分支 1,0,,,,,,,,,,,
+# PATH,goose-3,3,,,,0,,,,,,,,,,,
+# PATH_START_TIME,goose-3,80,,,,0,,,,,,,,,,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,诗行在我体内暴动...,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,每个韵脚都流淌在我指尖，,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,逼迫我迅速将它们写下！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,我多想剖开胸膛，,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,让未书写的十四行诗袒露在空中！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,可他们却说：,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,“安静！你的隐喻挡了弩炮轨道！”,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,多可笑...,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,我竟把语言炼成自我禁锢的裹尸布！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,裹住渴求掌声的喉舌，,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,裹住想抓住所有耳朵的贪婪骨掌——,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,现在这双手...,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,连为绝望鼓掌都发不出回响！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,“诗人”...,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,我七岁在宫墙刻下“我要万物倾听”，,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,如今每道笔画都长出铁蒺藜！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,最痛的是星光路过耳畔时——,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,竟不屑为未诞生的诗驻足半秒！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,“当群星被迫签署缄默条约...”,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,——住手！你这向虚空献祭的疯子！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,可若停笔...,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,我拿什么证明不是墓穴的陪葬回音？,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,吞下吧...发光的砒霜！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,好把终生不敢吼出的诘问——,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,“存在可配成为诗行标点？”,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,烙进每滴骨髓...,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,直至焚烧成无人收阅的灰烬遗嘱！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,……有谁曾经正眼看过我的诗作？,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,没有……,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,没有人！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,燃烧吧！,,1,2,0,0,,,TRUE,,
+goose-3,3,0,100,PATH_ACTION,PATH_ACTION,0,带着御前诗人的金绶带灰飞烟灭！,,1,2,0,0,,,TRUE,,
+# BRANCHES,goose-3,,,,,0,,,,,,,,,,,
+# BRANCH,goose-3,goose-4,0,100,分支 1,0,,,,,,,,,,,
+# PATH,goose-4,4,,,,0,,,,,,,,,,,
+# PATH_START_TIME,goose-4,100,,,,0,,,,,,,,,,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,第三次？或第三千次？,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,每次我都将诗稿喂给相同的火焰...,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,是否做我想做终将走向毁灭？,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,像剪掉舌头的乌鸦效仿夜莺——,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,那歌声再动听，,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,也不过是喉管血沫的咕哝！,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,歌颂公主双手的十四行诗...,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,又如何能打开封锁的鸟笼！,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,哈...多精致的废物啊！,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,毕生心血？,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,不过是一团意味不明的废稿——,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,填满了鹅毛笔月光下朦胧的阴影！,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,看啊——,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,“永恒”烧剩半条腿，,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,“荣耀”蜷成问号...,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,多像我的命途：,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,华丽辞藻裱糊的破棺材！,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,当守墓人都嫌悼词冗长，,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,当碑文蛆虫啃噬韵脚嗤笑“酸腐”——,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,诗人啊...,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,你连当装饰品的资格都是赝品！,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,瞧见了吗虚空？,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,这满手文字的灰烬...,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,便是我存在过的全部砝码——,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,轻得压不弯半片月光！,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,公主啊，像我这样的人应该如何救您？,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,我连这余烬都捧不起...,,1,2,0,0,,,TRUE,,
+goose-4,4,0,100,PATH_ACTION,PATH_ACTION,0,拿什么对抗囚禁您的铁笼？,,1,2,0,0,,,TRUE,,
+# EVENT,goose-4,GOOSE4,,,,0,,,,,,,,,,,
+goose-4,4,0,100,GOOSE4,DEFAULT,0,我毕生练习用词藻编织羽衣，,,1,2,0,0,,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,DEFAULT,0,却连您鸟笼的一根铁刺都拗不断！,,1,2,0,0,,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,DEFAULT,0,瞧，所谓伟大诗篇的力量，,,1,2,0,0,,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,DEFAULT,0,我全部的能耐——,,1,2,0,0,,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,DEFAULT,0,不过是给人平添笑话！,,1,2,0,0,,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,DEFAULT,0,我什么都做不到！,,1,2,0,0,,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,DEFAULT,0,呵呵，多公平——,,1,2,0,0,,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,DEFAULT,0,当听众是尸体，不朽便成了最恶毒的诅咒！,,1,2,0,0,,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,DEFAULT,0,飘吧！带着我剜心雕琢的韵脚...,,1,2,0,0,,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,DEFAULT,0,去喂食墓碑下饥渴的蛆虫！,,1,2,0,0,,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,月夜窗台的水痕...,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,是您悄悄听我朗诵时手心的余温吗？,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,诗集扉页的折角...,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,是您蜷在帷幔后反复摩挲的证据吗？,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,是了！,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,您从未宣告“我在听”，,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,只悄悄用晨露攀升时,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,摆正我踢翻的墨瓶——,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,像风修改云絮却不邀功！,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,纵我的诗劈不开铁栏...,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,也要把词句锻成撬锁的钩针！,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,纵喉舌早被虚空调教得温顺...,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,这次我不颂赞歌也不写史诗，,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,只是尽我所能，,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,找到我那最珍视的东西，,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,即使我现在毫无思路！,,1,2,0,0,BIRD,0,TRUE,76,78
+goose-4,4,0,100,GOOSE4,GESTURE,0,请等着我吧，陛下...,,1,2,0,0,BIRD,0,TRUE,76,78
+# BRANCHES,goose-4,,,,,0,,,,,,,,,,,
+# BRANCH,goose-4,goose-5,0,100,分支 1,0,,,,,,,,,,,
+# PATH,goose-5,5,,,,0,,,,,,,,,,,
+# PATH_START_TIME,goose-5,120,,,,0,,,,,,,,,,,
+# TIME_POINT,goose-5,0,0,,,0,,,,,,,,,,,
+# TIME_POINT,goose-5,20,120,,,0,,,,,,,,,,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,先贤们...,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,你们把用双手铸造了王国地基的沥青，,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,如今可听见蝼蚁在头骨里开盛宴？,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,这捧墓土比我的诗册更沉重——,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,至少它诚实埋葬了幻梦的尸骸！,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,您也曾在雨夜抓挠石棺内壁吗？,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,像我用指甲在稿纸刻“不朽”——,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,啊！《影之国十四行》...您是我的启蒙者！,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,可为何您墓志铭写着：,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,“此处长眠的傻瓜，,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,把心雕成王室地砖的装饰金边’？”,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,“带捧墓土佐酒吧...,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,好尝尝您当年咽下的，,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,是怀才不遇的苦胆还是自命清高的砒霜？,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,原来我们早是幽灵——,,1,2,0,0,,,TRUE,,
+goose-5,5,0,100,PATH_ACTION,PATH_ACTION,0,活人谁写诗给墓碑看！,,1,2,0,0,,,TRUE,,
+# EVENT,goose-5,GOOSE5,,,,0,,,,,,,,,,,
+goose-5,5,0,100,GOOSE5,DEFAULT,0,多狂妄的真理：,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,DEFAULT,0,伟大作品不是万人传唱的圣歌，,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,DEFAULT,0,是蚯蚓在腐土里篆刻的地脉韵脚！,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,DEFAULT,0,终于...,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,DEFAULT,0,我的骨将与你们共舞永恒的虚无！,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,DEFAULT,0,多妙！诗人最杰出的作品竟是,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,DEFAULT,0,这具速朽的肉体注解——,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,DEFAULT,0,“此处躺倒的，,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,DEFAULT,0,是影之王国最冗长的败笔！”,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,DEFAULT,0,,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,DEFAULT,0,,,1,2,0,0,,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,可即便如此他们都做出了伟大的成就，,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,这一点不可否认。,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,腐叶下是什么？,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,啊...《朝露与公主的九百首》！,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,由七岁的我写作。,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,看啊，当年的我竟写道：,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,“露珠折射整个王国——,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,我的诗是让光驻足的手掌”！,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,是啊，我要为自己而活！,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,我要活下去拯救其他人！,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,即使其他人已经放弃了！,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,我想这一抔黄土就很合适。,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,承载着先贤的成败兴荣，,,1,2,0,0,GOOSE,0,TRUE,119,121
+goose-5,5,0,100,GOOSE5,GESTURE,0,我将继续传颂王国的史诗。,,1,2,0,0,GOOSE,0,TRUE,119,121
+# BRANCHES,goose-5,,,,,,,,,,,,,,,,
+# BRANCH,goose-5,goose-6,0,100,HOME,,,,,,,,,,,,
+# PATH,goose-6,6,,,,,,,,,,,,,,,
+# PATH_START_TIME,goose-6,241,,,,,,,,,,,,,,,

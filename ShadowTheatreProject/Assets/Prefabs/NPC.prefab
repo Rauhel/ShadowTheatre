@@ -67,15 +67,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 60412a15c79bc437f91c9e0d7cb3011a, type: 2}
+  m_sharedMaterial: {fileID: 4333434665883533978, guid: 60412a15c79bc437f91c9e0d7cb3011a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
     rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -287,7 +287,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d570d76df3f0ae4a8e20f5f81b9d3ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  npcData: {fileID: 11400000, guid: 0d9014bf7d167174191ecc65ee65fe08, type: 2}
+  npcData: {fileID: 11400000, guid: 7154e5ff2fbf95e4bb238e5edc48a708, type: 2}
   animator: {fileID: 0}
   npcStatusIcon: {fileID: 0}
 --- !u!114 &3613923605385003051
@@ -373,15 +373,9 @@ MonoBehaviour:
   targetRenderer: {fileID: 5594965548217104397}
   animations:
   - animationName: Idle
-    spriteSheet: {fileID: 2800000, guid: 17c350171f7a3ca479f830547c66d187, type: 3}
-    frameCount: 4
-    frameRate: 30
-    autoCalculate: 0
-    horizontal: 0
-  - animationName: Run
     spriteSheet: {fileID: 2800000, guid: c76d18757a194d618355f05f815cb0a1, type: 3}
-    frameCount: 4
-    frameRate: 30
+    frameCount: 1
+    frameRate: 1
     autoCalculate: 0
     horizontal: 0
   currentAnimationName: 
@@ -403,8 +397,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetRenderer: {fileID: 5594965548217104397}
-  texture: {fileID: 0}
-  setBottomToZero: 0
+  texture: {fileID: 2800000, guid: 813f485b73b465b42917c0922a4aed14, type: 3}
+  setBottomToZero: 1
 --- !u!114 &5842248660806761765
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -445,6 +439,7 @@ MonoBehaviour:
   dialogueOffset: {x: 0, y: 2, z: 0}
   fadeInTime: 0.2
   fadeOutTime: 0.2
+  useTimeBasedDialogue: 1
 --- !u!114 &4882111042005887272
 MonoBehaviour:
   m_ObjectHideFlags: 0

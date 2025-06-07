@@ -182,8 +182,11 @@ public class InputManager : MonoBehaviour
     /// </summary>
     public void UpdateGestureType(string gestureType, Dictionary<string, float> additionalData = null)
     {
+        Debug.Log($"[InputManager] === UpdateGestureType调用 === 手势类型: '{gestureType}'");
+        
         // 更新手势类型
         currentGestureType = gestureType;
+        Debug.Log($"[InputManager] 当前手势类型已更新为: '{currentGestureType}'");
         
         // 更新合并的手势数据
         currentGesture.type = currentGestureType;
@@ -191,23 +194,40 @@ public class InputManager : MonoBehaviour
 
         if (additionalData != null)
         {
+            Debug.Log($"[InputManager] 处理附加数据，数量: {additionalData.Count}");
             currentGesture.additionalData.Clear();
             foreach (var kvp in additionalData)
             {
                 currentGesture.additionalData[kvp.Key] = kvp.Value;
+                Debug.Log($"[InputManager] 附加数据: {kvp.Key} = {kvp.Value}");
             }
         }
 
         // 触发手势类型事件
-        OnGestureTypeReceived?.Invoke(gestureType, 1.0f);
+        Debug.Log($"[InputManager] 准备触发OnGestureTypeReceived事件...");
+        Debug.Log($"[InputManager] OnGestureTypeReceived订阅者数量: {GetGestureTypeSubscriberCount()}");
+        
+        if (OnGestureTypeReceived != null)
+        {
+            Debug.Log($"[InputManager] ✓ 触发OnGestureTypeReceived事件: '{gestureType}', 置信度: 1.0");
+            OnGestureTypeReceived?.Invoke(gestureType, 1.0f);
+            Debug.Log($"[InputManager] ✓ OnGestureTypeReceived事件已触发");
+        }
+        else
+        {
+            Debug.LogWarning($"[InputManager] ⚠️ OnGestureTypeReceived事件为空，没有订阅者！");
+        }
         
         // 通知所有监听器
+        Debug.Log($"[InputManager] 通知手势监听器...");
         NotifyGestureListeners();
         
         if (enableDebugLogs)
         {
-            Debug.Log($"[InputManager] 手势类型更新: {gestureType}");
+            Debug.Log($"[InputManager] 手势类型更新完成: {gestureType}");
         }
+        
+        Debug.Log($"[InputManager] === UpdateGestureType结束 ===");
     }
 
     /// <summary>
@@ -503,5 +523,11 @@ public class InputManager : MonoBehaviour
         {
             OnGestureUpdated -= listener;
         }
+    }
+
+    // 获取订阅者数量的安全方法
+    public int GetGestureTypeSubscriberCount()
+    {
+        return OnGestureTypeReceived?.GetInvocationList().Length ?? 0;
     }
 }

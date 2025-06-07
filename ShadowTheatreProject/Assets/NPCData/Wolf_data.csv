@@ -1,195 +1,265 @@
-﻿路径名称,事件ID,动作类型,路径点索引,对话内容,动画名称,手势类型
-1,PATH_ACTION,PATH_ACTION,1,要我说，这样倒正好。,,
-,PATH_ACTION,PATH_ACTION,,反正公主醒着时，,,
-,PATH_ACTION,PATH_ACTION,,看我们的眼神和看宫墙的污渍没两样！,,
-,PATH_ACTION,PATH_ACTION,,啊呀！您这铁皮罐头...,,
-,PATH_ACTION,PATH_ACTION,,——可惜不能亲手掐断那小鬼的脖子！,,
-,,,,继续睡啊陛下！睡到永恒尽头吧！,,
-,,,,如果打破时间循环的唯一方法是唤醒她，,,
-,,,,我宁可永远活在这循环中！,,
-,,,,反正我也不记得过往的循环。,,
-,,,,省省缥缈韵脚吧！,,
-,,,,守护神的存在你也敢质疑？,,
-,,,,这是对神的亵渎！,,
-1,,,,小青蛙，就你也配评论剑术？,,
-1,,,,呵呵！,,
-2,PATH_ACTION,PATH_ACTION,,“地牢的青蛙也配议论星空？,,
-,,,,再亵渎神明...,,
-,,,,我不介意替狱卒补完未尽的绞刑！”,,
-,,,,“……,,
-,,,,腐烂之物，只配与蛆虫论长短。,,
-,,,,我和你没什么好说的了，,,
-,,,,你好自为之。”,,
-3,PATH_ACTION,PATH_ACTION,,……“最珍贵的东西”？,,
-,,,,……,,
-,,,,呵呵，我哪里有什么珍贵的东西？,,
-,,,,除非是公主的尸首！,,
-,,,,神啊！,,
-,,,,为什么公主昏迷不醒而且被困在笼中？,,
-,,,,我多么想亲手杀死她！,,
-,,,,她只会给我带来折磨！,,
-,,,,总是如此！,,
-4,PATH_ACTION,PATH_ACTION,,烛台是光的诞生地。,,
-,,,,这是我印象里公主最喜欢的东西了。,,
-,,,,小时候，每到夜晚，,,
-,,,,您总盯着火苗发愣…,,
-,,,,难道烛光比我的剑锋更懂守护？,,
-,,,,‘看呀！融化的金子会讲故事~’,,
-,,,,如今才懂…,,
-,,,,您眼里跳跃的从不是光——,,
-,,,,是怕我看出那瞳孔深处的…,,
-,,,,囚鸟般的寂寞。,,
-,WOLF4,GESTURE,,我在暗处看着你，,,BIRD
-,WOLF4,GESTURE,,你喃喃自语：能否飞离地面不再忧虑？,,BIRD
-,WOLF4,GESTURE,,可惜即使可以我也不能这么做。,,BIRD
-,WOLF4,GESTURE,,……什么时候能让王国重新繁盛？,,BIRD
-,WOLF4,GESTURE,,一些事物需要割舍。,,BIRD
-,WOLF4,GESTURE,,我的小公主，,,BIRD
-,WOLF4,GESTURE,,我只希望你平安喜乐，,,BIRD
-,WOLF4,GESTURE,,忧愁不应当爬上你的面庞。,,BIRD
-,WOLF4,GESTURE,,每当此时我都默默祝愿，,,BIRD
-,WOLF4,GESTURE,,祝愿这烛台能永远为你驱散阴霾。,,BIRD
-,WOLF4,GESTURE,,我在暗处看着你，,,WOLF
-,WOLF4,GESTURE,,你喃喃自语：能否飞离地面不再忧虑？,,WOLF
-,WOLF4,GESTURE,,可惜即使可以我也不能这么做。,,WOLF
-,WOLF4,GESTURE,,……什么时候能让王国重新繁盛？,,WOLF
-,WOLF4,GESTURE,,一些事物需要割舍。,,WOLF
-,WOLF4,GESTURE,,我的小公主，,,WOLF
-,WOLF4,GESTURE,,我只希望你平安喜乐，,,WOLF
-,WOLF4,GESTURE,,忧愁不应当爬上你的面庞。,,WOLF
-,WOLF4,GESTURE,,每当此时我都默默祝愿，,,WOLF
-,WOLF4,GESTURE,,祝愿这烛台能永远为你驱散阴霾。,,WOLF
-,WOLF4,GESTURE,,你的双手将会伸向何方？,,DEFAULT
-,WOLF4,GESTURE,,我不知道……,,DEFAULT
-,WOLF4,GESTURE,,火苗舔舐黑暗的样子…,,DEFAULT
-,WOLF4,GESTURE,,多像您玩弄真心的把戏！,,DEFAULT
-,WOLF4,GESTURE,,我举剑守护的究竟是什么——,,DEFAULT
-,WOLF4,GESTURE,,是您永不示人的算计吗？！,,DEFAULT
-5,PATH_ACTION,PATH_ACTION,,童戏的证物？,,
-,,,,说什么“永远做我妈妈”…,,
-,,,,原来誓言早被您乳牙硌出裂痕！,,
-,,,,可为什么…,,
-,,,,您成年后还把它藏进首饰盒暗格？,,
-,,,,咽下这谎话！,,
-,,,,好让“永远”卡在我喉间…,,
-,,,,日日警醒何为虚妄！,,
-,WOLF5,GESTURE,,弄臣也戴着枷锁…,,FROG
-,WOLF5,GESTURE,,您疏远所有人只为保护什么？,,FROG
-,WOLF5,GESTURE,,“永远在一起”的誓言…,,FROG
-,WOLF5,GESTURE,,原是要斩断的藤蔓？,,FROG
-,WOLF5,GESTURE,,……,,FROG
-,WOLF5,GESTURE,,唉！,,FROG
-,WOLF5,GESTURE,,……,,DEFAULT
-,WOLF5,GESTURE,,你心里到底在想什么？！,,DEFAULT
-,WOLF5,GESTURE,,我真的搞不明白……,,DEFAULT
-,WOLF5,GESTURE,,童戏的谎言！,,DEFAULT
-,WOLF5,GESTURE,,您心里早塞满新宠了吧？,,DEFAULT
-,WOLF5,GESTURE,,咽下这伪约！,,DEFAULT
-,WOLF5,GESTURE,,好让钻石棱角日日割我脏腑——,,DEFAULT
-,WOLF5,GESTURE,,你总是在折磨所有愿意为你付出的人。,,DEFAULT
-,WOLF5,GESTURE,,即便如此他们还在为你奔波，,,DEFAULT
-,WOLF5,GESTURE,,真是可笑！,,DEFAULT
-6,PATH_ACTION,PATH_ACTION,,接见使臣时戴它，散场就丢弃…,,
-,,,,我不也是您用完即丢的白手套？,,
-,,,,“丢”了七年竟有三十七处缝补？！,,
-,,,,啊…,,
-,,,,这补丁针法…,,
-,,,,分明是我教您缝箭袋的斜十字阵！,,
-,,,,您竟拿它…,,
-,,,,缝补体面的假象？！,,
-,WOLF6,GESTURE,,斜十字阵…,,WOLF
-,WOLF6,GESTURE,,这箭袋针法！您竟缝了三十七次？,,WOLF
-,WOLF6,GESTURE,,“妈妈别哭”…那年雪夜您为我补箭伤…,,WOLF
-,WOLF6,GESTURE,,现在换我焐热这体面的伪装！,,WOLF
-,WOLF6,GESTURE,,王国里的每个人都渴望您的垂怜……,,DEFAULT
-,WOLF6,GESTURE,,金玉其外的垃圾！,,DEFAULT
-,WOLF6,GESTURE,,正如我镶在您权杖上的真心——,,DEFAULT
-,WOLF6,GESTURE,,烧吧！灰烬才配装点虚妄王座！,,DEFAULT
-7,PATH_ACTION,PATH_ACTION,,为救您打翻的贡品…,,
-,,,,换得“鲁莽愚忠”的训斥！,,
-,,,,“妈妈看！”,,
-,,,,“我们把春天养在碎瓶里！”,,
-,,,,原来砸碎完美才能…,,
-,,,,让真心从裂痕里扎根。,,
-,,,,这一句诗我也曾经听过……,,
-,WOLF7,GESTURE,,春天养在碎瓶里...,,GOOSE
-,WOLF7,GESTURE,,您早知完美即牢笼。,,GOOSE
-,WOLF7,GESTURE,,就像疏远我——,,GOOSE
-,WOLF7,GESTURE,,是为割舍窒息的母爱？,,GOOSE
-,WOLF7,GESTURE,,碎得好！,,DEFAULT
-,WOLF7,GESTURE,,您骨子里不就爱看忠诚者流血？,,DEFAULT
-,WOLF7,GESTURE,,来！用我的血釉您最称心的棺材！,,DEFAULT
-8,,,,,,
-9,PATH_ACTION,PATH_ACTION,,终于藏不住了？,10,PATH_ACTION
-,,,,地牢的锈味早腌透你骨缝！,,
-,,,,当年裹你出地牢的布？,,
-,,,,这歪扭的畜生绣像…,,
-,,,,你偷我针线干的？！,,
-,,,,疯子…,,
-,,,,这疤是掰地牢栅栏救你时刮的！,,
-,,,,你倒好…,,
-,,,,往我心口捅更深的洞！,,
-,,,,粪坑里的小爪子…,,
-,,,,也这样扒着我不放。,,
-,,,,那夜我踹开地牢门！,,
-,,,,你烧糊涂咬我肩膀说“冷”…,,
-,,,,现在还冷吗？！,,
-10,PATH_ACTION,PATH_ACTION,,我教您握剑的掌型模子…,9,PATH_ACTION
-,,,,如今却想掐断您脖颈！,,
-,,,,这凹痕…,,
-,,,,原是我当年握着您小手刻的！,,
-,,,,“妈妈的手最暖！”您咯咯笑…,,
-,,,,原来恨是冰封的求救！,,
-11,PATH_ACTION,PATH_ACTION,,凡事过往种种云烟，,,
-,,,,我早已年老体弱无法做任何有意义的事情。,,
-,,,,今天在。,,
-,,,,我不得不承认我依然深深爱着公主。,,
-,,,,公主啊……,,
-,,,,我的生命来自你的馈赠，,,
-,,,,我又怎敢责怪你的无情？,,
-,,,,只愿你早日醒来，,,
-,,,,再次降临在你的国度。,,
-12,PATH_ACTION,PATH_ACTION,,……,,
-,,,,…………,,
-,,,,好累啊。,,
-,,,,……,,
-,,,,我不想再去想那些事了，,,
-,,,,永别了，公主。,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
-,,,,,,
+﻿路径ID,路径名称,分数下限,分数上限,事件ID,动作类型,路径点索引,对话内容,动画名称,循环动画,显示时间,延迟时间,停留时间,手势类型,分数影响,是否活跃,事件起始点,事件结束点
+# NPC_ID,1,,,,,,,,,,,,,,,,
+# NPC_NAME,wolf,,,,,,,,,,,,,,,,
+# CURRENT_SCORE,0,,,,,,,,,,,,,,,,
+# PATH,wolf-1,1,,,,,,,,,,,,,,,
+# PATH_START_TIME,wolf-1,0,,,,,,,,,,,,,,,
+# TIME_POINT,wolf-1,0,0,,,,,,,,,,,,,,
+# TIME_POINT,wolf-1,4,60,,,,,,,,,,,,,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,要我说，这样倒正好。,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,反正公主醒着时，,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,看我们的眼神和看宫墙的污渍没两样！,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,啊呀！您这铁皮罐头...,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,——可惜不能亲手掐断那小鬼的脖子！,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,继续睡啊陛下！睡到永恒尽头吧！,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,如果打破时间循环的唯一方法是唤醒她，,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,我宁可永远活在这循环中！,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,反正我也不记得过往的循环。,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,省省缥缈韵脚吧！,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,守护神的存在你也敢质疑？,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,这是对神的亵渎！,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,小青蛙，就你也配评论剑术？,,1,2,0,0,,,TRUE,,
+wolf-1,1,0,100,PATH_ACTION,PATH_ACTION,0,呵呵！,,1,2,0,0,,,TRUE,,
+# BRANCHES,wolf-1,,,,,0,,,,,,,,,,,
+# BRANCH,wolf-1,wolf-2,0,100,分支 1,0,,,,,,,,,,,
+# PATH,wolf-2,2,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-2,60,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-2,0,0,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-2,2,5,,,0,,,,,,,,,,,
+wolf-2,2,0,100,PATH_ACTION,PATH_ACTION,0,“地牢的青蛙也配议论星空？,,1,2,0,0,,,TRUE,,
+wolf-2,2,0,100,PATH_ACTION,PATH_ACTION,0,再亵渎神明...,,1,2,0,0,,,TRUE,,
+wolf-2,2,0,100,PATH_ACTION,PATH_ACTION,0,我不介意替狱卒补完未尽的绞刑！”,,1,2,0,0,,,TRUE,,
+wolf-2,2,0,100,PATH_ACTION,PATH_ACTION,0,“……,,1,2,0,0,,,TRUE,,
+wolf-2,2,0,100,PATH_ACTION,PATH_ACTION,0,腐烂之物，只配与蛆虫论长短。,,1,2,0,0,,,TRUE,,
+wolf-2,2,0,100,PATH_ACTION,PATH_ACTION,0,我和你没什么好说的了，,,1,2,0,0,,,TRUE,,
+wolf-2,2,0,100,PATH_ACTION,PATH_ACTION,0,你好自为之。”,,1,2,0,0,,,TRUE,,
+# BRANCHES,wolf-2,,,,,0,,,,,,,,,,,
+# BRANCH,wolf-2,wolf-3,0,100,分支 1,0,,,,,,,,,,,
+# PATH,wolf-3,3,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-3,80,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-3,0,0,,,0,,,,,,,,,,,
+wolf-3,3,0,100,PATH_ACTION,PATH_ACTION,0,……“最珍贵的东西”？,,1,2,0,0,,,TRUE,,
+wolf-3,3,0,100,PATH_ACTION,PATH_ACTION,0,……,,1,2,0,0,,,TRUE,,
+wolf-3,3,0,100,PATH_ACTION,PATH_ACTION,0,呵呵，我哪里有什么珍贵的东西？,,1,2,0,0,,,TRUE,,
+wolf-3,3,0,100,PATH_ACTION,PATH_ACTION,0,除非是公主的尸首！,,1,2,0,0,,,TRUE,,
+wolf-3,3,0,100,PATH_ACTION,PATH_ACTION,0,神啊！,,1,2,0,0,,,TRUE,,
+wolf-3,3,0,100,PATH_ACTION,PATH_ACTION,0,为什么公主昏迷不醒而且被困在笼中？,,1,2,0,0,,,TRUE,,
+wolf-3,3,0,100,PATH_ACTION,PATH_ACTION,0,我多么想亲手杀死她！,,1,2,0,0,,,TRUE,,
+wolf-3,3,0,100,PATH_ACTION,PATH_ACTION,0,她只会给我带来折磨！,,1,2,0,0,,,TRUE,,
+wolf-3,3,0,100,PATH_ACTION,PATH_ACTION,0,总是如此！,,1,2,0,0,,,TRUE,,
+# BRANCHES,wolf-3,,,,,0,,,,,,,,,,,
+# BRANCH,wolf-3,wolf-4,0,100,分支 1,0,,,,,,,,,,,
+# PATH,wolf-4,4,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-4,110,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-4,0,0,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-4,4,25,,,0,,,,,,,,,,,
+wolf-4,4,0,100,PATH_ACTION,PATH_ACTION,0,烛台是光的诞生地。,,1,2,0,0,,,TRUE,,
+wolf-4,4,0,100,PATH_ACTION,PATH_ACTION,0,这是我印象里公主最喜欢的东西了。,,1,2,0,0,,,TRUE,,
+wolf-4,4,0,100,PATH_ACTION,PATH_ACTION,0,小时候，每到夜晚，,,1,2,0,0,,,TRUE,,
+wolf-4,4,0,100,PATH_ACTION,PATH_ACTION,0,您总盯着火苗发愣…,,1,2,0,0,,,TRUE,,
+wolf-4,4,0,100,PATH_ACTION,PATH_ACTION,0,难道烛光比我的剑锋更懂守护？,,1,2,0,0,,,TRUE,,
+wolf-4,4,0,100,PATH_ACTION,PATH_ACTION,0,‘看呀！融化的金子会讲故事~’,,1,2,0,0,,,TRUE,,
+wolf-4,4,0,100,PATH_ACTION,PATH_ACTION,0,如今才懂…,,1,2,0,0,,,TRUE,,
+wolf-4,4,0,100,PATH_ACTION,PATH_ACTION,0,您眼里跳跃的从不是光——,,1,2,0,0,,,TRUE,,
+wolf-4,4,0,100,PATH_ACTION,PATH_ACTION,0,是怕我看出那瞳孔深处的…,,1,2,0,0,,,TRUE,,
+wolf-4,4,0,100,PATH_ACTION,PATH_ACTION,0,囚鸟般的寂寞。,,1,2,0,0,,,TRUE,,
+# EVENT,wolf-4,WOLF4,,,,0,,,,,,,,,,,
+wolf-4,4,0,100,WOLF4,DEFAULT,0,你的双手将会伸向何方？,,1,2,0,0,,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,DEFAULT,0,我不知道……,,1,2,0,0,,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,DEFAULT,0,火苗舔舐黑暗的样子…,,1,2,0,0,,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,DEFAULT,0,多像您玩弄真心的把戏！,,1,2,0,0,,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,DEFAULT,0,我举剑守护的究竟是什么——,,1,2,0,0,,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,DEFAULT,0,是您永不示人的算计吗？！,,1,2,0,0,,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,我在暗处看着你，,,1,2,0,0,BIRD,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,你喃喃自语：能否飞离地面不再忧虑？,,1,2,0,0,BIRD,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,可惜即使可以我也不能这么做。,,1,2,0,0,BIRD,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,……什么时候能让王国重新繁盛？,,1,2,0,0,BIRD,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,一些事物需要割舍。,,1,2,0,0,BIRD,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,我的小公主，,,1,2,0,0,BIRD,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,我只希望你平安喜乐，,,1,2,0,0,BIRD,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,忧愁不应当爬上你的面庞。,,1,2,0,0,BIRD,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,每当此时我都默默祝愿，,,1,2,0,0,BIRD,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,祝愿这烛台能永远为你驱散阴霾。,,1,2,0,0,BIRD,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,我在暗处看着你，,,1,2,0,0,WOLF,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,你喃喃自语：能否飞离地面不再忧虑？,,1,2,0,0,WOLF,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,可惜即使可以我也不能这么做。,,1,2,0,0,WOLF,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,……什么时候能让王国重新繁盛？,,1,2,0,0,WOLF,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,一些事物需要割舍。,,1,2,0,0,WOLF,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,我的小公主，,,1,2,0,0,WOLF,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,我只希望你平安喜乐，,,1,2,0,0,WOLF,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,忧愁不应当爬上你的面庞。,,1,2,0,0,WOLF,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,每当此时我都默默祝愿，,,1,2,0,0,WOLF,0,TRUE,41,43
+wolf-4,4,0,100,WOLF4,GESTURE,0,祝愿这烛台能永远为你驱散阴霾。,,1,2,0,0,WOLF,0,TRUE,41,43
+# BRANCHES,wolf-4,,,,,0,,,,,,,,,,,
+# BRANCH,wolf-4,wolf-5,0,100,分支 1,0,,,,,,,,,,,
+# PATH,wolf-5,5,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-5,150,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-5,0,0,,,0,,,,,,,,,,,
+wolf-5,5,0,100,PATH_ACTION,PATH_ACTION,0,童戏的证物？,,1,2,0,0,,,TRUE,,
+wolf-5,5,0,100,PATH_ACTION,PATH_ACTION,0,说什么“永远做我妈妈”…,,1,2,0,0,,,TRUE,,
+wolf-5,5,0,100,PATH_ACTION,PATH_ACTION,0,原来誓言早被您乳牙硌出裂痕！,,1,2,0,0,,,TRUE,,
+wolf-5,5,0,100,PATH_ACTION,PATH_ACTION,0,可为什么…,,1,2,0,0,,,TRUE,,
+wolf-5,5,0,100,PATH_ACTION,PATH_ACTION,0,您成年后还把它藏进首饰盒暗格？,,1,2,0,0,,,TRUE,,
+wolf-5,5,0,100,PATH_ACTION,PATH_ACTION,0,咽下这谎话！,,1,2,0,0,,,TRUE,,
+wolf-5,5,0,100,PATH_ACTION,PATH_ACTION,0,好让“永远”卡在我喉间…,,1,2,0,0,,,TRUE,,
+wolf-5,5,0,100,PATH_ACTION,PATH_ACTION,0,日日警醒何为虚妄！,,1,2,0,0,,,TRUE,,
+# EVENT,wolf-5,WOLF5,,,,0,,,,,,,,,,,
+wolf-5,5,0,100,WOLF5,DEFAULT,0,……,,1,2,0,0,,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,DEFAULT,0,你心里到底在想什么？！,,1,2,0,0,,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,DEFAULT,0,我真的搞不明白……,,1,2,0,0,,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,DEFAULT,0,童戏的谎言！,,1,2,0,0,,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,DEFAULT,0,您心里早塞满新宠了吧？,,1,2,0,0,,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,DEFAULT,0,咽下这伪约！,,1,2,0,0,,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,DEFAULT,0,好让钻石棱角日日割我脏腑——,,1,2,0,0,,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,DEFAULT,0,你总是在折磨所有愿意为你付出的人。,,1,2,0,0,,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,DEFAULT,0,即便如此他们还在为你奔波，,,1,2,0,0,,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,DEFAULT,0,真是可笑！,,1,2,0,0,,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,GESTURE,0,弄臣也戴着枷锁…,,1,2,0,0,FROG,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,GESTURE,0,您疏远所有人只为保护什么？,,1,2,0,0,FROG,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,GESTURE,0,“永远在一起”的誓言…,,1,2,0,0,FROG,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,GESTURE,0,原是要斩断的藤蔓？,,1,2,0,0,FROG,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,GESTURE,0,……,,1,2,0,0,FROG,0,TRUE,75,77
+wolf-5,5,0,100,WOLF5,GESTURE,0,唉！,,1,2,0,0,FROG,0,TRUE,75,77
+# BRANCHES,wolf-5,,,,,0,,,,,,,,,,,
+# BRANCH,wolf-5,wolf-6,0,100,分支 1,0,,,,,,,,,,,
+# PATH,wolf-6,6,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-6,170,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-6,0,0,,,0,,,,,,,,,,,
+wolf-6,6,0,100,PATH_ACTION,PATH_ACTION,0,接见使臣时戴它，散场就丢弃…,,1,2,0,0,,,TRUE,,
+wolf-6,6,0,100,PATH_ACTION,PATH_ACTION,0,我不也是您用完即丢的白手套？,,1,2,0,0,,,TRUE,,
+wolf-6,6,0,100,PATH_ACTION,PATH_ACTION,0,“丢”了七年竟有三十七处缝补？！,,1,2,0,0,,,TRUE,,
+wolf-6,6,0,100,PATH_ACTION,PATH_ACTION,0,啊…,,1,2,0,0,,,TRUE,,
+wolf-6,6,0,100,PATH_ACTION,PATH_ACTION,0,这补丁针法…,,1,2,0,0,,,TRUE,,
+wolf-6,6,0,100,PATH_ACTION,PATH_ACTION,0,分明是我教您缝箭袋的斜十字阵！,,1,2,0,0,,,TRUE,,
+wolf-6,6,0,100,PATH_ACTION,PATH_ACTION,0,您竟拿它…,,1,2,0,0,,,TRUE,,
+wolf-6,6,0,100,PATH_ACTION,PATH_ACTION,0,缝补体面的假象？！,,1,2,0,0,,,TRUE,,
+# EVENT,wolf-6,WOLF6,,,,0,,,,,,,,,,,
+wolf-6,6,0,100,WOLF6,DEFAULT,0,王国里的每个人都渴望您的垂怜……,,1,2,0,0,,0,TRUE,7,8
+wolf-6,6,0,100,WOLF6,DEFAULT,0,金玉其外的垃圾！,,1,2,0,0,,0,TRUE,7,8
+wolf-6,6,0,100,WOLF6,DEFAULT,0,正如我镶在您权杖上的真心——,,1,2,0,0,,0,TRUE,7,8
+wolf-6,6,0,100,WOLF6,DEFAULT,0,烧吧！灰烬才配装点虚妄王座！,,1,2,0,0,,0,TRUE,7,8
+wolf-6,6,0,100,WOLF6,GESTURE,0,斜十字阵…,,1,2,0,0,WOLF,0,TRUE,7,8
+wolf-6,6,0,100,WOLF6,GESTURE,0,这箭袋针法！您竟缝了三十七次？,,1,2,0,0,WOLF,0,TRUE,7,8
+wolf-6,6,0,100,WOLF6,GESTURE,0,“妈妈别哭”…那年雪夜您为我补箭伤…,,1,2,0,0,WOLF,0,TRUE,7,8
+wolf-6,6,0,100,WOLF6,GESTURE,0,现在换我焐热这体面的伪装！,,1,2,0,0,WOLF,0,TRUE,7,8
+# BRANCHES,wolf-6,,,,,0,,,,,,,,,,,
+# BRANCH,wolf-6,wolf-7,0,100,分支 1,0,,,,,,,,,,,
+# PATH,wolf-7,7,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-7,190,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-7,0,0,,,0,,,,,,,,,,,
+wolf-7,7,0,100,PATH_ACTION,PATH_ACTION,0,为救您打翻的贡品…,,1,2,0,0,,,TRUE,,
+wolf-7,7,0,100,PATH_ACTION,PATH_ACTION,0,换得“鲁莽愚忠”的训斥！,,1,2,0,0,,,TRUE,,
+wolf-7,7,0,100,PATH_ACTION,PATH_ACTION,0,“妈妈看！”,,1,2,0,0,,,TRUE,,
+wolf-7,7,0,100,PATH_ACTION,PATH_ACTION,0,“我们把春天养在碎瓶里！”,,1,2,0,0,,,TRUE,,
+wolf-7,7,0,100,PATH_ACTION,PATH_ACTION,0,原来砸碎完美才能…,,1,2,0,0,,,TRUE,,
+wolf-7,7,0,100,PATH_ACTION,PATH_ACTION,0,让真心从裂痕里扎根。,,1,2,0,0,,,TRUE,,
+wolf-7,7,0,100,PATH_ACTION,PATH_ACTION,0,这一句诗我也曾经听过……,,1,2,0,0,,,TRUE,,
+# EVENT,wolf-7,WOLF7,,,,0,,,,,,,,,,,
+wolf-7,7,0,100,WOLF7,DEFAULT,0,碎得好！,,1,2,0,0,,0,TRUE,114,116
+wolf-7,7,0,100,WOLF7,DEFAULT,0,您骨子里不就爱看忠诚者流血？,,1,2,0,0,,0,TRUE,114,116
+wolf-7,7,0,100,WOLF7,DEFAULT,0,来！用我的血釉您最称心的棺材！,,1,2,0,0,,0,TRUE,114,116
+wolf-7,7,0,100,WOLF7,GESTURE,0,春天养在碎瓶里...,,1,2,0,0,GOOSE,0,TRUE,114,116
+wolf-7,7,0,100,WOLF7,GESTURE,0,您早知完美即牢笼。,,1,2,0,0,GOOSE,0,TRUE,114,116
+wolf-7,7,0,100,WOLF7,GESTURE,0,就像疏远我——,,1,2,0,0,GOOSE,0,TRUE,114,116
+wolf-7,7,0,100,WOLF7,GESTURE,0,是为割舍窒息的母爱？,,1,2,0,0,GOOSE,0,TRUE,114,116
+# BRANCHES,wolf-7,,,,,0,,,,,,,,,,,
+# BRANCH,wolf-7,wolf-8,0,100,分支 1,0,,,,,,,,,,,
+# PATH,wolf-8,8,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-8,210,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-8,0,0,,,0,,,,,,,,,,,
+# EVENT,wolf-8,WOLF7,,,,0,,,,,,,,,,,
+wolf-8,8,0,100,WOLF7,DEFAULT,0,,,1,2,0,0,,0,TRUE,121,123
+# BRANCHES,wolf-8,,,,,0,,,,,,,,,,,
+# BRANCH,wolf-8,wolf-9,0,20,活了,0,,,,,,,,,,,
+# BRANCH,wolf-8,wolf-12,20,40,4了,0,,,,,,,,,,,
+# PATH,wolf-9,9,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-9,240,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-9,0,0,,,0,,,,,,,,,,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,终于藏不住了？,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,地牢的锈味早腌透你骨缝！,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,当年裹你出地牢的布？,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,这歪扭的畜生绣像…,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,你偷我针线干的？！,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,疯子…,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,这疤是掰地牢栅栏救你时刮的！,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,你倒好…,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,往我心口捅更深的洞！,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,粪坑里的小爪子…,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,也这样扒着我不放。,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,那夜我踹开地牢门！,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,你烧糊涂咬我肩膀说“冷”…,,1,2,0,0,,,TRUE,,
+wolf-9,9,0,100,PATH_ACTION,PATH_ACTION,0,现在还冷吗？！,,1,2,0,0,,,TRUE,,
+# BRANCHES,wolf-9,,,,,0,,,,,,,,,,,
+# BRANCH,wolf-9,wolf-10,0,50,分支 1,0,,,,,,,,,,,
+# BRANCH,wolf-9,wolf-12,50,100,分支 2,0,,,,,,,,,,,
+# PATH,wolf-10,10,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-10,270,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-10,0,0,,,0,,,,,,,,,,,
+wolf-10,10,0,100,PATH_ACTION,PATH_ACTION,0,我教您握剑的掌型模子…,,1,2,0,0,,,TRUE,,
+wolf-10,10,0,100,PATH_ACTION,PATH_ACTION,0,如今却想掐断您脖颈！,,1,2,0,0,,,TRUE,,
+wolf-10,10,0,100,PATH_ACTION,PATH_ACTION,0,这凹痕…,,1,2,0,0,,,TRUE,,
+wolf-10,10,0,100,PATH_ACTION,PATH_ACTION,0,原是我当年握着您小手刻的！,,1,2,0,0,,,TRUE,,
+wolf-10,10,0,100,PATH_ACTION,PATH_ACTION,0,“妈妈的手最暖！”您咯咯笑…,,1,2,0,0,,,TRUE,,
+wolf-10,10,0,100,PATH_ACTION,PATH_ACTION,0,原来恨是冰封的求救！,,1,2,0,0,,,TRUE,,
+# BRANCHES,wolf-10,,,,,0,,,,,,,,,,,
+# BRANCH,wolf-10,wolf-11,0,100,分支 1,0,,,,,,,,,,,
+# PATH,wolf-11,11,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-11,300,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-11,0,0,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-11,4,20,,,0,,,,,,,,,,,
+wolf-11,11,0,100,PATH_ACTION,PATH_ACTION,0,凡事过往种种云烟，,,1,2,0,0,,,TRUE,,
+wolf-11,11,0,100,PATH_ACTION,PATH_ACTION,0,我早已年老体弱无法做任何有意义的事情。,,1,2,0,0,,,TRUE,,
+wolf-11,11,0,100,PATH_ACTION,PATH_ACTION,0,今天在。,,1,2,0,0,,,TRUE,,
+wolf-11,11,0,100,PATH_ACTION,PATH_ACTION,0,我不得不承认我依然深深爱着公主。,,1,2,0,0,,,TRUE,,
+wolf-11,11,0,100,PATH_ACTION,PATH_ACTION,0,公主啊……,,1,2,0,0,,,TRUE,,
+wolf-11,11,0,100,PATH_ACTION,PATH_ACTION,0,我的生命来自你的馈赠，,,1,2,0,0,,,TRUE,,
+wolf-11,11,0,100,PATH_ACTION,PATH_ACTION,0,我又怎敢责怪你的无情？,,1,2,0,0,,,TRUE,,
+wolf-11,11,0,100,PATH_ACTION,PATH_ACTION,0,只愿你早日醒来，,,1,2,0,0,,,TRUE,,
+wolf-11,11,0,100,PATH_ACTION,PATH_ACTION,0,再次降临在你的国度。,,1,2,0,0,,,TRUE,,
+# PATH,wolf-12,12,,,,0,,,,,,,,,,,
+# PATH_START_TIME,wolf-12,240,,,,0,,,,,,,,,,,
+# TIME_POINT,wolf-12,0,0,,,0,,,,,,,,,,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,……,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,…………,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,好累啊。,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,……,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,我不想再去想那些事了，,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,永别了，公主。,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
+wolf-12,12,0,100,PATH_ACTION,PATH_ACTION,0,,,1,2,0,0,,,TRUE,,
