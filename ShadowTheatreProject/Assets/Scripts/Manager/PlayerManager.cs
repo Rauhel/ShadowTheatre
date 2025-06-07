@@ -15,11 +15,12 @@ public class PlayerManager : MonoBehaviour
     public enum ShadowType
     {
         None,
-        Bird,   // 鸟形手势 - "bird"
-        Deer,   // 鹿形手势 - "deer" 
-        Wolf,   // 狼形手势 - "wolf"
-        Sheep,  // 羊形手势 - "sheep"
-        Goose   // 鹅形手势 - "goose"
+        Bird,   // 鸟形手势 - "bird" (双手)
+        Wolf,   // 狼形手势 - "wolf" (单手)
+        Fist,   // 拳头手势 - "fist" (单手)
+        Goose,  // 鹅形手势 - "goose" (双手)
+        Frog,   // 蛙形手势 - "frog" (双手)
+        Owl     // 猫头鹰手势 - "owl" (双手)
     }
 
     // 手势映射配置
@@ -35,18 +36,20 @@ public class PlayerManager : MonoBehaviour
     private List<GestureMapping> gestureMappings = new List<GestureMapping>
     {
         new GestureMapping { gestureType = "bird", shadowType = ShadowType.Bird },
-        new GestureMapping { gestureType = "deer", shadowType = ShadowType.Deer },
         new GestureMapping { gestureType = "wolf", shadowType = ShadowType.Wolf },
-        new GestureMapping { gestureType = "sheep", shadowType = ShadowType.Sheep },
-        new GestureMapping { gestureType = "goose", shadowType = ShadowType.Goose }
+        new GestureMapping { gestureType = "fist", shadowType = ShadowType.Fist },
+        new GestureMapping { gestureType = "goose", shadowType = ShadowType.Goose },
+        new GestureMapping { gestureType = "frog", shadowType = ShadowType.Frog },
+        new GestureMapping { gestureType = "owl", shadowType = ShadowType.Owl }
     };
 
     [Header("键盘映射")]
     [SerializeField] private KeyCode birdKey = KeyCode.A;
-    [SerializeField] private KeyCode deerKey = KeyCode.S;
-    [SerializeField] private KeyCode wolfKey = KeyCode.D;
-    [SerializeField] private KeyCode sheepKey = KeyCode.F;
-    [SerializeField] private KeyCode gooseKey = KeyCode.G;
+    [SerializeField] private KeyCode wolfKey = KeyCode.S;
+    [SerializeField] private KeyCode fistKey = KeyCode.D;
+    [SerializeField] private KeyCode gooseKey = KeyCode.F;
+    [SerializeField] private KeyCode frogKey = KeyCode.G;
+    [SerializeField] private KeyCode owlKey = KeyCode.H;
 
     // 状态变量
     private ShadowType currentShadowType = ShadowType.None;
@@ -139,14 +142,16 @@ public class PlayerManager : MonoBehaviour
     {
         if (Input.GetKeyDown(birdKey))
             UpdateShadowType(ShadowType.Bird);
-        else if (Input.GetKeyDown(deerKey))
-            UpdateShadowType(ShadowType.Deer);
         else if (Input.GetKeyDown(wolfKey))
             UpdateShadowType(ShadowType.Wolf);
-        else if (Input.GetKeyDown(sheepKey))
-            UpdateShadowType(ShadowType.Sheep);
+        else if (Input.GetKeyDown(fistKey))
+            UpdateShadowType(ShadowType.Fist);
         else if (Input.GetKeyDown(gooseKey))
             UpdateShadowType(ShadowType.Goose);
+        else if (Input.GetKeyDown(frogKey))
+            UpdateShadowType(ShadowType.Frog);
+        else if (Input.GetKeyDown(owlKey))
+            UpdateShadowType(ShadowType.Owl);
     }
 
     /// <summary>

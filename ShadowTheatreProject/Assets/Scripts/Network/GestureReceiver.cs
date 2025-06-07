@@ -408,7 +408,7 @@ public class GestureReceiver : MonoBehaviour
     private bool IsValidGestureType(string gestureType)
     {
         // 定义有效的手势类型（支持网络传输的小写格式和Unity内部的大写格式）
-        string[] validGestures = { "bird", "goose", "wolf", "frog", "owl", "default", "BIRD", "GOOSE", "WOLF", "FROG", "OWL", "DEFAULT", "Unknown" };
+        string[] validGestures = { "bird", "wolf", "fist", "goose", "frog", "owl", "default", "BIRD", "WOLF", "FIST", "GOOSE", "FROG", "OWL", "DEFAULT", "Unknown" };
         
         foreach (string validGesture in validGestures)
         {
@@ -439,10 +439,12 @@ public class GestureReceiver : MonoBehaviour
                 return "BIRD";
             case "WOLF":
                 return "WOLF";
-            case "FROG":
-                return "FROG";
+            case "FIST":
+                return "FIST";
             case "GOOSE":
                 return "GOOSE";
+            case "FROG":
+                return "FROG";
             case "OWL":
                 return "OWL";
             case "DEFAULT":

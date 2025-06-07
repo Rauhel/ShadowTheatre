@@ -34,7 +34,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PropMaterial
-  m_Shader: {fileID: -6465566751694194690, guid: 323c1b6b0a8e05e499f0ca22c3a4220e, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: da780b8bfb023e345885b55a99738cc8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -130,7 +130,7 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _GlowAmount: 0
+    - _GlowAmount: -0.67
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
