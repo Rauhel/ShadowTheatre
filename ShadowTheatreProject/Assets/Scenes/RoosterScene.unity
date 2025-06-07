@@ -1024,7 +1024,7 @@ MeshCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 5
   m_Convex: 0
   m_CookingOptions: 30
@@ -1036,7 +1036,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 981789791}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -1367,6 +1367,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Wolf
       objectReference: {fileID: 0}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 60412a15c79bc437f91c9e0d7cb3011a, type: 2}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 4333434665883533978, guid: 60412a15c79bc437f91c9e0d7cb3011a, type: 2}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8732136769605269933, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
       propertyPath: m_LocalPosition.x
       value: -24.7
@@ -1431,6 +1443,18 @@ PrefabInstance:
     - target: {fileID: 2474096533794262613, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
       propertyPath: m_Name
       value: Owl
+      objectReference: {fileID: 0}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 60412a15c79bc437f91c9e0d7cb3011a, type: 2}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 4333434665883533978, guid: 60412a15c79bc437f91c9e0d7cb3011a, type: 2}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8732136769605269933, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1674,6 +1698,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Goose
       objectReference: {fileID: 0}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 60412a15c79bc437f91c9e0d7cb3011a, type: 2}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 4333434665883533978, guid: 60412a15c79bc437f91c9e0d7cb3011a, type: 2}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8732136769605269933, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.5
@@ -1907,6 +1943,18 @@ PrefabInstance:
     - target: {fileID: 2474096533794262613, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
       propertyPath: m_Name
       value: Frog
+      objectReference: {fileID: 0}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 60412a15c79bc437f91c9e0d7cb3011a, type: 2}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 4333434665883533978, guid: 60412a15c79bc437f91c9e0d7cb3011a, type: 2}
+    - target: {fileID: 6530815961709531776, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8732136769605269933, guid: d7fd852b9c9da409b951dc4d2b9c997a, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2147,13 +2195,14 @@ MonoBehaviour:
   lockYRotation: 1
   fixedYRotation: 0
   movementType: 2
-  pointerGroundHeight: 0
+  enableMouseInput: 1
+  enableGestureInput: 1
   showDebugPointer: 1
-  raycastZOffset: -8
   enableHoverStop: 1
   hoverMinThreshold: {x: 0.4, y: 0.4}
   hoverMaxThreshold: {x: 0.6, y: 0.6}
   hoverDebugColor: {r: 1, g: 0.5, b: 0, a: 0.5}
+  enableDebugLogs: 0
 --- !u!1001 &1739751699419159409
 PrefabInstance:
   m_ObjectHideFlags: 0

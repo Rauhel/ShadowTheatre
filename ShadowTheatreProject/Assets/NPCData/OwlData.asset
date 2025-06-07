@@ -29,6 +29,56 @@ MonoBehaviour:
       requiredScore: 0
       description: "\u5206\u652F 1"
     pathActions:
+    - dialogueText: "\u8BF7\u4F38\u51FA\u4F60\u7684\u624B\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 1
+      isActionActive: 1
+    - dialogueText: "\u5411\u524D\u4F38\uFF0C\u5411\u524D\u4F38\u2026\u2026"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 1
+      isActionActive: 1
+    - dialogueText: "\u76F4\u5230\u7A7F\u8D8A\u9634\u5F71\uFF0C\u62B5\u8FBE\u68A6\u7684\u738B\u56FD\u2026\u2026\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 1
+      isActionActive: 1
+    - dialogueText: "\u4F1F\u5927\u7684\u5B88\u62A4\u795E\uFF0C\u8BF7\u60A8\u964D\u4E34\u4E8E\u6B64\u5730\u2014\u2014"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 1
+      isActionActive: 1
+    - dialogueText: "\u6C42\u60A8\u5782\u601C\u8FD9\u56F0\u5728\u65F6\u95F4\u7262\u7B3C\u4E2D\u7684\u7F94\u7F8A\u2014\u2014\uFF01"
+      displayDuration: 2
+      voiceClip: {fileID: 0}
+      animationName: 
+      animationLoopCount: 1
+      oneShotSFX: {fileID: 0}
+      delay: 0
+      stopTime: 0
+      pathPointIndex: 1
+      isActionActive: 1
     - dialogueText: "\u4EB2\u7231\u7684\u8BD7\u4EBA\uFF0C\u6211\u660E\u767D\u4F60\u5FC3\u4E2D\u7684\u5FE7\u8651\u3002"
       displayDuration: 2
       voiceClip: {fileID: 0}
@@ -315,7 +365,7 @@ MonoBehaviour:
     nextPaths:
     - nextPathID: owl-4
       minScore: 0
-      maxScore: 100
+      maxScore: 20
       requiredScore: 0
       description: "\u5206\u652F 1"
     pathActions:
@@ -587,7 +637,7 @@ MonoBehaviour:
     nextPaths:
     - nextPathID: owl-5
       minScore: 0
-      maxScore: 100
+      maxScore: 20
       requiredScore: 0
       description: "\u5206\u652F 1"
     pathActions:
@@ -811,7 +861,7 @@ MonoBehaviour:
     nextPaths:
     - nextPathID: owl-6
       minScore: 0
-      maxScore: 100
+      maxScore: 20
       requiredScore: 0
       description: "\u5206\u652F 1"
     pathActions:
@@ -1177,7 +1227,7 @@ MonoBehaviour:
     nextPaths:
     - nextPathID: owl-7
       minScore: 0
-      maxScore: 100
+      maxScore: 20
       requiredScore: 0
       description: "\u5206\u652F 1"
     pathActions:
@@ -1293,49 +1343,11 @@ MonoBehaviour:
     pathName: 7
     minScore: 0
     maxScore: 100
-    events:
-    - eventID: Event_7_1
-      startPointIndex: 1
-      endPointIndex: 2
-      playerInteractionRadius: 3
-      showInteractionRange: 1
-      gestureHoldTime: 1
-      maxRecognitionDistance: 8
-      enabledInAct1: 1
-      enabledInAct2: 1
-      enabledInAct3: 1
-      gestureResponses:
-      - gestureType: FROG
-        scoreEffect: 10
-        actions:
-        - dialogueText: "\u624B\u52BF\u53CD\u5E94\u6587\u672C"
-          displayDuration: 2
-          voiceClip: {fileID: 0}
-          animationName: 
-          animationLoopCount: 1
-          oneShotSFX: {fileID: 0}
-          delay: 0
-          stopTime: 0
-          pathPointIndex: 0
-          isActionActive: 1
-      defaultResponse:
-        gestureType: 
-        scoreEffect: 0
-        actions:
-        - dialogueText: "\u9ED8\u8BA4\u53CD\u5E94\u6587\u672C"
-          displayDuration: 2
-          voiceClip: {fileID: 0}
-          animationName: 
-          animationLoopCount: 1
-          oneShotSFX: {fileID: 0}
-          delay: 0
-          stopTime: 0
-          pathPointIndex: 0
-          isActionActive: 1
+    events: []
     nextPaths:
-    - nextPathID: 
+    - nextPathID: owl-8
       minScore: 0
-      maxScore: 100
+      maxScore: 20
       requiredScore: 0
       description: "\u5206\u652F 1"
     pathActions:
@@ -1347,7 +1359,7 @@ MonoBehaviour:
       oneShotSFX: {fileID: 0}
       delay: 0
       stopTime: 0
-      pathPointIndex: 1
+      pathPointIndex: 111
       isActionActive: 1
     - dialogueText: "\u8C01\u662F\u6E34\u6C42\u7194\u94F8\u5315\u9996\uFF0C\u5374\u6367\u96EA\u53D6\u6696\u7684\u732E\u796D\u8005\uFF1F"
       displayDuration: 2
@@ -1357,7 +1369,7 @@ MonoBehaviour:
       oneShotSFX: {fileID: 0}
       delay: 0.5
       stopTime: 0
-      pathPointIndex: 2
+      pathPointIndex: 112
       isActionActive: 1
     - dialogueText: "\u8C01\u662F\u91C7\u64B7\u6C38\u6052\u91CE\u83CA\uFF0C\u53CD\u88AB\u82B1\u523A\u7F1D\u5507\u7684\u5B88\u5893\u4EBA\uFF1F"
       displayDuration: 2
@@ -1367,7 +1379,7 @@ MonoBehaviour:
       oneShotSFX: {fileID: 0}
       delay: 0.5
       stopTime: 0
-      pathPointIndex: 3
+      pathPointIndex: 113
       isActionActive: 1
     - dialogueText: "\u8C01\u662F\u711A\u5C3D\u672A\u557C\u4E4B\u8BD7\uFF0C\u53CD\u88AB\u7070\u70EC\u54FA\u80B2\u7684\u521B\u4E16\u795E\uFF1F"
       displayDuration: 2
@@ -1406,22 +1418,13 @@ MonoBehaviour:
       requiredStoryTime: 0
       stopTime: 0
       description: 
-    - pathPointIndex: 1
-      requiredStoryTime: 2
-      stopTime: 10
-      description: 
     pathPointStopConfigs: []
   - pathID: owl-8
     pathName: 8
     minScore: 0
     maxScore: 100
     events: []
-    nextPaths:
-    - nextPathID: owl-8
-      minScore: 0
-      maxScore: 100
-      requiredScore: 0
-      description: "\u5206\u652F 1"
+    nextPaths: []
     pathActions:
     - dialogueText: "\u539F\u6765\u706B\u7130\u624D\u662F\u7EC8\u6781\u771F\u7406..."
       displayDuration: 2

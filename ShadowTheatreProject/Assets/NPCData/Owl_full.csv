@@ -5,6 +5,11 @@
 # PATH,owl-1,1
 # PATH_START_TIME,owl-1,0
 # TIME_POINT,owl-1,0,0,
+owl-1,1,0,100,PATH_ACTION,PATH_ACTION,1,请伸出你的手！,,1,2,0,0,,,True,,
+owl-1,1,0,100,PATH_ACTION,PATH_ACTION,2,向前伸，向前伸……,,1,2,0,0,,,True,,
+owl-1,1,0,100,PATH_ACTION,PATH_ACTION,3,直到穿越阴影，抵达梦的王国……！,,1,2,0,0,,,True,,
+owl-1,1,0,100,PATH_ACTION,PATH_ACTION,4,伟大的守护神，请您降临于此地——,,1,2,0,0,,,True,,
+owl-1,1,0,100,PATH_ACTION,PATH_ACTION,5,求您垂怜这困在时间牢笼中的羔羊——！,,1,2,0,0,,,True,,
 owl-1,1,0,100,PATH_ACTION,PATH_ACTION,6,亲爱的诗人，我明白你心中的忧虑。,,1,2,0,0,,,True,,
 owl-1,1,0,100,PATH_ACTION,PATH_ACTION,7,我不知道为什么这一切周而复始，,,1,2,0,0,,,True,,
 owl-1,1,0,100,PATH_ACTION,PATH_ACTION,8,只是我们别无选择！,,1,2,0,0,,,True,,

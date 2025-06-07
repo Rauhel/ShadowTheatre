@@ -1505,9 +1505,14 @@ MonoBehaviour:
     nextPaths:
     - nextPathID: wolf-10
       minScore: 0
-      maxScore: 100
+      maxScore: 50
       requiredScore: 0
       description: "\u5206\u652F 1"
+    - nextPathID: wolf-12
+      minScore: 50
+      maxScore: 100
+      requiredScore: 50
+      description: "\u5206\u652F 2"
     pathActions:
     - dialogueText: "\u7EC8\u4E8E\u85CF\u4E0D\u4F4F\u4E86\uFF1F"
       displayDuration: 2
