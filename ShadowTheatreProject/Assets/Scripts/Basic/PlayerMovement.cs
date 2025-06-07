@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 /// <summary>
-/// 玩家移动组件：负责处理玩家移动逻辑和手势位置转换
+/// 玩家移动组件：负责处理玩家移动逻辑，支持手势和鼠标输入
 /// </summary>
 public class PlayerMovement : MonoBehaviour
 {
@@ -17,17 +17,20 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float fixedYRotation = 0f;
     [Tooltip("选择移动方式：0=即时移动到指针位置，1=平滑移动到指针位置，2=朝指针方向移动")]
     [SerializeField] private int movementType = 2;
-    [Header("Pointer Settings")]
-    [SerializeField] private float pointerGroundHeight = 0f;
+
+    [Header("Input Settings")]
+    [SerializeField] private bool enableMouseInput = true;
+    [SerializeField] private bool enableGestureInput = true;
     [SerializeField] private bool showDebugPointer = true;
-    [Tooltip("射线位置Z轴偏移量（负值=向后偏移）")]
-    [SerializeField] private float raycastZOffset = -5f; // 添加这行，默认向后偏移5单位
 
     [Header("Hover Detection")]
     [SerializeField] private bool enableHoverStop = true;
-    [SerializeField] private Vector2 hoverMinThreshold = new Vector2(0.4f, 0.4f);
-    [SerializeField] private Vector2 hoverMaxThreshold = new Vector2(0.6f, 0.6f);
+    [SerializeField] private Vector2 hoverMinThreshold = new Vector2(0.4f, 0.6f);
+    [SerializeField] private Vector2 hoverMaxThreshold = new Vector2(0.6f, 0.8f);
     [SerializeField] private Color hoverDebugColor = new Color(1f, 0.5f, 0f, 0.5f); // 橙色
+
+    [Header("Debug Settings")]
+    [SerializeField] private bool enableDebugLogs = false;
 
     // 引用和内部变量
     private Vector3 currentVelocity = Vector3.zero;
@@ -38,7 +41,6 @@ public class PlayerMovement : MonoBehaviour
 
     private InputManager inputManager;
     private Camera mainCamera;
-    private Plane groundPlane;
     private bool isInitialized = false;
 
     // 可视化调试
@@ -75,12 +77,16 @@ public class PlayerMovement : MonoBehaviour
 
         if (inputManager != null && mainCamera != null)
         {
-            // 初始化地面平面
-            groundPlane = new Plane(Vector3.up, new Vector3(0, pointerGroundHeight, 0));
-
-            // 订阅手势位置事件
-            inputManager.OnHandPositionUpdated += HandleHandPositionUpdated;
-            inputManager.OnHandDetectionChanged += HandleHandDetectionChanged;
+            // 订阅输入模式变化事件
+            inputManager.OnInputModeChanged += HandleInputModeChanged;
+            
+            // 订阅手势世界位置事件
+            if (enableGestureInput)
+            {
+                inputManager.OnWorldPositionUpdated += HandleWorldPositionUpdated;
+                inputManager.OnHandPositionUpdated += HandleHandPositionUpdated; // 用于悬停检测
+                inputManager.OnHandDetectionChanged += HandleHandDetectionChanged;
+            }
 
             isInitialized = true;
             Debug.Log("PlayerMovement: 组件初始化成功");
@@ -98,7 +104,7 @@ public class PlayerMovement : MonoBehaviour
     private void CreateDebugPointer()
     {
         debugPointer = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        debugPointer.name = "HandPointer_Debug";
+        debugPointer.name = "Pointer_Debug";
         debugPointer.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
 
         // 设置材质颜色
@@ -119,41 +125,184 @@ public class PlayerMovement : MonoBehaviour
     }
 
     /// <summary>
-    /// 处理手部位置更新
+    /// 处理输入模式变化
+    /// </summary>
+    private void HandleInputModeChanged(InputManager.InputMode newMode)
+    {
+        if (enableDebugLogs)
+        {
+            Debug.Log($"[PlayerMovement] 输入模式变更为: {newMode}");
+        }
+
+        // 根据输入模式重置状态
+        if (newMode == InputManager.InputMode.Mouse)
+        {
+            // 切换到鼠标模式时，重置手势相关状态
+            isHovering = false;
+            
+            // 如果当前没有鼠标输入，停用指针
+            if (!enableMouseInput)
+            {
+                isPointerActive = false;
+                if (debugPointer != null)
+                {
+                    debugPointer.SetActive(false);
+                }
+            }
+        }
+        else if (newMode == InputManager.InputMode.Gesture)
+        {
+            // 切换到手势模式时，停用鼠标控制的指针
+            // 手势指针会由HandleWorldPositionUpdated处理
+        }
+    }
+
+    /// <summary>
+    /// 处理世界坐标位置更新（来自手势输入）
+    /// </summary>
+    private void HandleWorldPositionUpdated(Vector3 worldPosition)
+    {
+        if (!enableGestureInput) return;
+
+        // 只有在手势输入模式下才处理
+        if (inputManager != null && inputManager.GetCurrentInputMode() != InputManager.InputMode.Gesture)
+        {
+            return;
+        }
+
+        // 直接使用InputManager转换好的世界坐标
+        currentPointerPosition = worldPosition;
+        isPointerActive = true;
+
+        // 更新调试指针位置
+        if (debugPointer != null)
+        {
+            debugPointer.transform.position = worldPosition;
+            debugPointer.SetActive(true);
+            
+            // 更新颜色以反映悬停状态
+            Renderer renderer = debugPointer.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material.color = isHovering ? hoverDebugColor : Color.green;
+            }
+        }
+        
+        if (enableDebugLogs)
+        {
+            Debug.Log($"[PlayerMovement] 手势位置更新: 世界坐标={worldPosition}, 指针激活={isPointerActive}");
+        }
+    }
+
+    /// <summary>
+    /// 处理归一化位置更新（用于悬停检测）
     /// </summary>
     private void HandleHandPositionUpdated(Vector2 normalizedPosition)
     {
-        // normalizedPosition现在已经在0.2-0.8范围内
+        if (!enableGestureInput) return;
 
-        // 检查是否在悬停区域内 (0.4-0.6)
+        // 检查是否在悬停区域内
         bool newHoverState = IsPositionInHoverArea(normalizedPosition);
         if (newHoverState != isHovering)
         {
             isHovering = newHoverState;
             //Debug.Log($"PlayerMovement: 悬停状态变更为 {(isHovering ? "悬停中" : "移动中")}");
-
-            // 如果启用了调试指针，更新颜色以反映悬停状态
-            if (debugPointer != null && debugPointer.activeSelf)
+            
+            if (enableDebugLogs)
             {
-                Renderer renderer = debugPointer.GetComponent<Renderer>();
-                if (renderer != null)
+                Debug.Log($"[PlayerMovement] 悬停状态变更为 {(isHovering ? "悬停中" : "移动中")}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// 处理鼠标输入（转换为世界坐标）
+    /// </summary>
+    private void HandleMouseInput()
+    {
+        if (!enableMouseInput) return;
+
+        // 确保当前是鼠标输入模式
+        if (inputManager != null && inputManager.GetCurrentInputMode() != InputManager.InputMode.Mouse)
+        {
+            return;
+        }
+
+        // 检测鼠标是否在屏幕内
+        Vector3 mouseScreenPos = Input.mousePosition;
+        if (mouseScreenPos.x >= 0 && mouseScreenPos.x <= Screen.width &&
+            mouseScreenPos.y >= 0 && mouseScreenPos.y <= Screen.height)
+        {
+            Vector3 worldPos = GetWorldPositionFromMouse(mouseScreenPos);
+            
+            if (worldPos != Vector3.zero)
+            {
+                currentPointerPosition = worldPos;
+                isPointerActive = true;
+
+                // 更新调试指针
+                if (debugPointer != null)
                 {
-                    renderer.material.color = isHovering ? hoverDebugColor : Color.green;
+                    debugPointer.transform.position = worldPos;
+                    debugPointer.SetActive(true);
+                    
+                    // 鼠标输入时使用蓝色
+                    Renderer renderer = debugPointer.GetComponent<Renderer>();
+                    if (renderer != null)
+                    {
+                        renderer.material.color = Color.blue;
+                    }
+                }
+                
+                if (enableDebugLogs)
+                {
+                    Debug.Log($"[PlayerMovement] 鼠标位置更新: 屏幕={mouseScreenPos}, 世界={worldPos}");
                 }
             }
         }
+        else
+        {
+            // 鼠标离开屏幕时停用指针
+            isPointerActive = false;
+            if (debugPointer != null)
+            {
+                debugPointer.SetActive(false);
+            }
+        }
+    }
 
-        // 转换为屏幕坐标
-        Vector2 screenPosition = new Vector2(
-            normalizedPosition.x * Screen.width,
-            normalizedPosition.y * Screen.height
-        );
+    /// <summary>
+    /// 将鼠标屏幕坐标转换为世界坐标
+    /// </summary>
+    private Vector3 GetWorldPositionFromMouse(Vector3 mouseScreenPos)
+    {
+        if (mainCamera == null) return Vector3.zero;
 
-        // 转换为世界坐标
-        UpdatePointerWorldPosition(screenPosition);
-
-        // 设置指针状态为活跃
-        isPointerActive = true;
+        Ray ray = mainCamera.ScreenPointToRay(mouseScreenPos);
+        
+        // 使用与InputManager相同的地面平面设置
+        float groundHeight = inputManager != null ? inputManager.GetGroundPlaneHeight() : 0f;
+        float zOffset = inputManager != null ? inputManager.GetRaycastZOffset() : 0f;
+        
+        Plane groundPlane = new Plane(Vector3.up, new Vector3(0, groundHeight, 0));
+        
+        if (groundPlane.Raycast(ray, out float distance))
+        {
+            Vector3 hitPoint = ray.GetPoint(distance);
+            hitPoint.z += zOffset; // 应用Z轴偏移
+            return hitPoint;
+        }
+        
+        // 备用方案：使用固定Y值
+        float t = (groundHeight - ray.origin.y) / ray.direction.y;
+        if (t > 0)
+        {
+            Vector3 hitPoint = ray.origin + ray.direction * t;
+            hitPoint.z += zOffset;
+            return hitPoint;
+        }
+        
+        return Vector3.zero;
     }
 
     /// <summary>
@@ -161,85 +310,23 @@ public class PlayerMovement : MonoBehaviour
     /// </summary>
     private void HandleHandDetectionChanged(bool detected)
     {
-        Debug.Log($"PlayerMovement: 手部检测状态变更为 {(detected ? "检测到" : "未检测到")}");
-        isPointerActive = detected;
-
-        // 如果没有检测到手，隐藏调试指针
-        if (!detected && debugPointer != null)
+        if (enableDebugLogs)
         {
-            debugPointer.SetActive(false);
+            Debug.Log($"[PlayerMovement] 手部检测状态变更为 {(detected ? "检测到" : "未检测到")}");
         }
-    }
-
-    /// <summary>
-    /// 更新指针的世界坐标位置
-    /// </summary>
-    private void UpdatePointerWorldPosition(Vector2 screenPosition)
-    {
-        if (mainCamera == null)
+        
+        if (!detected)
         {
-            mainCamera = Camera.main;
-            if (mainCamera == null) return;
-        }
-
-        // 创建从屏幕点到世界的射线
-        Ray ray = mainCamera.ScreenPointToRay(new Vector3(screenPosition.x, screenPosition.y, 0));
-
-        // 确保射线命中点距离玩家不会太近
-        if (groundPlane.Raycast(ray, out float distance))
-        {
-            Vector3 hitPoint = ray.GetPoint(distance);
-
-            // 应用Z轴偏移量，让射线命中点向后偏移
-            hitPoint.z += raycastZOffset;
-
-            // 计算与玩家的距离，确保玩家可以向任何方向移动
-            Vector3 playerScreenPos = mainCamera.WorldToScreenPoint(transform.position);
-            float minDistance = 0.5f; // 可以调整的最小距离
-
-            if ((hitPoint - transform.position).magnitude < minDistance)
+            // 手势输入不可用时，重置悬停状态
+            isHovering = false;
+            
+            // 如果没有鼠标输入，隐藏调试指针
+            if (!enableMouseInput || !Input.GetMouseButton(0))
             {
-                // 向屏幕边缘方向延长点位
-                Vector2 directionOnScreen = screenPosition - new Vector2(playerScreenPos.x, playerScreenPos.y);
-                if (directionOnScreen.magnitude > 0.01f)
+                isPointerActive = false;
+                if (debugPointer != null)
                 {
-                    directionOnScreen.Normalize();
-                    screenPosition += directionOnScreen * 10; // 向该方向延长
-                    ray = mainCamera.ScreenPointToRay(screenPosition);
-                    if (groundPlane.Raycast(ray, out distance))
-                    {
-                        hitPoint = ray.GetPoint(distance);
-                        hitPoint.z += raycastZOffset; // 也应用到延长点位
-                    }
-                }
-            }
-
-            currentPointerPosition = hitPoint;
-
-            // 更新调试指针位置
-            if (debugPointer != null && isPointerActive)
-            {
-                debugPointer.transform.position = hitPoint;
-                debugPointer.SetActive(true);
-            }
-
-            //Debug.Log($"PlayerMovement: 指针位置更新 - 屏幕={screenPosition}, 世界={hitPoint}");
-        }
-        else
-        {
-            // 备用方案：使用固定Y值
-            float t = (pointerGroundHeight - ray.origin.y) / ray.direction.y;
-            if (t > 0)
-            {
-                Vector3 hitPoint = ray.origin + ray.direction * t;
-                hitPoint.z += raycastZOffset; // 也应用到备用方案
-                currentPointerPosition = hitPoint;
-
-                // 更新调试指针位置
-                if (debugPointer != null && isPointerActive)
-                {
-                    debugPointer.transform.position = hitPoint;
-                    debugPointer.SetActive(true);
+                    debugPointer.SetActive(false);
                 }
             }
         }
@@ -254,8 +341,25 @@ public class PlayerMovement : MonoBehaviour
             if (!isInitialized) return;
         }
 
+        // 根据InputManager的当前输入模式处理输入
+        if (inputManager != null)
+        {
+            InputManager.InputMode currentMode = inputManager.GetCurrentInputMode();
+            
+            if (currentMode == InputManager.InputMode.Mouse && enableMouseInput)
+            {
+                // 鼠标输入模式
+                HandleMouseInput();
+            }
+            else if (currentMode == InputManager.InputMode.Gesture && enableGestureInput)
+            {
+                // 手势输入模式 - 位置更新由HandleWorldPositionUpdated处理
+                // 这里不需要额外处理
+            }
+        }
+
         // 仅当指针活跃时且不在悬停区域时处理移动
-        if (!isPointerActive || (enableHoverStop && isHovering))
+        if (!isPointerActive || (enableHoverStop && isHovering && enableGestureInput))
         {
             return;
         }
@@ -273,6 +377,12 @@ public class PlayerMovement : MonoBehaviour
         {
             HandleRotation(currentPointerPosition);
         }
+        
+        if (enableDebugLogs && Time.frameCount % 60 == 0) // 每秒输出一次，避免刷屏
+        {
+            string currentMode = inputManager != null ? inputManager.GetCurrentInputMode().ToString() : "Unknown";
+            Debug.Log($"[PlayerMovement] 状态: 输入模式={currentMode}, 指针激活={isPointerActive}, 悬停={isHovering}, 位置={currentPointerPosition}");
+        }
     }
 
     private void OnDestroy()
@@ -280,8 +390,14 @@ public class PlayerMovement : MonoBehaviour
         // 取消事件订阅
         if (inputManager != null)
         {
-            inputManager.OnHandPositionUpdated -= HandleHandPositionUpdated;
-            inputManager.OnHandDetectionChanged -= HandleHandDetectionChanged;
+            inputManager.OnInputModeChanged -= HandleInputModeChanged;
+            
+            if (enableGestureInput)
+            {
+                inputManager.OnWorldPositionUpdated -= HandleWorldPositionUpdated;
+                inputManager.OnHandPositionUpdated -= HandleHandPositionUpdated;
+                inputManager.OnHandDetectionChanged -= HandleHandDetectionChanged;
+            }
         }
 
         // 清理调试对象
@@ -388,7 +504,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // 可视化悬停区域
-        if (enableHoverStop && mainCamera != null)
+        if (enableHoverStop && mainCamera != null && enableGestureInput)
         {
             Gizmos.color = new Color(1f, 0.5f, 0f, 0.3f); // 半透明橙色
 
@@ -424,31 +540,130 @@ public class PlayerMovement : MonoBehaviour
         if (mainCamera == null) return Vector3.zero;
 
         Ray ray = mainCamera.ScreenPointToRay(new Vector3(screenPoint.x, screenPoint.y, 0));
+        
+        // 使用与InputManager相同的地面平面设置
+        float groundHeight = inputManager != null ? inputManager.GetGroundPlaneHeight() : 0f;
+        float zOffset = inputManager != null ? inputManager.GetRaycastZOffset() : 0f;
+        
+        Plane groundPlane = new Plane(Vector3.up, new Vector3(0, groundHeight, 0));
+        
         if (groundPlane.Raycast(ray, out float distance))
         {
-            return ray.GetPoint(distance);
-        }
-
-        // 备用方案
-        float t = (pointerGroundHeight - ray.origin.y) / ray.direction.y;
-        if (t > 0)
-        {
-            return ray.origin + ray.direction * t;
+            Vector3 hitPoint = ray.GetPoint(distance);
+            hitPoint.z += zOffset;
+            return hitPoint;
         }
 
         return Vector3.zero;
     }
 
-    // 公共方法：更新地面平面高度
-    public void UpdateGroundPlaneHeight(float height)
-    {
-        pointerGroundHeight = height;
-        groundPlane = new Plane(Vector3.up, new Vector3(0, height, 0));
-    }
-
     // 公共方法：获取当前悬停状态
     public bool IsHovering()
     {
-        return isHovering && enableHoverStop;
+        return isHovering && enableHoverStop && enableGestureInput;
+    }
+
+    // 公共方法：启用/禁用输入类型
+    public void SetMouseInputEnabled(bool enabled)
+    {
+        enableMouseInput = enabled;
+    }
+
+    public void SetGestureInputEnabled(bool enabled)
+    {
+        enableGestureInput = enabled;
+        
+        if (!enabled)
+        {
+            isHovering = false;
+            if (inputManager != null)
+            {
+                inputManager.OnWorldPositionUpdated -= HandleWorldPositionUpdated;
+                inputManager.OnHandPositionUpdated -= HandleHandPositionUpdated;
+                inputManager.OnHandDetectionChanged -= HandleHandDetectionChanged;
+            }
+        }
+        else if (inputManager != null)
+        {
+            inputManager.OnWorldPositionUpdated += HandleWorldPositionUpdated;
+            inputManager.OnHandPositionUpdated += HandleHandPositionUpdated;
+            inputManager.OnHandDetectionChanged += HandleHandDetectionChanged;
+        }
+    }
+
+    // 公共方法：调试控制
+    public void SetDebugLogsEnabled(bool enabled)
+    {
+        enableDebugLogs = enabled;
+        Debug.Log($"[PlayerMovement] 调试日志已{(enabled ? "启用" : "禁用")}");
+    }
+
+    // 公共方法：获取当前状态信息
+    public string GetCurrentStatusInfo()
+    {
+        string currentMode = inputManager != null ? inputManager.GetCurrentInputMode().ToString() : "Unknown";
+        return $"输入模式={currentMode}, 指针激活={isPointerActive}, 悬停={isHovering}, " +
+               $"手势检测={inputManager?.IsHandDetected()}, 鼠标输入={enableMouseInput}, 手势输入={enableGestureInput}, 位置={currentPointerPosition}";
+    }
+
+    // 公共方法：一键启用所有调试信息
+    [ContextMenu("启用所有调试")]
+    public void EnableAllDebugging()
+    {
+        enableDebugLogs = true;
+        if (inputManager != null)
+        {
+            inputManager.SetDebugLogsEnabled(true);
+        }
+        
+        Debug.Log("[PlayerMovement] 已启用所有调试信息");
+        Debug.Log($"[PlayerMovement] 当前状态: {GetCurrentStatusInfo()}");
+    }
+
+    [ContextMenu("禁用所有调试")]
+    public void DisableAllDebugging()
+    {
+        enableDebugLogs = false;
+        if (inputManager != null)
+        {
+            inputManager.SetDebugLogsEnabled(false);
+        }
+        
+        Debug.Log("[PlayerMovement] 已禁用所有调试信息");
+    }
+
+    [ContextMenu("测试映射一致性")]
+    public void TestMappingConsistency()
+    {
+        if (inputManager == null)
+        {
+            Debug.LogError("[PlayerMovement] InputManager未找到，无法测试");
+            return;
+        }
+
+        Debug.Log("=== 映射一致性测试 ===");
+        
+        // 显示InputManager设置
+        inputManager.ShowMappingSettings();
+        
+        // 测试几个关键点的映射
+        Vector3[] testScreenPoints = {
+            new Vector3(0, 0, 0),                    // 左下角
+            new Vector3(Screen.width/2, Screen.height/2, 0), // 中央
+            new Vector3(Screen.width, Screen.height, 0),     // 右上角
+            new Vector3(Screen.width*0.2f, Screen.height*0.2f, 0), // 20%点
+            new Vector3(Screen.width*0.8f, Screen.height*0.8f, 0), // 80%点
+        };
+
+        string[] pointNames = { "左下角", "中央", "右上角", "20%点", "80%点" };
+
+        for (int i = 0; i < testScreenPoints.Length; i++)
+        {
+            Vector3 mouseWorld = GetWorldPositionFromMouse(testScreenPoints[i]);
+            Debug.Log($"{pointNames[i]} - 屏幕{testScreenPoints[i]} → 鼠标世界坐标{mouseWorld}");
+        }
+        
+        Debug.Log("注意：手势映射需要实际手势数据才能测试");
+        Debug.Log("==================");
     }
 }

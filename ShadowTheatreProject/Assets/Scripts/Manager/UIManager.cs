@@ -105,16 +105,18 @@ public class UIManager : MonoBehaviour
             // 显示暂停菜单
             if (pauseMenuPanel) pauseMenuPanel.SetActive(true);
 
-            // 游戏暂停逻辑
-            Time.timeScale = 0f;
+            // 暂时禁用时间缩放功能以解决音频问题
+            // Time.timeScale = 0f;
+            Debug.Log("暂停菜单显示（时间缩放功能已禁用）");
         }
         else
         {
             // 隐藏暂停菜单
             if (pauseMenuPanel) pauseMenuPanel.SetActive(false);
 
-            // 游戏恢复逻辑
+            // 确保时间缩放保持正常
             Time.timeScale = 1f;
+            Debug.Log("暂停菜单隐藏，时间缩放保持为1");
         }
     }
 

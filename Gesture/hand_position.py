@@ -5,13 +5,16 @@ import socket
 import time
 
 class HandPositionTracker:
-    def __init__(self, host='127.0.0.1', port=5000, auto_connect=True):
+    def __init__(self, host='127.0.0.1', port=5000, gesture_port=8000, auto_connect=True):
         self.host = host
         self.port = port
+        self.gesture_port = gesture_port  # 新增手势端口
         self.sock = None
+        self.gesture_sock = None  # 新增手势套接字
         self.is_connected = False
         self.last_positions = {}  # 存储上一次的手部位置
         self.last_send_time = time.time()  # 控制发送频率
+        self.last_hand_detected = False  # 记录上次手部检测状态
         
         if auto_connect:
             self.connect()
@@ -20,22 +23,43 @@ class HandPositionTracker:
         try:
             # 初始化UDP套接字
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            self.gesture_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             # 不绑定本地地址，因为我们只是发送方
             self.is_connected = True
             # 测试发送一条消息
-            test_message = "position|0.5|0.5|0.0"
+            test_message = "position|0|0.5|0.5|0.0"
             self.sock.sendto(test_message.encode('utf-8'), (self.host, self.port))
             print(f"HandPositionTracker: 成功连接并向{self.host}:{self.port}发送测试消息")
+            
+            # 发送初始手部检测状态
+            self.send_hand_detection_status(False)
             return True
         except Exception as e:
             print(f"HandPositionTracker: 连接错误 - {e}")
             self.is_connected = False
             return False
 
+    def send_hand_detection_status(self, detected):
+        """发送手部检测状态到手势端口"""
+        try:
+            if self.gesture_sock and self.is_connected:
+                status_message = f"HandDetectionStatus|{str(detected).lower()}"
+                self.gesture_sock.sendto(status_message.encode('utf-8'), (self.host, self.gesture_port))
+                print(f"HandPositionTracker: 发送手部检测状态: {detected}")
+        except Exception as e:
+            print(f"HandPositionTracker: 发送手部检测状态失败 - {e}")
+
     def disconnect(self):
+        # 发送手部丢失状态
+        if self.is_connected:
+            self.send_hand_detection_status(False)
+        
         if self.sock:
             self.sock.close()
             self.sock = None
+        if self.gesture_sock:
+            self.gesture_sock.close()
+            self.gesture_sock = None
         self.is_connected = False
         print("HandPositionTracker: 已断开连接")
 
@@ -58,13 +82,12 @@ class HandPositionTracker:
         # 解析图像尺寸
         h, w, c = image_shape
         
-        # 默认位置（当没有检测到手时）
-        default_pos = (0.5, 0.5, 0.0)
-        
         # 当前检测到的手的位置信息
         current_hands = {}
+        hands_detected = False
 
-        if results.multi_hand_landmarks:
+        if results.multi_hand_landmarks and len(results.multi_hand_landmarks) > 0:
+            hands_detected = True
             current_time = time.time()
             # 每30ms发送一次位置信息
             should_send = (current_time - self.last_send_time) > 0.03
@@ -105,13 +128,11 @@ class HandPositionTracker:
             
             if should_send:
                 self.last_send_time = current_time
-        else:
-            # 如果没有检测到手，发送默认位置
-            current_time = time.time()
-            if (current_time - self.last_send_time) > 0.2:  # 降低无手时的发送频率
-                message = f"position|-1|{default_pos[0]}|{default_pos[1]}|{default_pos[2]}"
-                self.sock.sendto(message.encode('utf-8'), (self.host, self.port))
-                self.last_send_time = current_time
+        
+        # 检查手部检测状态变化
+        if hands_detected != self.last_hand_detected:
+            self.send_hand_detection_status(hands_detected)
+            self.last_hand_detected = hands_detected
         
         return current_hands
 
@@ -162,6 +183,9 @@ class HandPositionTracker:
                 min_detection_confidence=0.5,
                 min_tracking_confidence=0.5) as hands:
 
+            print("HandPositionTracker: 开始跟踪手部位置，按ESC键退出")
+            print(f"位置数据端口: {self.port}, 手势状态端口: {self.gesture_port}")
+
             while cap.isOpened():
                 success, image = cap.read()
                 if not success:
@@ -191,6 +215,10 @@ class HandPositionTracker:
                             mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2, circle_radius=4),
                             mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=2))
 
+                # 显示手部检测状态
+                status_text = f"Hand Detected: {self.last_hand_detected}"
+                cv2.putText(image, status_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
                 # 显示结果
                 cv2.imshow('手部位置跟踪', image)
                 if cv2.waitKey(5) & 0xFF == 27:  # ESC键退出
@@ -202,6 +230,10 @@ class HandPositionTracker:
 
 if __name__ == "__main__":
     # 独立运行模式
+    print("启动手部位置跟踪器...")
     tracker = HandPositionTracker()
-    tracker.track_position()
+    if tracker.is_connected:
+        tracker.track_position()
+    else:
+        print("连接失败，无法启动跟踪")
     tracker.disconnect()

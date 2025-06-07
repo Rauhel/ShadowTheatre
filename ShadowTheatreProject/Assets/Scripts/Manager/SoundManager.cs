@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class SoundManager : MonoBehaviour
 {
     private static SoundManager instance;
-
+    
     public static SoundManager Instance
     {
         get
@@ -28,9 +29,7 @@ public class SoundManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-
-            // 初始化音频播放器
-            InitializeBGMPlayers();
+            DontDestroyOnLoad(gameObject);
         }
         else if (instance != this)
         {
@@ -38,166 +37,163 @@ public class SoundManager : MonoBehaviour
         }
     }
 
+    [Header("BGMPlayer:\n" +
+    "1. This will clear all music when scene changes\n" +
+    "2. When the scene started, it will play the ELEMENT 0 with isLoop = True and volume = 1.0f\n" +
+    "(That is to say, Element 0 is default BGM)\n" +
+    "---------------\n" +
+    "3. This Function Provides 4 ways to play music:\n" +
+    "--- SoundManager.Instance.PlayMusic(index, isPlay, isLoop, volume), Play a constant Music\n" +
+    "--- SoundManager.Instance.PlayOneShotMusic(index, volume), Play a Music only once\n" +
+    "--- SoundManager.Instance.PlaySFX(index, isPlay, isLoop, volume), Play a constant SFX\n" +
+    "--- SoundManager.Instance.PlayOneShotSFX(index, volume), Play a SFX only once\n" +
+    "Use these functions anywhere to play music and sound effects\n")]
+    [Space(20)]
     public List<AudioSource> BGMPlayers = new List<AudioSource>();
     public List<AudioClip> MyMusicList;
     public List<AudioClip> MySFXList;
 
-    [Header("Spatial Audio Settings")]
-    public float maxDistance = 20f;       // Maximum distance at which sound is still audible
-    public float minDistance = 1f;        // Distance at which sound is at full volume
-    public AnimationCurve falloffCurve = AnimationCurve.EaseInOut(0f, 1f, 1f, 0f); // Volume falloff curve
-
-    private Transform playerTransform;    // Reference to player's transform
-    private Dictionary<AudioSource, GameObject> spatialAudioSources = new Dictionary<AudioSource, GameObject>();
-
     private void Start()
     {
+        Debug.Log("=== SoundManager Start() 开始 ===");
+        
         // 检查音频列表
         if (MyMusicList == null || MyMusicList.Count == 0)
         {
             Debug.LogWarning("音乐列表为空，无法播放背景音乐");
-            MyMusicList = new List<AudioClip>();
-        }
-
-        if (MySFXList == null || MySFXList.Count == 0)
-        {
-            Debug.LogWarning("音效列表为空");
-            MySFXList = new List<AudioClip>();
-        }
-
-        // 订阅场景加载事件
-        SceneManager.sceneLoaded += OnSceneLoaded;
-
-        // 只有当音乐列表不为空时才播放默认背景音乐
-        if (MyMusicList.Count > 0)
-        {
-            PlayMusic(0, true, true, 1.0f);
-        }
-
-        // Try to find player
-        FindPlayer();
-    }
-
-    private void Update()
-    {
-        // Update spatial audio volumes based on distance
-        if (playerTransform != null)
-        {
-            UpdateSpatialAudio();
         }
         else
         {
-            // Try to find player if reference is lost
-            FindPlayer();
-        }
-    }
-
-    private void OnDestroy()
-    {
-        // 取消订阅场景加载事件
-        SceneManager.sceneLoaded -= OnSceneLoaded;
-    }
-
-    private void FindPlayer()
-    {
-        // Attempt to find player by tag - you may need to adjust this based on your player setup
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            playerTransform = player.transform;
-        }
-    }
-
-    private void UpdateSpatialAudio()
-    {
-        List<AudioSource> sourcesToRemove = new List<AudioSource>();
-
-        foreach (var kvp in spatialAudioSources)
-        {
-            AudioSource source = kvp.Key;
-            GameObject soundObject = kvp.Value;
-
-            if (source == null || !source.isPlaying || soundObject == null)
+            Debug.Log($"音乐列表包含 {MyMusicList.Count} 个音频文件");
+            for (int i = 0; i < MyMusicList.Count; i++)
             {
-                sourcesToRemove.Add(source);
-                continue;
-            }
-
-            // Calculate distance
-            float distance = Vector3.Distance(playerTransform.position, soundObject.transform.position);
-
-            // Normalize distance between 0 and 1
-            float normalizedDistance = Mathf.Clamp01((distance - minDistance) / (maxDistance - minDistance));
-
-            // Apply volume falloff using curve
-            float volumeMultiplier = falloffCurve.Evaluate(1 - normalizedDistance);
-
-            // Set the new volume
-            source.volume = source.volume * volumeMultiplier;
-        }
-
-        // Clean up any finished sources
-        foreach (var source in sourcesToRemove)
-        {
-            spatialAudioSources.Remove(source);
-        }
-    }
-
-    private void InitializeBGMPlayers()
-    {
-        // 清理现有的播放器
-        foreach (var player in BGMPlayers)
-        {
-            if (player != null)
-            {
-                Destroy(player.gameObject);
+                if (MyMusicList[i] != null)
+                {
+                    AudioClip clip = MyMusicList[i];
+                    Debug.Log($"  索引 {i}: {clip.name}");
+                    Debug.Log($"    - 长度: {clip.length}秒");
+                    Debug.Log($"    - 频率: {clip.frequency}Hz");
+                    Debug.Log($"    - 通道数: {clip.channels}");
+                    Debug.Log($"    - 状态: {clip.loadState}");
+                    Debug.Log($"    - 音频类型: {clip.loadType}");
+                }
+                else
+                {
+                    Debug.LogError($"  索引 {i}: null音频文件!");
+                }
             }
         }
-        BGMPlayers.Clear();
 
-        // 创建新的播放器
+        // 检查Unity音频设置
+        Debug.Log($"Unity音频设置:");
+        Debug.Log($"  - Master Volume: {AudioListener.volume}");
+        Debug.Log($"  - AudioSettings DSP Buffer Size: {AudioSettings.GetConfiguration().dspBufferSize}");
+        Debug.Log($"  - AudioSettings Sample Rate: {AudioSettings.GetConfiguration().sampleRate}");
+
         for (int i = 0; i < 5; i++)
         {
             GameObject bgmPlayer = new GameObject("BGMPlayer" + i);
             bgmPlayer.transform.parent = this.transform;
             AudioSource audioSource = bgmPlayer.AddComponent<AudioSource>();
+            
+            // 确保音频不受时间缩放影响
+            audioSource.ignoreListenerPause = true;
+            audioSource.ignoreListenerVolume = false; // 仍然受音量控制
+            
+            // 检查AudioSource默认设置
+            Debug.Log($"BGMPlayer{i} AudioSource设置:");
+            Debug.Log($"  - Volume: {audioSource.volume}");
+            Debug.Log($"  - Pitch: {audioSource.pitch}");
+            Debug.Log($"  - Spatial Blend: {audioSource.spatialBlend}");
+            Debug.Log($"  - Priority: {audioSource.priority}");
+            Debug.Log($"  - Mute: {audioSource.mute}");
+            Debug.Log($"  - Enabled: {audioSource.enabled}");
+            Debug.Log($"  - Ignore Listener Pause: {audioSource.ignoreListenerPause}");
+            
             BGMPlayers.Add(audioSource);
         }
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        
+        // 检查时间缩放
+        Debug.Log($"当前时间缩放: {Time.timeScale}");
+        if (Time.timeScale < 0.001f)
+        {
+            Debug.LogWarning($"检测到极小的时间缩放值: {Time.timeScale}，这可能影响音频播放");
+            Debug.LogWarning("但AudioSource已设置为忽略监听器暂停，音频应该仍能播放");
+        }
+        
+        // 检查AudioListener
+        AudioListener audioListener = FindObjectOfType<AudioListener>();
+        if (audioListener == null)
+        {
+            Debug.LogError("场景中没有找到AudioListener！音频将无法播放。");
+        }
+        else
+        {
+            Debug.Log($"找到AudioListener: {audioListener.name}");
+            Debug.Log($"  - AudioListener Volume: {AudioListener.volume}");
+            Debug.Log($"  - AudioListener Pause: {AudioListener.pause}");
+            Debug.Log($"  - AudioListener Enabled: {audioListener.enabled}");
+            Debug.Log($"  - AudioListener GameObject Active: {audioListener.gameObject.activeInHierarchy}");
+        }
+        
+        // 播放默认背景音乐
+        if (MyMusicList != null && MyMusicList.Count > 0)
+        {
+            Debug.Log("开始播放默认背景音乐 (索引0)");
+            PlayMusic(0, true, true, 1.0f);
+        }
+        
+        Debug.Log("=== SoundManager Start() 结束 ===");
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        // 停止所有当前播放的音乐
+        Debug.Log($"场景 {scene.name} 加载完成");
+        
         foreach (var player in BGMPlayers)
         {
-            if (player != null && player.isPlaying)
+            // 这里应该检查player.gameObject是否是场景中的对象
+            if (player.gameObject.scene == SceneManager.GetActiveScene())
             {
-                player.Stop();
+                DestroyImmediate(player.gameObject, true);
             }
         }
+        BGMPlayers.Clear();
 
-        // 重新初始化音频播放器
-        InitializeBGMPlayers();
-
-        // 根据场景名称播放对应的背景音乐
-        switch (scene.name)
+        // 重新创建BGMPlayers
+        for (int i = 0; i < 5; i++)
         {
-            case "MainMenu":
-                PlayMusic(0, true, true, 1.0f); // 播放主菜单音乐
-                break;
-            case "GameScene":
-                PlayMusic(1, true, true, 1.0f); // 播放游戏场景音乐
-                break;
-            default:
-                PlayMusic(0, true, true, 1.0f); // 默认音乐
-                break;
+            GameObject bgmPlayer = new GameObject("BGMPlayer" + i);
+            bgmPlayer.transform.parent = this.transform;
+            AudioSource audioSource = bgmPlayer.AddComponent<AudioSource>();
+            
+            // 确保音频不受时间缩放影响
+            audioSource.ignoreListenerPause = true;
+            audioSource.ignoreListenerVolume = false;
+            
+            BGMPlayers.Add(audioSource);
         }
 
-        Debug.Log($"场景 {scene.name} 加载完成，开始播放背景音乐");
+        // 播放默认背景音乐
+        if (MyMusicList != null && MyMusicList.Count > 0)
+        {
+            Debug.Log("场景切换后播放默认背景音乐");
+            PlayMusic(0, true, true, 1.0f);
+        }
     }
 
     public void PlayMusic(int index, bool isPlay, bool isLoop, float volume = 1.0f)
     {
+        Debug.Log($"PlayMusic调用: index={index}, isPlay={isPlay}, volume={volume}");
+        
+        if (MyMusicList == null || index >= MyMusicList.Count || index < 0)
+        {
+            Debug.LogError($"音乐索引 {index} 超出范围或列表为空");
+            return;
+        }
+        
         AudioSource player = BGMPlayers.Find(p => p.clip == MyMusicList[index] && p.isPlaying == isPlay);
         if (player == null)
         {
@@ -207,6 +203,11 @@ public class SoundManager : MonoBehaviour
                 GameObject bgmPlayer = new GameObject("BGMPlayer" + BGMPlayers.Count);
                 bgmPlayer.transform.parent = this.transform;
                 player = bgmPlayer.AddComponent<AudioSource>();
+                
+                // 确保新创建的AudioSource不受时间缩放影响
+                player.ignoreListenerPause = true;
+                player.ignoreListenerVolume = false;
+                
                 BGMPlayers.Add(player);
             }
             player.clip = MyMusicList[index];
@@ -216,10 +217,65 @@ public class SoundManager : MonoBehaviour
         if (isPlay)
         {
             player.Play();
+            Debug.Log($"音乐开始播放: {player.clip.name}, 播放状态: {player.isPlaying}");
+            
+            // 播放后立即验证状态
+            StartCoroutine(VerifyPlaybackAfterDelay(player, 0.1f));
         }
         else
         {
             player.Stop();
+            Debug.Log("音乐停止播放");
+        }
+    }
+    
+    // 延迟验证播放状态的协程
+    private System.Collections.IEnumerator VerifyPlaybackAfterDelay(AudioSource source, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
+        Debug.Log($"=== 播放状态验证 ===");
+        Debug.Log($"AudioSource isPlaying: {source.isPlaying}");
+        Debug.Log($"AudioSource time: {source.time}");
+        Debug.Log($"AudioSource volume: {source.volume}");
+        Debug.Log($"AudioSource enabled: {source.enabled}");
+        Debug.Log($"AudioSource gameObject active: {source.gameObject.activeInHierarchy}");
+        Debug.Log($"AudioSource mute: {source.mute}");
+        Debug.Log($"Clip length: {source.clip.length}");
+        Debug.Log($"Clip loadState: {source.clip.loadState}");
+        
+        if (!source.isPlaying)
+        {
+            Debug.LogError("音频源显示未在播放！可能的问题:");
+            Debug.LogError("1. 音频文件损坏或格式不支持");
+            Debug.LogError("2. AudioListener问题");
+            Debug.LogError("3. Unity音频设置问题");
+            Debug.LogError("4. 系统音频问题");
+        }
+    }
+    
+    // 手动检查所有音频源状态的方法（可在Inspector中调用）
+    [ContextMenu("检查所有音频源状态")]
+    public void CheckAllAudioSourcesStatus()
+    {
+        Debug.Log("=== 检查所有BGM播放器状态 ===");
+        for (int i = 0; i < BGMPlayers.Count; i++)
+        {
+            AudioSource source = BGMPlayers[i];
+            if (source != null)
+            {
+                Debug.Log($"BGMPlayer{i}:");
+                Debug.Log($"  - isPlaying: {source.isPlaying}");
+                Debug.Log($"  - clip: {(source.clip != null ? source.clip.name : "null")}");
+                Debug.Log($"  - volume: {source.volume}");
+                Debug.Log($"  - time: {source.time}");
+                Debug.Log($"  - enabled: {source.enabled}");
+                Debug.Log($"  - mute: {source.mute}");
+            }
+            else
+            {
+                Debug.LogError($"BGMPlayer{i}: AudioSource is null!");
+            }
         }
     }
 
@@ -231,6 +287,11 @@ public class SoundManager : MonoBehaviour
             GameObject bgmPlayer = new GameObject("BGMPlayer" + BGMPlayers.Count);
             bgmPlayer.transform.parent = this.transform;
             player = bgmPlayer.AddComponent<AudioSource>();
+            
+            // 确保新创建的AudioSource不受时间缩放影响
+            player.ignoreListenerPause = true;
+            player.ignoreListenerVolume = false;
+            
             BGMPlayers.Add(player);
         }
         player.clip = MyMusicList[index];
@@ -238,38 +299,6 @@ public class SoundManager : MonoBehaviour
         player.PlayOneShot(player.clip);
     }
 
-    // Modified version with GameObject parameter for spatial audio
-    public void PlaySFX(int index, bool isPlay, bool isLoop, GameObject soundLocation, float volume = 1.0f)
-    {
-        AudioSource player = BGMPlayers.Find(p => p.clip == MySFXList[index] && p.isPlaying == false);
-        if (player == null)
-        {
-            GameObject bgmPlayer = new GameObject("BGMPlayer" + BGMPlayers.Count);
-            bgmPlayer.transform.parent = this.transform;
-            player = bgmPlayer.AddComponent<AudioSource>();
-            BGMPlayers.Add(player);
-        }
-        player.clip = MySFXList[index];
-        player.loop = isLoop;
-        player.volume = volume;
-
-        // Register this as a spatial audio source
-        if (soundLocation != null)
-        {
-            spatialAudioSources[player] = soundLocation;
-        }
-
-        if (isPlay)
-        {
-            player.Play();
-        }
-        else
-        {
-            player.Stop();
-        }
-    }
-
-    // Keep the original method for backward compatibility
     public void PlaySFX(int index, bool isPlay, bool isLoop, float volume = 1.0f)
     {
         AudioSource player = BGMPlayers.Find(p => p.clip == MySFXList[index] && p.isPlaying == false);
@@ -278,6 +307,11 @@ public class SoundManager : MonoBehaviour
             GameObject bgmPlayer = new GameObject("BGMPlayer" + BGMPlayers.Count);
             bgmPlayer.transform.parent = this.transform;
             player = bgmPlayer.AddComponent<AudioSource>();
+            
+            // 确保新创建的AudioSource不受时间缩放影响
+            player.ignoreListenerPause = true;
+            player.ignoreListenerVolume = false;
+            
             BGMPlayers.Add(player);
         }
         player.clip = MySFXList[index];
@@ -293,30 +327,6 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    // Modified version with GameObject parameter for spatial audio
-    public void PlayOneShotSFX(int index, GameObject soundLocation, float volume = 1.0f)
-    {
-        AudioSource player = BGMPlayers.Find(p => p.isPlaying == false);
-        if (player == null)
-        {
-            GameObject bgmPlayer = new GameObject("BGMPlayer" + BGMPlayers.Count);
-            bgmPlayer.transform.parent = this.transform;
-            player = bgmPlayer.AddComponent<AudioSource>();
-            BGMPlayers.Add(player);
-        }
-        player.clip = MySFXList[index];
-        player.volume = volume;
-
-        // Register this as a spatial audio source
-        if (soundLocation != null)
-        {
-            spatialAudioSources[player] = soundLocation;
-        }
-
-        player.PlayOneShot(player.clip);
-    }
-
-    // Keep the original method for backward compatibility
     public void PlayOneShotSFX(int index, float volume = 1.0f)
     {
         AudioSource player = BGMPlayers.Find(p => p.isPlaying == false);
@@ -325,10 +335,22 @@ public class SoundManager : MonoBehaviour
             GameObject bgmPlayer = new GameObject("BGMPlayer" + BGMPlayers.Count);
             bgmPlayer.transform.parent = this.transform;
             player = bgmPlayer.AddComponent<AudioSource>();
+            
+            // 确保新创建的AudioSource不受时间缩放影响
+            player.ignoreListenerPause = true;
+            player.ignoreListenerVolume = false;
+            
             BGMPlayers.Add(player);
         }
         player.clip = MySFXList[index];
         player.volume = volume;
+        //player.PlayOneShot(player.clip, volume);
+        // 修正：PlayOneShot不需要音量参数，音量通过AudioSource.volume设置
         player.PlayOneShot(player.clip);
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 }
