@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a424961163921442a9ac32973e90cd6, type: 3}
   m_Name: WolfData
   m_EditorClassIdentifier: 
-  npcID: 4
+  npcID: 1
   npcName: wolf
   currentScore: 0
   moveSpeed: 1
@@ -170,6 +170,7 @@ MonoBehaviour:
       pathPointIndex: 14
       isActionActive: 1
     pathStartStoryTime: 0
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
@@ -263,6 +264,7 @@ MonoBehaviour:
       pathPointIndex: 21
       isActionActive: 1
     pathStartStoryTime: 60
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
@@ -376,6 +378,7 @@ MonoBehaviour:
       pathPointIndex: 30
       isActionActive: 1
     pathStartStoryTime: 80
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
@@ -776,6 +779,7 @@ MonoBehaviour:
       pathPointIndex: 40
       isActionActive: 1
     pathStartStoryTime: 110
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
@@ -1057,6 +1061,7 @@ MonoBehaviour:
       pathPointIndex: 74
       isActionActive: 1
     pathStartStoryTime: 150
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
@@ -1254,6 +1259,7 @@ MonoBehaviour:
       pathPointIndex: 98
       isActionActive: 1
     pathStartStoryTime: 170
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
@@ -1434,6 +1440,7 @@ MonoBehaviour:
       pathPointIndex: 113
       isActionActive: 1
     pathStartStoryTime: 190
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
@@ -1483,13 +1490,14 @@ MonoBehaviour:
       description: "4\u4E86"
     pathActions: []
     pathStartStoryTime: 210
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
       stopTime: 0
       description: 
     pathPointStopConfigs: []
-  - pathID: frog-9
+  - pathID: wolf-9
     pathName: 9
     minScore: 0
     maxScore: 100
@@ -1642,6 +1650,7 @@ MonoBehaviour:
       pathPointIndex: 135
       isActionActive: 1
     pathStartStoryTime: 240
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
@@ -1721,6 +1730,7 @@ MonoBehaviour:
       pathPointIndex: 141
       isActionActive: 1
     pathStartStoryTime: 270
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
@@ -1825,6 +1835,7 @@ MonoBehaviour:
       pathPointIndex: 150
       isActionActive: 1
     pathStartStoryTime: 300
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
@@ -2283,6 +2294,7 @@ MonoBehaviour:
       pathPointIndex: 194
       isActionActive: 1
     pathStartStoryTime: 240
+    pathEndStoryTime: 0
     timePoints:
     - pathPointIndex: 0
       requiredStoryTime: 0
