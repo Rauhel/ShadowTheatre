@@ -123,10 +123,12 @@ public class NPCActionEditor
         }
         
         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-        EditorGUILayout.LabelField("路径点", GUILayout.Width(80));
+        EditorGUILayout.LabelField("路径点", GUILayout.Width(60));
         EditorGUILayout.LabelField("对话内容", GUILayout.Width(200));
+        EditorGUILayout.LabelField("触发时间", GUILayout.Width(70));
+        EditorGUILayout.LabelField("优先级", GUILayout.Width(50));
         EditorGUILayout.LabelField("动画", GUILayout.Width(100));
-        EditorGUILayout.LabelField("操作", GUILayout.Width(60));
+        EditorGUILayout.LabelField("操作", GUILayout.Width(50));
         EditorGUILayout.EndHorizontal();
         
         // 绘制每个动作
@@ -148,15 +150,57 @@ public class NPCActionEditor
                 {
                     options[j] = $"点 {j}";
                 }
-                action.pathPointIndex = EditorGUILayout.Popup(action.pathPointIndex, options, GUILayout.Width(80));
+                action.pathPointIndex = EditorGUILayout.Popup(action.pathPointIndex, options, GUILayout.Width(60));
             }
             else
             {
-                action.pathPointIndex = EditorGUILayout.IntField(action.pathPointIndex, GUILayout.Width(80));
+                action.pathPointIndex = EditorGUILayout.IntField(action.pathPointIndex, GUILayout.Width(60));
             }
             
             // 对话内容
             action.dialogueText = EditorGUILayout.TextField(action.dialogueText, GUILayout.Width(200));
+            
+            // 触发时间显示和编辑
+            string triggerTimeText = action.IsImmediateTrigger ? "立即" : $"{action.triggerTime:F1}s";
+            GUI.color = action.IsTimeTrigger ? Color.yellow : Color.white;
+            if (GUILayout.Button(triggerTimeText, EditorStyles.popup, GUILayout.Width(70)))
+            {
+                // 创建一个小型弹窗菜单
+                GenericMenu menu = new GenericMenu();
+                menu.AddItem(new GUIContent("立即触发"), action.IsImmediateTrigger, () => {
+                    action.triggerTime = -1f;
+                    EditorUtility.SetDirty(mainEditor.Data);
+                });
+                menu.AddItem(new GUIContent("路径开始(0s)"), action.triggerTime == 0f, () => {
+                    action.triggerTime = 0f;
+                    EditorUtility.SetDirty(mainEditor.Data);
+                });
+                if (config.pathStartStoryTime > 0)
+                {
+                    menu.AddItem(new GUIContent($"路径起始({config.pathStartStoryTime:F1}s)"), 
+                                action.triggerTime == config.pathStartStoryTime, () => {
+                        action.triggerTime = config.pathStartStoryTime;
+                        EditorUtility.SetDirty(mainEditor.Data);
+                    });
+                }
+                menu.AddSeparator("");
+                menu.AddItem(new GUIContent("自定义时间..."), false, () => {
+                    // 创建一个简单的输入窗口
+                    var window = ScriptableObject.CreateInstance<TimeInputWindow>();
+                    window.Initialize(action.triggerTime, (newTime) => {
+                        action.triggerTime = newTime;
+                        EditorUtility.SetDirty(mainEditor.Data);
+                    });
+                    window.ShowModalUtility();
+                });
+                menu.ShowAsContext();
+            }
+            GUI.color = Color.white;
+            
+            // 优先级
+            GUI.color = action.priority > 0 ? Color.green : (action.priority < 0 ? Color.red : Color.white);
+            action.priority = EditorGUILayout.IntField(action.priority, GUILayout.Width(50));
+            GUI.color = Color.white;
             
             // 动画下拉选择器
             int currentAnimIndex = 0;
@@ -170,7 +214,7 @@ public class NPCActionEditor
             action.animationName = (newAnimIndex > 0) ? cachedAnimations[newAnimIndex] : "";
             
             // 删除按钮
-            if(GUILayout.Button("删除", GUILayout.Width(60)))
+            if(GUILayout.Button("删除", GUILayout.Width(50)))
             {
                 config.pathActions.RemoveAt(i);
                 i--;
@@ -180,44 +224,55 @@ public class NPCActionEditor
             
             EditorGUILayout.EndHorizontal();
             
-            // 第二行：扩展设置
+            // 第二行：音频和循环设置
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.Space(10);
+            EditorGUILayout.Space(15);
             
             // 声音设置
-            EditorGUILayout.BeginHorizontal(GUILayout.Width(200));
-            EditorGUILayout.LabelField("声音:", GUILayout.Width(40));
-            action.voiceClip = (AudioClip)EditorGUILayout.ObjectField(action.voiceClip, typeof(AudioClip), false);
-            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.LabelField("声音:", GUILayout.Width(35));
+            action.voiceClip = (AudioClip)EditorGUILayout.ObjectField(action.voiceClip, typeof(AudioClip), false, GUILayout.Width(150));
             
-            // 一次性音效设置(新增)
-            EditorGUILayout.BeginHorizontal(GUILayout.Width(200));
-            EditorGUILayout.LabelField("音效:", GUILayout.Width(40));
-            action.oneShotSFX = (AudioClip)EditorGUILayout.ObjectField(action.oneShotSFX, typeof(AudioClip), false);
-            EditorGUILayout.EndHorizontal();
-            
-            // 动画循环次数设置(修改)
-            EditorGUILayout.BeginHorizontal(GUILayout.Width(100));
-            EditorGUILayout.LabelField("动画循环:", GUILayout.Width(60));
-            action.animationLoopCount = EditorGUILayout.IntField(action.animationLoopCount, GUILayout.Width(40));
-            EditorGUILayout.EndHorizontal();
-            
-            // 时间设置 - 对话相关设置保持不变
-            EditorGUILayout.BeginHorizontal(GUILayout.Width(260));
-            EditorGUILayout.LabelField("对话显示:", GUILayout.Width(60));
-            action.displayDuration = EditorGUILayout.FloatField(action.displayDuration, GUILayout.Width(80));
-            EditorGUILayout.LabelField("延迟:", GUILayout.Width(40));
-            action.delay = EditorGUILayout.FloatField(action.delay, GUILayout.Width(80));
-            EditorGUILayout.EndHorizontal();
-            
-            EditorGUILayout.EndHorizontal();
-            
-            // 第三行：停止时间(重命名)
-            EditorGUILayout.BeginHorizontal();
             EditorGUILayout.Space(10);
-            EditorGUILayout.LabelField("停止:", GUILayout.Width(40));
-            action.stopTime = EditorGUILayout.FloatField(action.stopTime, GUILayout.Width(80));
-            EditorGUILayout.LabelField("(已弃用，请使用路径点停留设置)", EditorStyles.miniLabel);
+            
+            // 一次性音效设置
+            EditorGUILayout.LabelField("音效:", GUILayout.Width(35));
+            action.oneShotSFX = (AudioClip)EditorGUILayout.ObjectField(action.oneShotSFX, typeof(AudioClip), false, GUILayout.Width(150));
+            
+            EditorGUILayout.Space(10);
+            
+            // 动画循环次数设置
+            EditorGUILayout.LabelField("循环:", GUILayout.Width(35));
+            action.animationLoopCount = EditorGUILayout.IntField(action.animationLoopCount, GUILayout.Width(40));
+            
+            EditorGUILayout.EndHorizontal();
+            
+            // 第三行：触发信息和时间设置
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.Space(15);
+            
+            // 时间触发信息显示
+            if (action.IsTimeTrigger)
+            {
+                EditorGUILayout.LabelField("⏰", GUILayout.Width(20));
+                EditorGUILayout.LabelField($"将在故事时间 {action.triggerTime:F1}秒 触发", EditorStyles.miniLabel, GUILayout.Width(180));
+            }
+            else
+            {
+                EditorGUILayout.LabelField("🚀", GUILayout.Width(20));
+                EditorGUILayout.LabelField("到达路径点时立即触发", EditorStyles.miniLabel, GUILayout.Width(180));
+            }
+            
+            // 对话显示时间
+            EditorGUILayout.LabelField("显示:", GUILayout.Width(35));
+            action.displayDuration = EditorGUILayout.FloatField(action.displayDuration, GUILayout.Width(50));
+            EditorGUILayout.LabelField("秒", GUILayout.Width(15));
+            
+            EditorGUILayout.Space(10);
+            
+            EditorGUILayout.LabelField("延迟:", GUILayout.Width(35));
+            action.delay = EditorGUILayout.FloatField(action.delay, GUILayout.Width(50));
+            EditorGUILayout.LabelField("秒", GUILayout.Width(15));
+            
             EditorGUILayout.EndHorizontal();
             
             // 分隔线
@@ -523,6 +578,69 @@ public class NPCActionEditor
         // 停止时间和延迟时间设置
         action.stopTime = EditorGUILayout.FloatField("停止时间(秒)", action.stopTime);
         action.delay = EditorGUILayout.FloatField("延迟时间(秒)", action.delay);
+        
+        // ===== 新增：时间触发设置 =====
+        EditorGUILayout.Space(5);
+        EditorGUILayout.LabelField("⏰ 时间触发设置", EditorStyles.boldLabel);
+        
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("触发时间(秒)", GUILayout.Width(100));
+        
+        // 触发时间输入
+        float newTriggerTime = EditorGUILayout.FloatField(action.triggerTime, GUILayout.Width(80));
+        if (newTriggerTime != action.triggerTime)
+        {
+            action.triggerTime = newTriggerTime;
+            EditorUtility.SetDirty(mainEditor.Data);
+        }
+        
+        // 显示触发模式
+        string triggerModeText = action.IsImmediateTrigger ? "立即触发" : $"故事时间 {action.triggerTime:F1}秒";
+        EditorGUILayout.LabelField($"({triggerModeText})", EditorStyles.miniLabel);
+        EditorGUILayout.EndHorizontal();
+        
+        // 快速设置按钮
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("立即触发", GUILayout.Width(80)))
+        {
+            action.triggerTime = -1f;
+            EditorUtility.SetDirty(mainEditor.Data);
+        }
+        if (GUILayout.Button("路径开始", GUILayout.Width(80)))
+        {
+            action.triggerTime = 0f;
+            EditorUtility.SetDirty(mainEditor.Data);
+        }
+        if (config.pathStartStoryTime > 0 && GUILayout.Button($"路径起始({config.pathStartStoryTime:F1}s)", GUILayout.Width(120)))
+        {
+            action.triggerTime = config.pathStartStoryTime;
+            EditorUtility.SetDirty(mainEditor.Data);
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        // 优先级设置
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("优先级", GUILayout.Width(100));
+        int newPriority = EditorGUILayout.IntField(action.priority, GUILayout.Width(80));
+        if (newPriority != action.priority)
+        {
+            action.priority = newPriority;
+            EditorUtility.SetDirty(mainEditor.Data);
+        }
+        
+        string priorityText = action.GetPriorityText();
+        EditorGUILayout.LabelField($"({priorityText})", EditorStyles.miniLabel);
+        EditorGUILayout.EndHorizontal();
+        
+        // 帮助信息
+        if (action.IsTimeTrigger)
+        {
+            EditorGUILayout.HelpBox($"该对话将在故事时间达到 {action.triggerTime:F1} 秒时触发", MessageType.Info);
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("该对话将在到达路径点时立即触发", MessageType.Info);
+        }
         
         // 语音片段 (可选)
         action.voiceClip = (AudioClip)EditorGUILayout.ObjectField("语音片段", action.voiceClip, typeof(AudioClip), false);
@@ -1017,6 +1135,66 @@ public class NPCActionEditor
         EditorGUILayout.Space(2);
         
         EditorUtility.SetDirty(mainEditor.Data);
+    }
+}
+
+// 简单的时间输入窗口
+public class TimeInputWindow : EditorWindow
+{
+    private float currentTime;
+    private System.Action<float> onTimeChanged;
+    private string timeInput;
+    
+    public void Initialize(float initialTime, System.Action<float> callback)
+    {
+        currentTime = initialTime;
+        timeInput = initialTime.ToString("F1");
+        onTimeChanged = callback;
+        titleContent = new GUIContent("设置触发时间");
+        
+        // 设置窗口大小
+        var size = new Vector2(250, 120);
+        minSize = size;
+        maxSize = size;
+    }
+    
+    void OnGUI()
+    {
+        EditorGUILayout.Space(10);
+        EditorGUILayout.LabelField("请输入触发时间（秒）：", EditorStyles.boldLabel);
+        EditorGUILayout.Space(5);
+        
+        GUI.SetNextControlName("TimeInput");
+        timeInput = EditorGUILayout.TextField("时间:", timeInput);
+        
+        EditorGUILayout.Space(10);
+        EditorGUILayout.BeginHorizontal();
+        
+        if (GUILayout.Button("确定"))
+        {
+            if (float.TryParse(timeInput, out float newTime))
+            {
+                onTimeChanged?.Invoke(newTime);
+                Close();
+            }
+            else
+            {
+                EditorUtility.DisplayDialog("错误", "请输入有效的数字", "确定");
+            }
+        }
+        
+        if (GUILayout.Button("取消"))
+        {
+            Close();
+        }
+        
+        EditorGUILayout.EndHorizontal();
+        
+        // 自动聚焦到输入框
+        if (Event.current.type == EventType.Repaint)
+        {
+            EditorGUI.FocusTextInControl("TimeInput");
+        }
     }
 }
 #endif

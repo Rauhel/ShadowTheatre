@@ -351,6 +351,14 @@ public class GameState : MonoBehaviour
     }
     
     /// <summary>
+    /// 获取当前故事时间（别名方法，用于兼容性）
+    /// </summary>
+    public float GetCurrentStoryTime()
+    {
+        return GetStoryTime();
+    }
+    
+    /// <summary>
     /// 获取当前幕已进行的时间
     /// </summary>
     public float GetCurrentActElapsedTime()

@@ -294,6 +294,46 @@ public class ActionData
     [Header("执行条件")]
     public int pathPointIndex = 0;          // 路径点索引
     public bool isActionActive = true;      // 动作是否可用
+    
+    [Header("时间触发设置")]
+    [Tooltip("绝对触发时间（故事时间秒数，-1表示立即触发，0表示路径开始时触发）")]
+    public float triggerTime = -1f;         // 绝对触发时间
+    [Tooltip("对话优先级（数值越高优先级越高，0为普通优先级）")]
+    public int priority = 0;                // 对话优先级
+    
+    /// <summary>
+    /// 是否是立即触发的对话（传统模式）
+    /// </summary>
+    public bool IsImmediateTrigger => triggerTime < 0f;
+    
+    /// <summary>
+    /// 是否是时间触发的对话
+    /// </summary>
+    public bool IsTimeTrigger => triggerTime >= 0f;
+    
+    /// <summary>
+    /// 获取显示用的触发时间文本
+    /// </summary>
+    public string GetTriggerTimeText()
+    {
+        if (IsImmediateTrigger)
+            return "立即触发";
+        
+        return $"故事时间 {triggerTime:F1}秒";
+    }
+    
+    /// <summary>
+    /// 获取优先级显示文本
+    /// </summary>
+    public string GetPriorityText()
+    {
+        if (priority == 0)
+            return "普通";
+        else if (priority > 0)
+            return $"高优先级({priority})";
+        else
+            return $"低优先级({priority})";
+    }
 }
 
 [Serializable]

@@ -9,8 +9,8 @@ public class NPCActionExecutor : MonoBehaviour
     [Header("对话 UI 设置")]
     public GameObject dialoguePrefab; // 对话气泡预制体
     public Vector3 dialogueOffset = new Vector3(0, 2.0f, 0); // 对话气泡相对于 NPC 的偏移
-    public float fadeInTime = 0.2f;
-    public float fadeOutTime = 0.2f;
+    public float fadeInTime = 0.05f;   // 非常快的淡入（50毫秒）
+    public float fadeOutTime = 0.05f;  // 非常快的淡出（50毫秒）
 
     [Header("引用")]
     private NPCController controller;
@@ -18,16 +18,21 @@ public class NPCActionExecutor : MonoBehaviour
     private NPCEventManager eventManager;
     private SpriteSheetAnimator animator;
     private AudioSource audioSource;
+    private NPCDialogueScheduler dialogueScheduler; // 对话调度器
 
     [Header("Action执行状态")]
     private Queue<ActionData> actionQueue = new Queue<ActionData>(); // 全局action队列
     private bool isExecutingAction = false;                          // 是否正在执行action
     private float lastActionEndTime = 0f;                           // 上一个action结束时间
+    
+    [Header("时间触发设置")]
+    [SerializeField] private bool useTimeBasedDialogue = true;       // 是否启用基于时间的对话系统
 
     [Header("对话系统")]
     private GameObject currentDialogueBubble;
     private TextMeshProUGUI dialogueText;
-    private Coroutine displayCoroutine;
+    private Coroutine currentDialogueCoroutine;  // 当前正在显示的对话协程
+    private bool isDisplayingDialogue = false;   // 是否正在显示对话（互斥锁）
 
     private void Awake()
     {
@@ -36,6 +41,14 @@ public class NPCActionExecutor : MonoBehaviour
         eventManager = GetComponent<NPCEventManager>();
         animator = GetComponent<SpriteSheetAnimator>();
         audioSource = GetComponent<AudioSource>();
+        
+        // 获取或添加对话调度器
+        dialogueScheduler = GetComponent<NPCDialogueScheduler>();
+        if (dialogueScheduler == null && useTimeBasedDialogue)
+        {
+            dialogueScheduler = gameObject.AddComponent<NPCDialogueScheduler>();
+            Debug.Log($"[{gameObject.name}] 自动添加NPCDialogueScheduler组件");
+        }
 
         // 如果没有AudioSource，添加一个
         if (audioSource == null)
@@ -97,6 +110,12 @@ public class NPCActionExecutor : MonoBehaviour
         {
             eventManager.OnEventCompleted += OnEventCompleted;
         }
+        
+        // 订阅对话调度器事件
+        if (dialogueScheduler != null)
+        {
+            dialogueScheduler.OnDialogueReady += OnDialogueReady;
+        }
     }
 
     private void OnDisable()
@@ -111,9 +130,18 @@ public class NPCActionExecutor : MonoBehaviour
         {
             eventManager.OnEventCompleted -= OnEventCompleted;
         }
+        
+        if (dialogueScheduler != null)
+        {
+            dialogueScheduler.OnDialogueReady -= OnDialogueReady;
+        }
 
         // 停止所有协程
         StopAllCoroutines();
+        
+        // 清理对话状态
+        isDisplayingDialogue = false;
+        currentDialogueCoroutine = null;
     }
 
     #region 事件处理
@@ -128,8 +156,19 @@ public class NPCActionExecutor : MonoBehaviour
         
         foreach (var action in newActions)
         {
-            actionQueue.Enqueue(action);
-            Debug.Log($"[{gameObject.name}] 添加action到队列: 路径点{action.pathPointIndex}");
+            // 检查是否启用了时间触发系统并且有对话内容
+            if (useTimeBasedDialogue && dialogueScheduler != null && !string.IsNullOrEmpty(action.dialogueText))
+            {
+                // 使用对话调度器处理对话
+                dialogueScheduler.ScheduleDialogue(action, pathPointIndex);
+                Debug.Log($"[{gameObject.name}] 将对话交给调度器处理: 路径点{action.pathPointIndex}, {action.GetTriggerTimeText()}");
+            }
+            else
+            {
+                // 使用传统的即时队列处理
+                actionQueue.Enqueue(action);
+                Debug.Log($"[{gameObject.name}] 添加action到传统队列: 路径点{action.pathPointIndex}");
+            }
         }
 
         Debug.Log($"[{gameObject.name}] 当前action队列长度: {actionQueue.Count}, 正在执行action: {isExecutingAction}");
@@ -155,11 +194,35 @@ public class NPCActionExecutor : MonoBehaviour
         List<ActionData> eventActions = CollectEventActions(completedEvent, gestureType);
         foreach (var action in eventActions)
         {
-            actionQueue.Enqueue(action);
-            Debug.Log($"[{gameObject.name}] 添加事件action到队列: 路径点{action.pathPointIndex}");
+            // 事件触发的对话也支持时间调度
+            if (useTimeBasedDialogue && dialogueScheduler != null && !string.IsNullOrEmpty(action.dialogueText))
+            {
+                dialogueScheduler.ScheduleDialogue(action, action.pathPointIndex);
+                Debug.Log($"[{gameObject.name}] 将事件对话交给调度器处理: {action.GetTriggerTimeText()}");
+            }
+            else
+            {
+                actionQueue.Enqueue(action);
+                Debug.Log($"[{gameObject.name}] 添加事件action到传统队列: 路径点{action.pathPointIndex}");
+            }
         }
 
         // 如果当前没有执行action，开始执行队列
+        if (!isExecutingAction && actionQueue.Count > 0)
+        {
+            StartCoroutine(ProcessActionQueue());
+        }
+    }
+    
+    // 对话调度器就绪回调
+    private void OnDialogueReady(ActionData action)
+    {
+        Debug.Log($"[{gameObject.name}] 收到调度器对话就绪通知: {action.GetTriggerTimeText()}, {action.GetPriorityText()}");
+        
+        // 将就绪的对话加入即时执行队列
+        actionQueue.Enqueue(action);
+        
+        // 如果当前没有执行action，立即开始执行
         if (!isExecutingAction && actionQueue.Count > 0)
         {
             StartCoroutine(ProcessActionQueue());
@@ -316,26 +379,25 @@ public class NPCActionExecutor : MonoBehaviour
             // Debug.Log($"[{gameObject.name}] 播放动画: {action.animationName}, 循环{action.animationLoopCount}次, 总时长: {animDuration}s");
         }
 
-        // 显示对话
+        // 显示对话 - 使用互斥机制确保同时只有一个对话显示
         if (!string.IsNullOrEmpty(action.dialogueText))
         {
-            Coroutine dialogueCoroutine = StartCoroutine(DisplayDialogueCoroutine(action.dialogueText, action.displayDuration, action.voiceClip));
-            runningCoroutines.Add(dialogueCoroutine);
-            maxDuration = Mathf.Max(maxDuration, action.displayDuration);
-            // Debug.Log($"[{gameObject.name}] 显示对话: {action.dialogueText.Substring(0, Mathf.Min(20, action.dialogueText.Length))}..., 时长: {action.displayDuration}s");
+            // 如果有正在显示的对话，先停止它
+            if (currentDialogueCoroutine != null)
+            {
+                StopCoroutine(currentDialogueCoroutine);
+                currentDialogueCoroutine = null;
+            }
+            
+            // 启动新的对话
+            currentDialogueCoroutine = StartCoroutine(DisplayDialogueCoroutine(action.dialogueText, action.displayDuration, action.voiceClip));
+            // Debug.Log($"[{gameObject.name}] 启动对话显示: {action.dialogueText.Substring(0, Mathf.Min(20, action.dialogueText.Length))}..., 显示时长: {action.displayDuration}s");
         }
 
-        // 等待最长元素完成
-        // Debug.Log($"[{gameObject.name}] 等待action完成，最长时间: {maxDuration}s");
-        yield return new WaitForSeconds(maxDuration);
-
-        // 停止所有运行中的协程
-        foreach (var coroutine in runningCoroutines)
+        // 等待其他元素完成（音效和动画），对话不阻塞队列处理
+        if (maxDuration > 0)
         {
-            if (coroutine != null)
-            {
-                StopCoroutine(coroutine);
-            }
+            yield return new WaitForSeconds(maxDuration);
         }
 
         Debug.Log($"[{gameObject.name}] Action执行完成");
@@ -408,66 +470,77 @@ public class NPCActionExecutor : MonoBehaviour
         if (dialogueText == null || currentDialogueBubble == null)
         {
             Debug.LogError($"[{gameObject.name}] 对话组件未正确初始化");
+            currentDialogueCoroutine = null;
             yield break;
         }
 
+        isDisplayingDialogue = true;
         Debug.Log($"[{gameObject.name}] 开始显示对话: '{text}', 时长: {duration}秒");
 
-        // 播放语音
-        if (voiceClip != null)
+        try
         {
-            PlayDialogueVoice(voiceClip);
-        }
-
-        // 设置文本
-        dialogueText.text = text;
-        
-        Debug.Log($"[{gameObject.name}] 文字设置完成 - 内容: '{dialogueText.text}', 大小: {dialogueText.fontSize}, 颜色: {dialogueText.color}");
-
-        // 淡入
-        currentDialogueBubble.SetActive(true);
-        CanvasGroup canvasGroup = currentDialogueBubble.GetComponent<CanvasGroup>();
-
-        if (canvasGroup != null)
-        {
-            canvasGroup.alpha = 0;
-            float startTime = Time.time;
-
-            while (Time.time < startTime + fadeInTime)
+            // 播放语音
+            if (voiceClip != null)
             {
-                canvasGroup.alpha = (Time.time - startTime) / fadeInTime;
-                yield return null;
+                PlayDialogueVoice(voiceClip);
             }
 
-            canvasGroup.alpha = 1;
-            Debug.Log($"[{gameObject.name}] 对话淡入完成");
-        }
-        else
-        {
-            Debug.LogWarning($"[{gameObject.name}] 对话气泡缺少CanvasGroup组件，无法实现淡入淡出效果");
-        }
+            // 设置文本
+            dialogueText.text = text;
+            
+            Debug.Log($"[{gameObject.name}] 文字设置完成 - 内容: '{dialogueText.text}', 大小: {dialogueText.fontSize}, 颜色: {dialogueText.color}");
 
-        // 等待显示时间
-        Debug.Log($"[{gameObject.name}] 对话显示中，等待 {duration} 秒");
-        yield return new WaitForSeconds(duration);
+            // 淡入
+            currentDialogueBubble.SetActive(true);
+            CanvasGroup canvasGroup = currentDialogueBubble.GetComponent<CanvasGroup>();
 
-        // 淡出
-        if (canvasGroup != null)
-        {
-            float startTime = Time.time;
-
-            while (Time.time < startTime + fadeOutTime)
+            if (canvasGroup != null)
             {
-                canvasGroup.alpha = 1 - (Time.time - startTime) / fadeOutTime;
-                yield return null;
+                canvasGroup.alpha = 0;
+                float startTime = Time.time;
+
+                while (Time.time < startTime + fadeInTime)
+                {
+                    canvasGroup.alpha = (Time.time - startTime) / fadeInTime;
+                    yield return null;
+                }
+
+                canvasGroup.alpha = 1;
+                Debug.Log($"[{gameObject.name}] 对话淡入完成");
+            }
+            else
+            {
+                Debug.LogWarning($"[{gameObject.name}] 对话气泡缺少CanvasGroup组件，无法实现淡入淡出效果");
             }
 
-            canvasGroup.alpha = 0;
-            Debug.Log($"[{gameObject.name}] 对话淡出完成");
-        }
+            // 等待显示时间
+            Debug.Log($"[{gameObject.name}] 对话显示中，等待 {duration} 秒");
+            yield return new WaitForSeconds(duration);
 
-        currentDialogueBubble.SetActive(false);
-        Debug.Log($"[{gameObject.name}] 对话显示结束");
+            // 淡出
+            if (canvasGroup != null)
+            {
+                float startTime = Time.time;
+
+                while (Time.time < startTime + fadeOutTime)
+                {
+                    canvasGroup.alpha = 1 - (Time.time - startTime) / fadeOutTime;
+                    yield return null;
+                }
+
+                canvasGroup.alpha = 0;
+                Debug.Log($"[{gameObject.name}] 对话淡出完成");
+            }
+
+            currentDialogueBubble.SetActive(false);
+            Debug.Log($"[{gameObject.name}] 对话显示结束");
+        }
+        finally
+        {
+            // 确保在协程结束时清理状态
+            isDisplayingDialogue = false;
+            currentDialogueCoroutine = null;
+        }
     }
 
     // 播放对话声音
